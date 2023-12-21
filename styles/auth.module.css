@@ -1,0 +1,25 @@
+.auth_body{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+}
+
+.container {
+  background: white;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 20%;
+  height: 50vh;
+  margin: auto;
+  border-radius: 8px;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+.auth{
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    
+}
