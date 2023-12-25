@@ -1,0 +1,19 @@
+.orange {
+  background: #ff6361;
+  width: 50%;
+  position: absolute;
+  height: 100vh;
+  z-index: -1;
+  display: flex;
+}
+
+.title {
+  color: white;
+  font-size: 5rem;
+  font-weight: bolder;
+  margin-top: auto;
+  margin-bottom: 2px;
+  margin-left: auto;
+  display: flex;
+  margin-right: 26px;
+}
