@@ -7,10 +7,12 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-
+import { useRouter } from "next/router";
+import Image from "next/image";
 import Styles from "@/styles/auth.module.css";
 
-const  Auth: React.FC = () => {
+const Auth: React.FC = () => {
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [login, setLogin] = useState<boolean>(false);
@@ -19,12 +21,15 @@ const  Auth: React.FC = () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  const router = useRouter();
+
   const handleSignUp = () => {
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user, "user brother");
+        router.push("/startups");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -39,6 +44,7 @@ const  Auth: React.FC = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user, "user logged in success!");
+        router.push("/startups");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -49,33 +55,86 @@ const  Auth: React.FC = () => {
 
   return (
     <>
-      <div className={Styles.orange}>
-        <h1 className={Styles.title}>StartupHunt</h1>
-      </div>
-
       <div className={Styles.auth_body}>
         <div className={Styles.container}>
           <div className={Styles.auth}>
-            <input
-              type="email"
-              placeholder="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type={visibility ? "text" : "password"}
-              placeholder="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={login ? handleLogIn : handleSignUp}>
-              {login ? "LogIn" : "Sign Up"}
-            </button>
+            <div className={Styles.logo}>
+              <Image
+                src="/logo.png"
+                alt="logo"
+                width={123}
+                height={123}
+                priority={true}
+              />
+
+              <p className={Styles.title}>
+                {login ? "Welcome Back!" : "Sign Up for loop"}
+              </p>
+              <p className={Styles.desc}>Please enter your details.</p>
+            </div>
+
+            <div>
+              <form className={Styles.form}>
+                {!login && (
+                  <>
+                    <p className={Styles.input_title}>Username</p>
+                    <input
+                      type="text"
+                      placeholder="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </>
+                )}
+                <p className={Styles.input_title}>email</p>
+                <input
+                  type="email"
+                  placeholder="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <p className={Styles.input_title}>password</p>
+                <div className={Styles.pass_icon_div}>
+                  <div className={Styles.eye_icon}>
+                    <Image
+                      src={visibility ? "/hidden_eye.png" : "/eye.png"}
+                      alt="eye"
+                      width={16}
+                      height={16}
+                      priority={true}
+                      onClick={() => setVisibility(!visibility)}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                  <input
+                    type={visibility ? "text" : "password"}
+                    placeholder="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="on"
+                  />
+                </div>
+              </form>
+
+              <div className={Styles.btm_part}>
+                <button
+                  onClick={login ? handleLogIn : handleSignUp}
+                  className={Styles.btn}
+                >
+                  {login ? "LogIn" : "Sign Up"}
+                </button>
+                <div className="justify-center flex text-sm opacity-70">
+                  {!login ? "already have an account?" : "not a user?"}
+                </div>
+                <div
+                  onClick={() => (!login ? setLogin(true) : setLogin(false))}
+                  className={Styles.dual_btn}
+                >
+                  {!login ? "LogIn here" : "SignUp here"}
+                </div>
+              </div>
+            </div>
           </div>
-          {!login ? "already have an account?" : "not a user?"}
-          <button onClick={() => (!login ? setLogin(true) : setLogin(false))}>
-            {!login ? "LogIn here" : "SignUp here"}
-          </button>
         </div>
       </div>
     </>

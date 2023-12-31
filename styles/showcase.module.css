@@ -1,19 +1,31 @@
 .orange {
-  background: #ff6361;
-  width: 50%;
-  position: absolute;
-  height: 100vh;
-  z-index: -1;
-  display: flex;
+  @apply relative;
 }
 
-.title {
-  color: white;
-  font-size: 5rem;
-  font-weight: bolder;
-  margin-top: auto;
-  margin-bottom: 2px;
-  margin-left: auto;
-  display: flex;
-  margin-right: 26px;
+.desc {
+  @apply absolute font-bold text-4xl w-1/3 flex h-[84vh] ml-[5%] flex-col;
+}
+
+.desc p {
+  @apply mt-[20rem];
+}
+
+.btn {
+  @apply mt-[2rem] text-sm bg-index-black_btn flex w-1/4 justify-center rounded-full text-white p-2 cursor-pointer;
+}
+
+.vector {
+  @apply ml-auto;
+}
+
+.ellipse1 {
+  @apply absolute ml-auto mt-auto bottom-[5%] right-[28%];
+}
+
+.ellipse2 {
+  @apply absolute ml-auto top-[10%] right-[10%];
+}
+
+.polygon1 {
+  @apply ml-auto absolute;
 }

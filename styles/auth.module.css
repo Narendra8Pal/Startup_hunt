@@ -1,61 +1,63 @@
+.container {
+  box-shadow: 0px 4px 31.1px 0px #feb55e;
+}
+
+.btn {
+  background: linear-gradient(91deg, #ff7343 0%, #feb55e 100%);
+}
+
 .auth_body {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
+  @apply grid place-items-center h-screen;
 }
 
 .container {
-  background: white;
-  color: black;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 20%;
-  height: 50vh;
-  margin: auto;
-  border-radius: 8px;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  @apply w-[1290px] h-[822px] rounded-xl bg-white p-8;
 }
 
 .auth {
-  display: flex;
-  flex-direction: column;
-  margin: auto;
+  @apply max-w-[20rem] w-full m-auto;
 }
 
-.auth input {
-  border: 1px solid #ff6361;
-  outline: 1px solid #ff6361;
-  padding: 2px 4px;
-  border-radius: 2px;
-}
-
-.auth button {
-  background: #ff6361;
-  color: white;
-  border-radius: 4px;
-  width: 60%;
-  margin: auto;
-  padding: 8px 14px;
-  font-weight: bolder;
-}
-
-.orange {
-  background: #ff6361;
-  width: 50%;
-  position: absolute;
-  height: 100vh;
-  z-index: -1;
-  display: flex;
+.logo {
+  @apply flex flex-col items-center;
 }
 
 .title {
-  color: white;
-  font-size: 5rem;
-  font-weight: bolder;
-  margin-top: auto;
-  margin-bottom: 2px;
-  margin-left: auto;
-  display: flex;
-  margin-right: 26px;
+  @apply text-2xl font-semibold mt-3;
+}
+
+.desc {
+  @apply text-sm opacity-70 mt-1;
+}
+
+.form {
+  @apply flex flex-col items-center mt-14 gap-4;
+}
+
+.input_title {
+  @apply justify-start w-full flex opacity-70 text-sm;
+}
+
+.form input {
+  @apply w-full p-2 outline-index-logo_orange1 rounded-lg border;
+}
+
+.pass_icon_div {
+  @apply relative flex h-full w-full;
+}
+
+.eye_icon {
+  @apply absolute items-center flex right-[0.5em] h-full;
+}
+
+.btm_part {
+  @apply flex w-full justify-center mt-14 flex-col gap-5;
+}
+
+.btn {
+  @apply rounded-lg flex justify-center px-12 py-2 text-white font-bold m-auto w-full;
+}
+
+.dual_btn {
+  @apply text-index-logo_orange1 hover:underline hover:underline-offset-2 m-auto cursor-pointer;
 }
