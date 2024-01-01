@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { initializeApp } from "firebase/app";
-import firebaseConfig from "../utils/firebase";
-import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
+import { useRouter } from "next/router";
+import Image from "next/image";
+// files, packages
+import FirebaseApp from "../utils/firebase";
+import { getFirestore } from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { useRouter } from "next/router";
-import Image from "next/image";
 import Styles from "@/styles/auth.module.css";
+import { toast } from "react-toastify";
 
 const Auth: React.FC = () => {
   const [username, setUsername] = useState<string>("");
@@ -18,8 +19,8 @@ const Auth: React.FC = () => {
   const [login, setLogin] = useState<boolean>(false);
   const [visibility, setVisibility] = useState<boolean>(false);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  // const app = initializeApp(FirebaseApp);
+  const db = getFirestore(FirebaseApp);
 
   const router = useRouter();
 
@@ -28,13 +29,13 @@ const Auth: React.FC = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user, "user brother");
-        router.push("/startups");
+        // console.log(user, "user brother");
+        toast.success("account created sucessfully!");
+        router.push("/explore");
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorMessage, "error here");
+        toast.error(errorMessage);
       });
   };
 
@@ -43,12 +44,14 @@ const Auth: React.FC = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user, "user logged in success!");
-        router.push("/startups");
+        // console.log(user, "user logged in success!");
+        toast.success("Logged in successfully!");
+        router.push("/explore");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        toast.error("Oops! Error logging in.");
         console.log(errorMessage);
       });
   };
@@ -86,14 +89,14 @@ const Auth: React.FC = () => {
                     />
                   </>
                 )}
-                <p className={Styles.input_title}>email</p>
+                <p className={Styles.input_title}>Email</p>
                 <input
                   type="email"
                   placeholder="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <p className={Styles.input_title}>password</p>
+                <p className={Styles.input_title}>Password</p>
                 <div className={Styles.pass_icon_div}>
                   <div className={Styles.eye_icon}>
                     <Image

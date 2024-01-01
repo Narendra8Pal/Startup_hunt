@@ -1,0 +1,27 @@
+.left_pane {
+  @apply w-80 h-screen;
+}
+
+.left_pane_inside {
+  @apply bg-home-light_white border border-r-2 border-home-stroke h-full p-8;
+}
+
+.pane_items {
+  @apply flex flex-col justify-center mt-14;
+}
+
+.ul_items {
+  @apply gap-2 flex flex-col font-bold;
+}
+
+.icons_items {
+  @apply flex flex-row gap-2 items-center cursor-pointer hover:bg-home-light_gray p-3 rounded-lg;
+}
+
+.ul_items li {
+  @apply cursor-pointer;
+}
+
+.btn_div {
+  @apply flex justify-center mt-40 bg-index-black_btn p-3 rounded-lg text-white font-bold cursor-pointer;
+}
