@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "@/styles/sidebar.module.css";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 const Sidebar: React.FC = () => {
+  const router = useRouter();
+
   return (
     <>
       <div className={styles.left_pane}>
@@ -39,7 +42,10 @@ const Sidebar: React.FC = () => {
                 />
                 <li>Tasks & Feedback</li>
               </div>
-              <div className={styles.icons_items}>
+              <div
+                className={styles.icons_items}
+                onClick={() => router.push("/profile")}
+              >
                 <Image
                   src="/Profile.png"
                   alt="Profile"

@@ -1,5 +1,5 @@
 .left_pane {
-  @apply w-80 h-screen;
+  @apply w-80 h-screen fixed;
 }
 
 .left_pane_inside {
@@ -18,10 +18,14 @@
   @apply flex flex-row gap-2 items-center cursor-pointer hover:bg-home-light_gray p-3 rounded-lg;
 }
 
+.selected_icons_items {
+  @apply icons_items bg-home-light_gray;
+}
+
 .ul_items li {
   @apply cursor-pointer;
 }
 
 .btn_div {
-  @apply flex justify-center mt-40 bg-index-black_btn p-3 rounded-lg text-white font-bold cursor-pointer;
+  @apply flex justify-center mt-40 bg-index-black_btn p-3 rounded-lg text-white font-bold cursor-pointer hover:opacity-90 transition ease-in-out delay-75 shadow-md;
 }

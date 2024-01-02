@@ -1,0 +1,71 @@
+.layout_div {
+  @apply ml-96 flex h-screen;
+}
+
+.container {
+  @apply flex-1 flex place-items-center;
+}
+
+.container_content {
+  @apply border-4 rounded-lg border-home-stroke h-[900px] w-[900px] mr-auto ml-40 shadow-sm p-6;
+}
+
+.pp_username {
+  @apply flex flex-col items-center gap-6;
+}
+
+.show_pp {
+  @apply w-36 h-36 bg-black rounded-full;
+}
+
+.username {
+  @apply font-extrabold text-3xl;
+}
+
+.socials {
+  @apply flex flex-row gap-6;
+}
+
+.social1 {
+  @apply bg-index-black_btn rounded-full p-2 cursor-pointer shadow-md;
+}
+
+.social2 {
+  @apply bg-index-black_btn rounded-full p-2 cursor-pointer shadow-md;
+}
+
+.projects_container {
+  @apply grid gap-2;
+}
+
+.title_btn {
+  @apply flex flex-row justify-between items-center mt-8;
+}
+
+.text {
+  @apply font-bold;
+}
+
+.add_btn {
+  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold;
+}
+
+.project_list {
+  @apply border border-home-stroke bg-home-light_white rounded-md h-96 hover:shadow-md;
+}
+
+.project_showcase {
+  @apply p-6;
+}
+
+.name_link {
+  @apply flex flex-row justify-between items-center;
+}
+
+.name {
+  @apply cursor-pointer font-semibold hover:underline hover:underline-offset-8 decoration-2;
+}
+
+.carousel_container{
+  /* @apply  */
+}

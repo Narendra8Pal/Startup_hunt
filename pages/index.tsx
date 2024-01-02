@@ -10,8 +10,8 @@ export default function Home() {
       <div className={Styles.orange}>
         <div className={Styles.desc}>
           <p>Your project could turn out to be your next startup.</p>
-          <div className={Styles.btn}>
-            <button onClick={() => router.push("/auth")}>Sign Up</button>
+          <div className={Styles.btn} onClick={() => router.push("/auth")}>
+            <button>Sign Up</button>
           </div>
         </div>
 

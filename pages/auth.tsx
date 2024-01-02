@@ -46,7 +46,7 @@ const Auth: React.FC = () => {
         const user = userCredential.user;
         // console.log(user, "user logged in success!");
         toast.success("Logged in successfully!");
-        router.push("/explore");
+        router.push("/profile");
       })
       .catch((error) => {
         const errorCode = error.code;

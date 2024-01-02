@@ -55,7 +55,7 @@
 }
 
 .btn {
-  @apply rounded-lg flex justify-center px-12 py-2 text-white font-bold m-auto w-full;
+  @apply rounded-lg flex justify-center px-12 py-2 text-white font-bold m-auto w-full shadow-md;
 }
 
 .dual_btn {
