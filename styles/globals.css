@@ -6,6 +6,6 @@
   @apply bg-index-logo_orange1 text-white;
 }
 
-body{
-@apply text-index-black_btn
+body {
+  @apply text-index-black_btn;
 }

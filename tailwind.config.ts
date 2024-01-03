@@ -24,6 +24,10 @@ const config: Config = {
           light_white: "#f9fafb",
           stroke: "#F2F3F6",
           light_gray: "#EAECF0",
+          gray: "#fbfbfa",
+        },
+        modal: {
+          modal_bg: "#999999",
         },
       },
     },

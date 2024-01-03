@@ -1,5 +1,5 @@
 .layout_div {
-  @apply ml-96 flex h-screen;
+  @apply ml-96 flex mb-40;
 }
 
 .container {
@@ -7,7 +7,19 @@
 }
 
 .container_content {
-  @apply border-4 rounded-lg border-home-stroke h-[900px] w-[900px] mr-auto ml-40 shadow-sm p-6;
+  @apply w-[900px] mr-auto ml-40 p-6;
+}
+
+.edit_btn_div {
+  @apply flex justify-end;
+}
+
+.edit_btn_icon {
+  @apply bg-index-black_btn px-6 py-2 rounded-full shadow-md  flex flex-row cursor-pointer transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-90 duration-300;
+}
+
+.edit_btn {
+  @apply text-white ml-1 font-semibold;
 }
 
 .pp_username {
@@ -35,7 +47,7 @@
 }
 
 .projects_container {
-  @apply grid gap-2;
+  @apply grid gap-14;
 }
 
 .title_btn {
@@ -47,11 +59,11 @@
 }
 
 .add_btn {
-  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold;
+  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold hover:opacity-90;
 }
 
 .project_list {
-  @apply border border-home-stroke bg-home-light_white rounded-md h-96 hover:shadow-md;
+  @apply border border-home-stroke bg-white rounded-md min-h-[24rem] hover:shadow-md h-auto /*transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300*/;
 }
 
 .project_showcase {
@@ -66,6 +78,96 @@
   @apply cursor-pointer font-semibold hover:underline hover:underline-offset-8 decoration-2;
 }
 
-.carousel_container{
+.link_icon {
+  @apply cursor-pointer hover:-translate-y-0.5 hover:translate-x-0.5 ease-in-out;
+}
+
+.carousel_container {
+  @apply p-6;
+}
+
+.embla {
+  @apply overflow-hidden rounded-md;
+}
+
+.embla__container {
+  @apply flex flex-row h-[200px] gap-1 rounded-md;
+}
+.embla__slide {
+  @apply flex-shrink-0 flex-grow-0 w-[40%] min-w-0 bg-white rounded-md border border-home-stroke;
+}
+
+.desc {
+  @apply max-h-[33%];
+}
+
+.btm_part {
+  @apply flex w-full mt-3;
+}
+
+.btm_content {
+  @apply flex gap-8;
+}
+
+.btm_content li {
+  @apply cursor-pointer hover:underline hover:underline-offset-4 text-xs font-semibold;
+}
+
+.modal_div {
+  @apply opacity-60 bg-modal-modal_bg h-full w-full left-0 top-0 fixed z-0;
+}
+
+.add_modal_bg {
+  @apply fixed top-0 left-0 w-full h-full flex items-center justify-center;
+}
+
+.add_project_modal {
+  @apply bg-white justify-center /*h-2/3 w-2/5*/ h-auto min-h-[80%] w-1/2 rounded-xl p-6 shadow-lg;
+}
+
+.modal_content {
+  @apply grid gap-8 mx-8 py-8;
+}
+
+.project_title_input {
+  @apply flex flex-col;
+}
+
+.project_title {
+  @apply font-semibold text-sm mb-2;
+}
+
+.title_div {
   /* @apply  */
+}
+
+.common_input {
+  @apply rounded-sm focus:outline-index-logo_orange1 border-2 border-home-stroke p-1;
+}
+
+.title_input {
+  @apply common_input;
+}
+
+.project_desc {
+  @apply font-semibold mb-2 text-sm;
+}
+.desc_textarea {
+  @apply w-full max-h-[10rem] min-h-[5rem] common_input;
+}
+
+.carousel_title {
+  @apply text-sm font-semibold mb-2;
+}
+
+.link_input {
+  @apply common_input;
+}
+
+.save_div {
+  @apply flex justify-end;
+}
+
+.save_btn {
+  @apply bg-index-logo_orange1 px-6 py-3 text-white rounded-full font-bold;
 }

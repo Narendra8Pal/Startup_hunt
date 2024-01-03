@@ -68,6 +68,7 @@ const Auth: React.FC = () => {
                 width={123}
                 height={123}
                 priority={true}
+                onClick={() => router.push("/")}
               />
 
               <p className={Styles.title}>
