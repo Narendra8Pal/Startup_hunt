@@ -10,8 +10,12 @@
   @apply mt-[20rem];
 }
 
+.btn_div {
+  @apply mt-[2rem] flex rounded-full text-white cursor-pointer;
+}
+
 .btn {
-  @apply mt-[2rem] text-sm bg-index-black_btn flex w-1/4 justify-center rounded-full text-white p-2 cursor-pointer;
+  @apply py-2 px-4 bg-index-black_btn rounded-full text-sm;
 }
 
 .vector {

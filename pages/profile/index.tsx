@@ -4,11 +4,12 @@ import styles from "@/styles/profile.module.css";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
-import Modal from '@/utils/modal'
+import Modal from "@/utils/modal";
 
-const Profile: React.FC = () => {
+const Profile = () => {
   const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
-  const [profileModal, setProfileModal] = useState<boolean>(false)
+  const [profileModal, setProfileModal] = useState<boolean>(false);
+  const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
@@ -19,7 +20,6 @@ const Profile: React.FC = () => {
   }, [emblaApi]);
 
   const handleProject = () => {};
-
 
   const addProject = () => {};
 
@@ -129,7 +129,7 @@ const Profile: React.FC = () => {
                   <div className={styles.btm_part}>
                     <div>
                       <ul className={styles.btm_content}>
-                        <li>Edit</li>
+                        <li onClick={() => setOpnEditProject(true)}>Edit</li>
                         <li>Delete</li>
                         <li>GitHub</li>
                       </ul>
@@ -142,21 +142,14 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-{opnAddProjectModal && (
-  <Modal
-  // setOpnAddProjectModal={setOpnAddProjectModal}
-/>
-  )}
-      
-
-      {profileModal && (
-        <>
-
-        </>
-      )}
-
-
-
+      <Modal
+        setOpnAddProjectModal={setOpnAddProjectModal}
+        opnAddProjectModal={opnAddProjectModal}
+        profileModal={profileModal}
+        setProfileModal={setProfileModal}
+        opnEditProject={opnEditProject}
+        setOpnEditProject={setOpnEditProject}
+      />
     </>
   );
 };

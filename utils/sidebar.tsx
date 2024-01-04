@@ -3,7 +3,7 @@ import styles from "@/styles/sidebar.module.css";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
-const Sidebar: React.FC = () => {
+const Sidebar = () => {
   const router = useRouter();
 
   return (

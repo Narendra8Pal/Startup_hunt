@@ -1,5 +1,5 @@
 .layout_div {
-  @apply ml-96 flex mb-40;
+  @apply flex mb-40;
 }
 
 .container {
@@ -7,7 +7,7 @@
 }
 
 .container_content {
-  @apply w-[900px] mr-auto ml-40 p-6;
+  @apply w-[900px] mx-auto p-6;
 }
 
 .edit_btn_div {
@@ -87,7 +87,7 @@
 }
 
 .embla {
-  @apply overflow-hidden rounded-md;
+  @apply overflow-hidden rounded-md border-2 border-home-stroke;
 }
 
 .embla__container {
@@ -160,14 +160,63 @@
   @apply text-sm font-semibold mb-2;
 }
 
+.img_input {
+  @apply flex mb-6;
+}
+
+.h2_input {
+  @apply flex flex-col ml-8;
+}
+
+.input_head {
+  @apply mb-2 text-sm font-semibold;
+}
+
 .link_input {
   @apply common_input;
 }
 
-.save_div {
+.create_div {
   @apply flex justify-end;
 }
 
-.save_btn {
+.create_btn {
   @apply bg-index-logo_orange1 px-6 py-3 text-white rounded-full font-bold;
+}
+
+.pf_modal_content{
+  @apply grid gap-3 mx-8 py-8;
+
+}
+
+.add_profile_modal {
+  @apply h-1/3 w-1/3 bg-white shadow-sm rounded-md;
+}
+
+.pf_img_input {
+  @apply flex flex-row gap-10 items-center;
+}
+
+.pf_socials{
+  @apply bg-index-black_btn p-2 rounded-full 
+}
+
+.pf_img_div {
+  @apply h-28 w-28 border border-home-stroke rounded-full;
+}
+
+.pf_img {
+  @apply cursor-pointer;
+}
+
+.pf_name_input {
+  @apply flex flex-col text-sm font-semibold;
+}
+
+.save_div {
+  @apply flex justify-end items-center;
+}
+
+.save_btn {
+  @apply bg-index-logo_orange1 px-6  py-3 text-white rounded-full text-sm font-bold;
 }
