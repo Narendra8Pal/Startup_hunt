@@ -27,5 +27,5 @@
 }
 
 .btn_div {
-  @apply flex justify-center mt-40 bg-index-black_btn p-3 rounded-lg text-white font-bold cursor-pointer hover:opacity-90 transition ease-in-out delay-75 shadow-md;
+  @apply flex justify-center mt-40 bg-index-black_btn p-3 rounded-lg text-white font-bold cursor-pointer transition ease-in-out delay-75 shadow-md hover:bg-gradient-to-r from-index-logo_orange1 to-index-logo_orange2;;
 }

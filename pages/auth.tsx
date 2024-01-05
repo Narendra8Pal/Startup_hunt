@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
+
+//redux
+import { useDispatch } from "react-redux";
+import { setDocId } from "@/store/docId";
+
 // files, packages
 import FirebaseApp from "../utils/firebase";
 import { getFirestore } from "firebase/firestore";
@@ -9,29 +14,42 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { collection, addDoc, getDoc } from "firebase/firestore";
 import Styles from "@/styles/auth.module.css";
 import { toast } from "react-toastify";
 
-const Auth: React.FC = () => {
+const Auth = () => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [login, setLogin] = useState<boolean>(false);
   const [visibility, setVisibility] = useState<boolean>(false);
 
-  // const app = initializeApp(FirebaseApp);
+  const dispatch = useDispatch();
+
   const db = getFirestore(FirebaseApp);
 
   const router = useRouter();
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const auth = getAuth();
+    let userId: string;
+    try {
+      const docRef = await addDoc(collection(db, "users"), {
+        username: username,
+      });
+      console.log(docRef.id);
+      userId = docRef.id;
+      // dispatch(setDocId(docRef.id));
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         // console.log(user, "user brother");
         toast.success("account created sucessfully!");
-        router.push("/explore");
+        router.push(`/profile/${userId}`);
       })
       .catch((error) => {
         const errorMessage = error.message;

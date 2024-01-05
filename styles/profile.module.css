@@ -59,7 +59,7 @@
 }
 
 .add_btn {
-  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold hover:opacity-90;
+  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold hover:opacity-90 hover:bg-gradient-to-r from-index-logo_orange2 to-index-logo_orange1;
 }
 
 .project_list {
@@ -184,21 +184,20 @@
   @apply bg-index-logo_orange1 px-6 py-3 text-white rounded-full font-bold;
 }
 
-.pf_modal_content{
+.pf_modal_content {
   @apply grid gap-3 mx-8 py-8;
-
 }
 
 .add_profile_modal {
-  @apply h-1/3 w-1/3 bg-white shadow-sm rounded-md;
+  @apply h-auto w-1/3 bg-white shadow-sm rounded-md;
 }
 
 .pf_img_input {
   @apply flex flex-row gap-10 items-center;
 }
 
-.pf_socials{
-  @apply bg-index-black_btn p-2 rounded-full 
+.pf_socials {
+  @apply bg-index-black_btn p-2 rounded-full;
 }
 
 .pf_img_div {

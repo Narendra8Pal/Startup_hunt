@@ -5,11 +5,21 @@ import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import Modal from "@/utils/modal";
+//redux
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/index";
+//firebase
 
-const Profile = () => {
+type ProfileProps = {
+  username: string;
+};
+
+const Profile = ({ username }: ProfileProps) => {
   const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
   const [profileModal, setProfileModal] = useState<boolean>(false);
   const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
+
+  const docId = useSelector((state: RootState) => state.docId.docId);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
@@ -51,7 +61,7 @@ const Profile = () => {
               </div>
 
               <div>
-                <h2 className={styles.username}>Narendra Pal</h2>
+                <h2 className={styles.username}>{username}</h2>
               </div>
               <div className={styles.socials}>
                 <Link href="">
