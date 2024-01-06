@@ -1,25 +1,25 @@
+//next.js, style,files
 import React, { useState, useEffect } from "react";
 import Sidebar from "@/utils/sidebar";
 import styles from "@/styles/profile.module.css";
 import Image from "next/image";
-import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import Modal from "@/utils/modal";
 //redux
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
 //firebase
 
-type ProfileProps = {
-  username: string;
-};
+//other packages
+import useEmblaCarousel from "embla-carousel-react";
 
-const Profile = ({ username }: ProfileProps) => {
+const Profile = () => {
   const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
   const [profileModal, setProfileModal] = useState<boolean>(false);
   const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
 
-  const docId = useSelector((state: RootState) => state.docId.docId);
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.userName.user);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
@@ -61,7 +61,7 @@ const Profile = ({ username }: ProfileProps) => {
               </div>
 
               <div>
-                <h2 className={styles.username}>{username}</h2>
+                <h2 className={styles.username}>{user}</h2>
               </div>
               <div className={styles.socials}>
                 <Link href="">

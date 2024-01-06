@@ -1,12 +1,10 @@
+//next.js , style
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import Styles from "@/styles/auth.module.css";
 
-//redux
-import { useDispatch } from "react-redux";
-import { setDocId } from "@/store/docId";
-
-// files, packages
+// firebase
 import FirebaseApp from "../utils/firebase";
 import { getFirestore } from "firebase/firestore";
 import {
@@ -14,8 +12,15 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { collection, addDoc, getDoc } from "firebase/firestore";
-import Styles from "@/styles/auth.module.css";
+import {
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+//other packages
 import { toast } from "react-toastify";
 
 const Auth = () => {
@@ -25,53 +30,72 @@ const Auth = () => {
   const [login, setLogin] = useState<boolean>(false);
   const [visibility, setVisibility] = useState<boolean>(false);
 
-  const dispatch = useDispatch();
-
   const db = getFirestore(FirebaseApp);
 
   const router = useRouter();
 
   const handleSignUp = async () => {
     const auth = getAuth();
-    let userId: string;
+    let docId: string;
     try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      const uid = user.uid;
+      toast.success("account created successfully!");
+
       const docRef = await addDoc(collection(db, "users"), {
         username: username,
+        userId: uid,
       });
-      console.log(docRef.id);
-      userId = docRef.id;
-      // dispatch(setDocId(docRef.id));
-    } catch (error) {
-      console.error("Error adding document: ", error);
+      // console.log(docRef, 'docRef bro')
+      docId = docRef.id;
+      router.push(`/profile/${docId}`);
+    } catch (error: any) {
+      console.error("Error:", error);
+      const errorMessage = error.message;
+      toast.error(errorMessage);
     }
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        // console.log(user, "user brother");
-        toast.success("account created sucessfully!");
-        router.push(`/profile/${userId}`);
-      })
-      .catch((error) => {
-        const errorMessage = error.message;
-        toast.error(errorMessage);
-      });
+    emptyInput();
   };
 
-  const handleLogIn = () => {
+  const handleLogIn = async () => {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         // console.log(user, "user logged in success!");
+        const q = query(
+          collection(db, "users"),
+          where("userId", "==", user.uid)
+        );
+        handleDocs(q);
         toast.success("Logged in successfully!");
-        router.push("/profile");
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
-        toast.error("Oops! Error logging in.");
-        console.log(errorMessage);
+        toast.error("Oops! Error logging in.", errorMessage);
       });
+    emptyInput();
+  };
+
+  const handleDocs = async (q: any) => {
+    let docId: string;
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // console.log(doc.id, " => ", doc.data());
+      docId = doc.id;
+      router.push(`/profile/${docId}`);
+    });
+  };
+
+  const emptyInput = () => {
+    setEmail("");
+    setPassword("");
+    setUsername("");
   };
 
   return (

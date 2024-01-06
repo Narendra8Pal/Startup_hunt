@@ -1,7 +1,19 @@
+//files, style, next.js
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "@/styles/profile.module.css";
 import useEmblaCarousel from "embla-carousel-react";
+
+//redux
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/index";
+import { setUser } from "@/store/userName";
+
+//firebase
+import FirebaseApp from "../utils/firebase";
+import { getFirestore } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
+const db = getFirestore(FirebaseApp);
 
 type ModalProps = {
   setOpnAddProjectModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -12,15 +24,17 @@ type ModalProps = {
   setOpnEditProject: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const Modal = ({
-  setOpnAddProjectModal,
-  opnAddProjectModal,
-  profileModal,
-  setProfileModal,
-  opnEditProject,
-  setOpnEditProject,
-}: ModalProps) => {
+const Modal = (props: ModalProps) => {
+  const [xUsername, setXUsername] = useState<string>("");
+  const [githubUsername, setGithubUsername] = useState<string>("");
+
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.userName.user);
+  const userDocId = useSelector(
+    (state: RootState) => state.usersDocId.usersDocId
+  );
 
   useEffect(() => {
     if (emblaApi) {
@@ -28,14 +42,39 @@ const Modal = ({
     }
   }, [emblaApi]);
 
+  const handleModalUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setUser(e.target.value));
+  };
+
+  const handleGithubUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGithubUsername(e.target.value);
+  };
+
+  const handleXUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setXUsername(e.target.value);
+  };
+
+  const pfDataToUpdate = async () => {
+    const userDataRef = doc(db, "users", `${userDocId}`);
+    await setDoc(userDataRef, {
+      username: user,
+    });
+
+    await updateDoc(userDataRef, {
+      username: userDocId,
+      twitterUsername: xUsername,
+      githubUsername: githubUsername,
+    });
+  };
+
   return (
     <>
-      {opnAddProjectModal && (
+      {props.opnAddProjectModal && (
         <>
           <div className={styles.modal_div}></div>
           <div
             className={styles.add_modal_bg}
-            onClick={() => setOpnAddProjectModal(false)}
+            onClick={() => props.setOpnAddProjectModal(false)}
           >
             <div
               className={styles.add_project_modal}
@@ -117,12 +156,12 @@ const Modal = ({
         </>
       )}
 
-      {profileModal && (
+      {props.profileModal && (
         <>
           <div className={styles.modal_div}></div>
           <div
             className={styles.add_modal_bg}
-            onClick={() => setProfileModal(false)}
+            onClick={() => props.setProfileModal(false)}
           >
             <div
               className={styles.add_profile_modal}
@@ -137,7 +176,12 @@ const Modal = ({
 
                     <div className={styles.pf_name_input}>
                       <h2>Username</h2>
-                      <input type="text" className={styles.common_input} />
+                      <input
+                        type="text"
+                        className={styles.common_input}
+                        value={user}
+                        onChange={handleModalUsername}
+                      />
                     </div>
                   </div>
 
@@ -156,7 +200,11 @@ const Modal = ({
                       <h2 className={styles.input_head}>
                         Your twitter username
                       </h2>
-                      <input type="text" className={styles.link_input} />
+                      <input
+                        type="text"
+                        className={styles.link_input}
+                        onChange={handleXUsername}
+                      />
                     </div>
                   </div>
 
@@ -175,12 +223,21 @@ const Modal = ({
                       <h2 className={styles.input_head}>
                         Your github username
                       </h2>
-                      <input type="text" className={styles.link_input} />
+                      <input
+                        type="text"
+                        className={styles.link_input}
+                        onChange={handleGithubUsername}
+                      />
                     </div>
                   </div>
 
                   <div className={styles.save_div}>
-                    <button className={styles.save_btn}>Save Profile</button>
+                    <button
+                      className={styles.save_btn}
+                      onClick={pfDataToUpdate}
+                    >
+                      Save Profile
+                    </button>
                   </div>
                 </div>
               </div>
@@ -189,12 +246,12 @@ const Modal = ({
         </>
       )}
 
-      {opnEditProject && (
+      {props.opnEditProject && (
         <>
           <div className={styles.modal_div}></div>
           <div
             className={styles.add_modal_bg}
-            onClick={() => setOpnEditProject(false)}
+            onClick={() => props.setOpnEditProject(false)}
           >
             <div
               className={styles.add_project_modal}

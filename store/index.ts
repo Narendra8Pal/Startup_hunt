@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import docIdReducer from "./docId";
+import userReducer from "./userName";
+import usersDocIdReducer from "./usersDocId";
 
 export const store = configureStore({
   reducer: {
-    docId: docIdReducer,
+    userName: userReducer,
+    usersDocId: usersDocIdReducer,
   },
 });
 
