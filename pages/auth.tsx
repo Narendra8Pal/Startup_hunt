@@ -50,6 +50,8 @@ const Auth = () => {
       const docRef = await addDoc(collection(db, "users"), {
         username: username,
         userId: uid,
+        twitterUsername: "",
+        githubUsername: "",
       });
       // console.log(docRef, 'docRef bro')
       docId = docRef.id;

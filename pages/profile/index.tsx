@@ -8,18 +8,36 @@ import Modal from "@/utils/modal";
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
+import { setUser } from "@/store/userName";
 //firebase
+import FirebaseApp from "../../utils/firebase";
+import { getFirestore } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
 //other packages
 import useEmblaCarousel from "embla-carousel-react";
+
+type ImageState = {
+  selectedImage: string | null;
+};
 
 const Profile = () => {
   const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
   const [profileModal, setProfileModal] = useState<boolean>(false);
   const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
+  const [xUsername, setXUsername] = useState<string>("");
+  const [gitUsername, setGitUsername] = useState<string>("");
+  const [imageState, setImageState] = useState<ImageState>({
+    selectedImage: null,
+  });
+
+  const db = getFirestore(FirebaseApp);
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userName.user);
+  const userDocId = useSelector(
+    (state: RootState) => state.usersDocId.usersDocId
+  );
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
@@ -28,6 +46,29 @@ const Profile = () => {
       console.log(emblaApi.slideNodes());
     }
   }, [emblaApi]);
+
+  // for getting the 'users' collection data
+  useEffect(() => {
+    const modalCloseUpdate = () => {
+      getDoc(doc(db, "users", `${userDocId}`))
+        .then((docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            dispatch(setUser(data.username));
+            setXUsername(data.twitterUsername);
+            setGitUsername(data.githubUsername);
+          } else {
+            console.log("No such document!");
+          }
+        })
+        .catch((error) => {
+          console.error("Error getting document: ", error);
+        });
+    };
+    if (userDocId) {
+      modalCloseUpdate();
+    }
+  }, [profileModal, userDocId]);
 
   const handleProject = () => {};
 
@@ -57,14 +98,14 @@ const Profile = () => {
             </div>
             <div className={styles.pp_username}>
               <div className={styles.show_pp}>
-                <img src="" />
+                <img src={imageState.selectedImage || "/defaultProfile3.png"} className={styles.show_img} />
               </div>
 
               <div>
                 <h2 className={styles.username}>{user}</h2>
               </div>
               <div className={styles.socials}>
-                <Link href="">
+                <Link href={`https://twitter.com/${xUsername}`} target="_blank">
                   <div className={styles.social1}>
                     <Image
                       src="/twitter.png"
@@ -76,7 +117,10 @@ const Profile = () => {
                   </div>
                 </Link>
 
-                <Link href="">
+                <Link
+                  href={`https://github.com/${gitUsername}`}
+                  target="_blank"
+                >
                   <div className={styles.social2}>
                     <Image
                       src="/github.png"
@@ -159,6 +203,7 @@ const Profile = () => {
         setProfileModal={setProfileModal}
         opnEditProject={opnEditProject}
         setOpnEditProject={setOpnEditProject}
+        setImageState={setImageState}
       />
     </>
   );

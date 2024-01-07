@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 //redux
 import { setUser } from "@/store/userName";
+import { setUsersDocId } from "@/store/usersDocId";
 import { useDispatch } from "react-redux";
 
 //firebase
@@ -17,10 +18,10 @@ const Username = () => {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { userId } = router.query;
+  const { docId } = router.query;
 
   const db = getFirestore(FirebaseApp);
-  const docRef = doc(db, "users", `${userId}`);
+  const docRef = doc(db, "users", `${docId}`);
 
   useEffect(() => {
     getDoc(docRef)
@@ -28,7 +29,6 @@ const Username = () => {
         if (docSnap.exists()) {
           const name = docSnap.data().username;
           dispatch(setUser(name));
-          // dispatch()
         } else {
           console.log("No such document!");
         }
@@ -36,7 +36,8 @@ const Username = () => {
       .catch((error) => {
         console.error("Error getting document: ", error);
       });
-  }, [userId]);
+    dispatch(setUsersDocId(docId));
+  }, [docId]);
 
   return (
     <>

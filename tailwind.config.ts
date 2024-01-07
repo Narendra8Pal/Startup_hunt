@@ -25,6 +25,7 @@ const config: Config = {
           stroke: "#F2F3F6",
           light_gray: "#EAECF0",
           gray: "#fbfbfa",
+          hover_gray: "#5e5e5e",
         },
         modal: {
           modal_bg: "#999999",

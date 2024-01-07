@@ -12,8 +12,14 @@ import { setUser } from "@/store/userName";
 //firebase
 import FirebaseApp from "../utils/firebase";
 import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
-const db = getFirestore(FirebaseApp);
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+
+//other packages
+import { Tooltip } from "react-tooltip";
+
+type ImageState = {
+  selectedImage: string | null;
+};
 
 type ModalProps = {
   setOpnAddProjectModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,6 +28,7 @@ type ModalProps = {
   setProfileModal: React.Dispatch<React.SetStateAction<boolean>>;
   opnEditProject: boolean;
   setOpnEditProject: React.Dispatch<React.SetStateAction<boolean>>;
+  setImageState: React.Dispatch<React.SetStateAction<ImageState>>;
 };
 
 const Modal = (props: ModalProps) => {
@@ -35,6 +42,8 @@ const Modal = (props: ModalProps) => {
   const userDocId = useSelector(
     (state: RootState) => state.usersDocId.usersDocId
   );
+
+  const db = getFirestore(FirebaseApp);
 
   useEffect(() => {
     if (emblaApi) {
@@ -55,16 +64,42 @@ const Modal = (props: ModalProps) => {
   };
 
   const pfDataToUpdate = async () => {
-    const userDataRef = doc(db, "users", `${userDocId}`);
-    await setDoc(userDataRef, {
+    const docRef = doc(db, "users", userDocId);
+    await updateDoc(docRef, {
       username: user,
-    });
-
-    await updateDoc(userDataRef, {
-      username: userDocId,
       twitterUsername: xUsername,
       githubUsername: githubUsername,
     });
+    props.setProfileModal(false);
+  };
+
+  useEffect(() => {
+    const getUserData = () => {
+      getDoc(doc(db, "users", userDocId))
+        .then((docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            dispatch(setUser(data.username));
+            setGithubUsername(data.githubUsername);
+            setXUsername(data.twitterUsername);
+          } else {
+            console.log("No such document!");
+          }
+        })
+        .catch((error) => {
+          console.error("Error getting document: ", error);
+        });
+    };
+    if (userDocId) {
+      getUserData();
+    }
+  }, [userDocId, props.profileModal]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      let img = e.target.files[0];
+      props.setImageState({ selectedImage: URL.createObjectURL(img) });
+    }
   };
 
   return (
@@ -170,8 +205,41 @@ const Modal = (props: ModalProps) => {
               <div className={styles.modal_container}>
                 <div className={styles.pf_modal_content}>
                   <div className={styles.pf_img_input}>
+                    {/* <div className={styles.pf_img_div}>
+                        <img
+                          src={imageState.selectedImage || "defaultImageUrl"}
+                          className={styles.pf_img}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          src="/addPhoto.png"
+                        />
+                    </div> */}
+
                     <div className={styles.pf_img_div}>
-                      <img src="" className={styles.pf_img} />
+                      {/* <img
+                        src={imageState.selectedImage || "userDefaultImg"}
+                        className={styles.pf_img}
+                      /> */}
+                      <label
+                        htmlFor="fileInput"
+                        className={styles.addPhotoLabel}
+                      >
+                        <img
+                          src="/addPhoto.png"
+                          className={styles.addPhotoIcon}
+                          alt="Add Photo"
+                        />
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="fileInput"
+                        onChange={handleImageChange}
+                        style={{ display: "none" }}
+                      />
                     </div>
 
                     <div className={styles.pf_name_input}>
@@ -185,7 +253,7 @@ const Modal = (props: ModalProps) => {
                     </div>
                   </div>
 
-                  <div className={styles.pf_img_input}>
+                  <div className={styles.pf_social_img_input}>
                     <div className={styles.pf_socials}>
                       <Image
                         src="/twitter.png"
@@ -204,11 +272,14 @@ const Modal = (props: ModalProps) => {
                         type="text"
                         className={styles.link_input}
                         onChange={handleXUsername}
+                        value={xUsername}
+                        data-tooltip-id="usernameTooltip"
+                        data-tooltip-content="Enter a valid Twitter username"
                       />
                     </div>
                   </div>
 
-                  <div className={styles.pf_img_input}>
+                  <div className={styles.pf_social_img_input}>
                     <div className={styles.pf_socials}>
                       <Image
                         src="/github.png"
@@ -227,6 +298,9 @@ const Modal = (props: ModalProps) => {
                         type="text"
                         className={styles.link_input}
                         onChange={handleGithubUsername}
+                        value={githubUsername}
+                        data-tooltip-id="usernameTooltip"
+                        data-tooltip-content="Enter a valid Github username"
                       />
                     </div>
                   </div>
@@ -332,6 +406,8 @@ const Modal = (props: ModalProps) => {
           </div>
         </>
       )}
+
+      <Tooltip id="usernameTooltip" place="right" />
     </>
   );
 };
