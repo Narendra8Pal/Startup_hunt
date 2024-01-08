@@ -12,7 +12,9 @@ import { setUser } from "@/store/userName";
 //firebase
 import FirebaseApp from "../utils/firebase";
 import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, addDoc, collection, getDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 import { Tooltip } from "react-tooltip";
@@ -29,11 +31,17 @@ type ModalProps = {
   opnEditProject: boolean;
   setOpnEditProject: React.Dispatch<React.SetStateAction<boolean>>;
   setImageState: React.Dispatch<React.SetStateAction<ImageState>>;
+  imageState: ImageState;
 };
 
 const Modal = (props: ModalProps) => {
   const [xUsername, setXUsername] = useState<string>("");
   const [githubUsername, setGithubUsername] = useState<string>("");
+  const [projectTitle, setProjectTitle] = useState<string>("");
+  const [projectDesc, setProjectDesc] = useState<string>("");
+  const [webLink, setWebLink] = useState<string>("");
+  const [gitLink, setGitLink] = useState<string>("");
+  const [uid, setUid] = useState<string>("");
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
@@ -51,17 +59,46 @@ const Modal = (props: ModalProps) => {
     }
   }, [emblaApi]);
 
-  const handleModalUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setUser(e.target.value));
-  };
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        console.log(uid, "user uuid");
+        setUid(uid);
+      }
+    });
+  }, []);
 
-  const handleGithubUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGithubUsername(e.target.value);
-  };
-
-  const handleXUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setXUsername(e.target.value);
-  };
+  const handleChange =
+    (key: string) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      switch (key) {
+        case "modalUsername":
+          dispatch(setUser(e.target.value));
+          break;
+        case "githubUsername":
+          setGithubUsername(e.target.value);
+          break;
+        case "xUsername":
+          setXUsername(e.target.value);
+          break;
+        case "projectTitle":
+          setProjectTitle(e.target.value);
+          break;
+        case "desc":
+          setProjectDesc(e.target.value);
+          break;
+        case "web_link":
+          setWebLink(e.target.value);
+          break;
+        case "git_link":
+          setGitLink(e.target.value);
+          break;
+        default:
+          break;
+      }
+    };
 
   const pfDataToUpdate = async () => {
     const docRef = doc(db, "users", userDocId);
@@ -71,6 +108,7 @@ const Modal = (props: ModalProps) => {
       githubUsername: githubUsername,
     });
     props.setProfileModal(false);
+    // uploadFile();
   };
 
   useEffect(() => {
@@ -99,7 +137,33 @@ const Modal = (props: ModalProps) => {
     if (e.target.files && e.target.files[0]) {
       let img = e.target.files[0];
       props.setImageState({ selectedImage: URL.createObjectURL(img) });
+
+      const storage = getStorage();
+
+      const storageRef = ref(storage);
+
+      const imagesRef = ref(storageRef, "images");
+
+      const fileName = "profile.jpg";
+      const spaceRef = ref(imagesRef, fileName);
+      const path = spaceRef.fullPath;
+      const name = spaceRef.name;
+      const imagesRefAgain = spaceRef.parent;
+      uploadBytes(storageRef, img).then((snapshot) => {
+        console.log("Uploaded a blob or file!");
+      });
     }
+  };
+
+  const handleCreateProject = async () => {
+    const docRef = await addDoc(collection(db, "projects"), {
+      Project_title: projectTitle,
+      description: projectDesc,
+      github_link: gitLink,
+      userId: uid,
+      web_link: webLink,
+    });
+    props.setOpnAddProjectModal(false)
   };
 
   return (
@@ -120,7 +184,12 @@ const Modal = (props: ModalProps) => {
                   <div className={styles.project_title_input}>
                     <h2 className={styles.project_title}>Project title</h2>
                     <div className={styles.title_div}>
-                      <input className={styles.title_input} type="text" />
+                      <input
+                        className={styles.title_input}
+                        type="text"
+                        onChange={handleChange("projectTitle")}
+                        value={projectTitle}
+                      />
                     </div>
                   </div>
 
@@ -129,7 +198,11 @@ const Modal = (props: ModalProps) => {
                       Tell anything about your project
                     </h2>
                     <div className={styles.desc_div}>
-                      <textarea className={styles.desc_textarea} />
+                      <textarea
+                        className={styles.desc_textarea}
+                        onChange={handleChange("desc")}
+                        value={projectDesc}
+                      />
                     </div>
                   </div>
 
@@ -159,7 +232,12 @@ const Modal = (props: ModalProps) => {
                       </div>
                       <div className={styles.h2_input}>
                         <h2 className={styles.input_head}>Add project link</h2>
-                        <input type="text" className={styles.link_input} />
+                        <input
+                          type="text"
+                          className={styles.link_input}
+                          onChange={handleChange("web_link")}
+                          value={webLink}
+                        />
                       </div>
                     </div>
 
@@ -176,14 +254,24 @@ const Modal = (props: ModalProps) => {
 
                       <div className={styles.h2_input}>
                         <h2 className={styles.input_head}>Add github link</h2>
-                        <input type="text" className={styles.link_input} />
+                        <input
+                          type="text"
+                          className={styles.link_input}
+                          onChange={handleChange("git_link")}
+                          value={gitLink}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.create_div}>
-                  <button className={styles.create_btn}>Create</button>
+                  <button
+                    className={styles.create_btn}
+                    onClick={handleCreateProject}
+                  >
+                    Create
+                  </button>
                 </div>
               </div>
             </div>
@@ -205,19 +293,6 @@ const Modal = (props: ModalProps) => {
               <div className={styles.modal_container}>
                 <div className={styles.pf_modal_content}>
                   <div className={styles.pf_img_input}>
-                    {/* <div className={styles.pf_img_div}>
-                        <img
-                          src={imageState.selectedImage || "defaultImageUrl"}
-                          className={styles.pf_img}
-                        />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          src="/addPhoto.png"
-                        />
-                    </div> */}
-
                     <div className={styles.pf_img_div}>
                       {/* <img
                         src={imageState.selectedImage || "userDefaultImg"}
@@ -248,7 +323,7 @@ const Modal = (props: ModalProps) => {
                         type="text"
                         className={styles.common_input}
                         value={user}
-                        onChange={handleModalUsername}
+                        onChange={handleChange("modalUsername")}
                       />
                     </div>
                   </div>
@@ -271,7 +346,7 @@ const Modal = (props: ModalProps) => {
                       <input
                         type="text"
                         className={styles.link_input}
-                        onChange={handleXUsername}
+                        onChange={handleChange("xUsername")}
                         value={xUsername}
                         data-tooltip-id="usernameTooltip"
                         data-tooltip-content="Enter a valid Twitter username"
@@ -297,7 +372,7 @@ const Modal = (props: ModalProps) => {
                       <input
                         type="text"
                         className={styles.link_input}
-                        onChange={handleGithubUsername}
+                        onChange={handleChange("githubUsername")}
                         value={githubUsername}
                         data-tooltip-id="usernameTooltip"
                         data-tooltip-content="Enter a valid Github username"

@@ -3,8 +3,17 @@ import styles from "@/styles/sidebar.module.css";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
+//redux
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/index";
+import { setUser } from "@/store/userName";
+
 const Sidebar = () => {
   const router = useRouter();
+
+  const userDocId = useSelector(
+    (state: RootState) => state.usersDocId.usersDocId
+  );
 
   return (
     <>
@@ -12,7 +21,10 @@ const Sidebar = () => {
         <div className={styles.left_pane_inside}>
           <div className={styles.pane_items}>
             <ul className={styles.ul_items}>
-              <div className={styles.icons_items}>
+              <div
+                className={styles.icons_items}
+                onClick={() => router.push(`/explore`)}
+              >
                 <Image
                   src="/Compass.png"
                   alt="explore"
@@ -44,7 +56,7 @@ const Sidebar = () => {
               </div>
               <div
                 className={styles.icons_items}
-                onClick={() => router.push("/profile")}
+                onClick={() => router.push(`/profile/${userDocId}`)}
               >
                 <Image
                   src="/Profile.png"

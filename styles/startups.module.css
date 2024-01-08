@@ -1,0 +1,15 @@
+.layout_div {
+  @apply flex mb-40;
+}
+
+.container {
+  @apply flex-1 flex place-items-center;
+}
+
+.container_content {
+    @apply w-[900px] mx-auto p-6;
+  }
+
+  .project_showcase{
+    /* @apply  */
+  }

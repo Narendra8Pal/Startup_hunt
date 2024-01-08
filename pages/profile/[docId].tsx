@@ -29,8 +29,6 @@ const Username = () => {
         if (docSnap.exists()) {
           const name = docSnap.data().username;
           dispatch(setUser(name));
-        } else {
-          console.log("No such document!");
         }
       })
       .catch((error) => {

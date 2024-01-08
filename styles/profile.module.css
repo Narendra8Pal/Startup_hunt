@@ -51,7 +51,7 @@
 }
 
 .projects_container {
-  @apply grid gap-14;
+  @apply grid gap-8;
 }
 
 .title_btn {

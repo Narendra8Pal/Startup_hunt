@@ -12,13 +12,33 @@ import { setUser } from "@/store/userName";
 //firebase
 import FirebaseApp from "../../utils/firebase";
 import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  where,
+  collection,
+  query,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 import useEmblaCarousel from "embla-carousel-react";
 
 type ImageState = {
   selectedImage: string | null;
+};
+
+type Project = {
+  id: string;
+  Project_title: string;
+  description: string;
+  github_link: string;
+  userId: string;
+  web_link: string;
 };
 
 const Profile = () => {
@@ -30,6 +50,8 @@ const Profile = () => {
   const [imageState, setImageState] = useState<ImageState>({
     selectedImage: null,
   });
+  const [uid, setUid] = useState<string>("");
+  const [projectsData, setProjectsData] = useState<Project[]>([]);
 
   const db = getFirestore(FirebaseApp);
 
@@ -46,6 +68,16 @@ const Profile = () => {
       console.log(emblaApi.slideNodes());
     }
   }, [emblaApi]);
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        setUid(uid);
+      }
+    });
+  }, [userDocId]);
 
   // for getting the 'users' collection data
   useEffect(() => {
@@ -70,9 +102,38 @@ const Profile = () => {
     }
   }, [profileModal, userDocId]);
 
+  useEffect(() => {
+    const getProjectsData = async () => {
+      const q = query(collection(db, "projects"), where("userId", "==", uid));
+      const querySnapshot = await getDocs(q);
+      const projectsArray: Project[] = [];
+      querySnapshot.forEach((doc) => {
+        const projectData = { id: doc.id, ...doc.data() } as Project;
+        projectsArray.push(projectData);
+        console.log(doc.id);
+      });
+      setProjectsData(projectsArray);
+    };
+
+    if (uid) {
+      getProjectsData();
+    }
+  }, [opnAddProjectModal, userDocId, uid]);
+
   const handleProject = () => {};
 
   const addProject = () => {};
+
+  const handleProjectDelete = async (projectId: string) => {
+    try {
+      await deleteDoc(doc(db, "projects", projectId));
+      setProjectsData((prevProjects) =>
+        prevProjects.filter((project) => project.id !== projectId)
+      );
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
+  };
 
   return (
     <>
@@ -98,7 +159,10 @@ const Profile = () => {
             </div>
             <div className={styles.pp_username}>
               <div className={styles.show_pp}>
-                <img src={imageState.selectedImage || "/defaultProfile3.png"} className={styles.show_img} />
+                <img
+                  src={imageState.selectedImage || "/defaultProfile3.png"}
+                  className={styles.show_img}
+                />
               </div>
 
               <div>
@@ -146,51 +210,52 @@ const Profile = () => {
               </div>
               <hr className={styles.ruler} />
 
-              <div className={styles.project_list}>
-                <div className={styles.project_showcase}>
-                  <div
-                    className={styles.name_link}
-                    onClick={() => handleProject()}
-                  >
-                    <h2 className={styles.name}>Nosidian</h2>
-                    <Image
-                      src="/external_link.png"
-                      alt="externalLink"
-                      width={30}
-                      height={30}
-                      priority={true}
-                      className={styles.link_icon}
-                    />
-                  </div>
+              {projectsData.map((project, index) => (
+                <div className={styles.project_list} key={index}>
+                  <div className={styles.project_showcase}>
+                    <div
+                      className={styles.name_link}
+                      onClick={() => handleProject()}
+                    >
+                      <h2 className={styles.name}>{project.Project_title}</h2>
+                      <Image
+                        src="/external_link.png"
+                        alt="externalLink"
+                        width={30}
+                        height={30}
+                        priority={true}
+                        className={styles.link_icon}
+                      />
+                    </div>
 
-                  <div className={styles.carousel_container}>
-                    <div className={styles.embla} ref={emblaRef}>
-                      <div className={styles.embla__container}>
-                        <div className={styles.embla__slide}>Slide 1</div>
-                        <div className={styles.embla__slide}>Slide 2</div>
-                        <div className={styles.embla__slide}>Slide 3</div>
+                    <div className={styles.carousel_container}>
+                      <div className={styles.embla} ref={emblaRef}>
+                        <div className={styles.embla__container}>
+                          <div className={styles.embla__slide}>Slide 1</div>
+                          <div className={styles.embla__slide}>Slide 2</div>
+                          <div className={styles.embla__slide}>Slide 3</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.desc}>{project.description}</div>
+
+                    <div className={styles.btm_part}>
+                      <div>
+                        <ul className={styles.btm_content}>
+                          <li onClick={() => setOpnEditProject(true)}>Edit</li>
+                          <li onClick={() => handleProjectDelete(project.id)}>
+                            Delete
+                          </li>
+                          <Link href={project.github_link}>
+                            <li>GitHub</li>
+                          </Link>
+                        </ul>
                       </div>
                     </div>
                   </div>
-
-                  <div className={styles.desc}>
-                    Remember, this CSS will only affect browsers that support
-                    the WebKit or Firefox scrollbar customization. For a more
-                    cross-browser solution, you might want to consider using a
-                    JavaScript library like Perfect Scrollbar or Simplebar.
-                  </div>
-
-                  <div className={styles.btm_part}>
-                    <div>
-                      <ul className={styles.btm_content}>
-                        <li onClick={() => setOpnEditProject(true)}>Edit</li>
-                        <li>Delete</li>
-                        <li>GitHub</li>
-                      </ul>
-                    </div>
-                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -204,6 +269,7 @@ const Profile = () => {
         opnEditProject={opnEditProject}
         setOpnEditProject={setOpnEditProject}
         setImageState={setImageState}
+        imageState={imageState}
       />
     </>
   );
