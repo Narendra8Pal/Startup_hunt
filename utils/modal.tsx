@@ -12,7 +12,14 @@ import { setUser } from "@/store/userName";
 //firebase
 import FirebaseApp from "../utils/firebase";
 import { getFirestore } from "firebase/firestore";
-import { doc, addDoc, collection, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  addDoc,
+  collection,
+  getDoc,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
@@ -24,14 +31,15 @@ type ImageState = {
 };
 
 type ModalProps = {
+  pathname?: any;
   setOpnAddProjectModal: React.Dispatch<React.SetStateAction<boolean>>;
   opnAddProjectModal: boolean;
-  profileModal: boolean;
-  setProfileModal: React.Dispatch<React.SetStateAction<boolean>>;
+  profileModal?: boolean;
+  setProfileModal?: React.Dispatch<React.SetStateAction<boolean>>;
   opnEditProject: boolean;
   setOpnEditProject: React.Dispatch<React.SetStateAction<boolean>>;
-  setImageState: React.Dispatch<React.SetStateAction<ImageState>>;
-  imageState: ImageState;
+  setImageState?: React.Dispatch<React.SetStateAction<ImageState>>;
+  imageState?: ImageState;
 };
 
 const Modal = (props: ModalProps) => {
@@ -107,7 +115,7 @@ const Modal = (props: ModalProps) => {
       twitterUsername: xUsername,
       githubUsername: githubUsername,
     });
-    props.setProfileModal(false);
+    props.setProfileModal?.(false);
     // uploadFile();
   };
 
@@ -136,7 +144,7 @@ const Modal = (props: ModalProps) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       let img = e.target.files[0];
-      props.setImageState({ selectedImage: URL.createObjectURL(img) });
+      props.setImageState?.({ selectedImage: URL.createObjectURL(img) });
 
       const storage = getStorage();
 
@@ -163,7 +171,7 @@ const Modal = (props: ModalProps) => {
       userId: uid,
       web_link: webLink,
     });
-    props.setOpnAddProjectModal(false)
+    props.setOpnAddProjectModal(false);
   };
 
   return (
@@ -284,7 +292,7 @@ const Modal = (props: ModalProps) => {
           <div className={styles.modal_div}></div>
           <div
             className={styles.add_modal_bg}
-            onClick={() => props.setProfileModal(false)}
+            onClick={() => props.setProfileModal?.(false)}
           >
             <div
               className={styles.add_profile_modal}

@@ -1,15 +1,77 @@
 .layout_div {
-  @apply flex mb-40;
+  @apply flex;
 }
 
 .container {
-  @apply flex-1 flex place-items-center;
+  @apply mx-auto mt-20;
 }
 
 .container_content {
-    @apply w-[900px] mx-auto p-6;
-  }
+  @apply w-[900px] p-6 border border-home-stroke rounded-xl;
+}
 
-  .project_showcase{
-    /* @apply  */
-  }
+.default_page {
+  @apply grid h-screen w-screen place-content-center;
+}
+
+.df_bg {
+  @apply bg-home-gray rounded-xl p-6 grid gap-8 h-[412px] place-content-center w-[1000px]  border-2 border-home-stroke;
+}
+
+.df_icons {
+  @apply flex flex-row justify-center;
+}
+
+.text {
+  @apply font-light text-4xl flex justify-center;
+}
+
+.project_showcase {
+  @apply grid gap-10;
+}
+
+.header {
+  @apply flex justify-between;
+}
+.title {
+  @apply text-lg font-semibold cursor-pointer;
+}
+
+.share {
+  @apply cursor-pointer;
+}
+
+.carousel_desc_box {
+  @apply border border-home-stroke p-6 rounded-lg;
+}
+
+.carousel_container {
+  @apply p-6;
+}
+
+.embla {
+  @apply overflow-hidden rounded-md;
+}
+
+.embla__container {
+  @apply flex flex-row h-[200px] gap-1 rounded-md;
+}
+.embla__slide {
+  @apply flex-shrink-0 flex-grow-0 w-[40%] min-w-0 bg-white rounded-md border border-home-stroke;
+}
+
+.text_btn{
+  @apply flex flex-row justify-between
+}
+
+.txt{
+@apply text-sm font-semibold
+}
+
+.cmnt_btn{
+  @apply bg-index-black_btn px-4 py-2 font-semibold text-sm rounded-full text-white cursor-pointer
+}
+
+.ruler{
+  @apply w-[70%] mt-8 mx-auto
+}
