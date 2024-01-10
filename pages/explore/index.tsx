@@ -213,6 +213,22 @@ const Explore = () => {
                         {opnCommentModal && (
                           <>
                             <div className=" p-6 rounded-md grid gap-3">
+                              <div className={styles.all_comments}>
+                                <div className={styles.cmt_pp_name}>
+                                  <div className={styles.cmt_pp}>
+                                    <img src="" />
+                                  </div>
+                                  <div className={styles.cmt_name_txt}>
+                                    <h2 className={styles.cmt_user}>
+                                      username
+                                    </h2>
+                                    <p className={styles.cmt_txt}>
+                                      what is the msg that user has written here
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
                               <textarea
                                 placeholder="what do you wanna say?"
                                 className="p-2 outline-none min-h-[3rem] max-h-[6rem] text-sm"

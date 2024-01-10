@@ -7,7 +7,7 @@
 }
 
 .container_content {
-  @apply w-[900px] p-6 border border-home-stroke rounded-xl;
+  @apply w-[900px] p-6 border-2 border-home-stroke rounded-xl bg-white;
 }
 
 .default_page {
@@ -34,7 +34,7 @@
   @apply flex justify-between;
 }
 .title {
-  @apply text-lg font-semibold cursor-pointer;
+  @apply text-lg font-semibold cursor-pointer ml-2;
 }
 
 .share {
@@ -60,18 +60,38 @@
   @apply flex-shrink-0 flex-grow-0 w-[40%] min-w-0 bg-white rounded-md border border-home-stroke;
 }
 
-.text_btn{
-  @apply flex flex-row justify-between
+.text_btn {
+  @apply flex flex-row justify-between;
 }
 
-.txt{
-@apply text-sm font-semibold
+.txt {
+  @apply text-sm font-semibold;
 }
 
-.cmnt_btn{
-  @apply bg-index-black_btn px-4 py-2 font-semibold text-sm rounded-full text-white cursor-pointer
+.cmnt_btn {
+  @apply bg-index-black_btn px-4 py-2 font-semibold text-sm rounded-full text-white cursor-pointer;
 }
 
-.ruler{
-  @apply w-[70%] mt-8 mx-auto
+.ruler {
+  @apply w-[70%] mt-8 mx-auto;
+}
+
+.all_comments {
+  @apply min-h-[8rem] flex flex-col text-sm;
+}
+
+.cmt_pp {
+  @apply h-10 w-10 rounded-full border border-home-stroke;
+}
+
+.cmt_user {
+  @apply font-medium;
+}
+
+.cmt_pp_name {
+  @apply flex flex-row;
+}
+
+.cmt_name_txt {
+  @apply flex flex-col gap-2 ml-4 mt-2;
 }

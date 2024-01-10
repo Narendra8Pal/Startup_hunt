@@ -20,6 +20,10 @@ const config: Config = {
           logo_orange1: "#FEB55E",
           logo_orange2: "#FF7343",
         },
+        page: {
+          cream: "#f5f5f5",
+          light: "#fcfafa",
+        },
         home: {
           light_white: "#f9fafb",
           stroke: "#F2F3F6",

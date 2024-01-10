@@ -20,15 +20,22 @@ import {
   updateDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  UploadTask,
+  getDownloadURL,
+  uploadBytesResumable,
+} from "firebase/storage";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 import { Tooltip } from "react-tooltip";
 
-type ImageState = {
-  selectedImage: string | null;
-};
+// type ImageState = {
+//   selectedImage: File | null;
+// };
 
 type ModalProps = {
   pathname?: any;
@@ -38,8 +45,10 @@ type ModalProps = {
   setProfileModal?: React.Dispatch<React.SetStateAction<boolean>>;
   opnEditProject: boolean;
   setOpnEditProject: React.Dispatch<React.SetStateAction<boolean>>;
-  setImageState?: React.Dispatch<React.SetStateAction<ImageState>>;
-  imageState?: ImageState;
+  setSelectedFile?: React.Dispatch<React.SetStateAction<File | null>>;
+  selectedFile?: File | null;
+  imgURL?: string;
+  setImgURL?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const Modal = (props: ModalProps) => {
@@ -60,6 +69,7 @@ const Modal = (props: ModalProps) => {
   );
 
   const db = getFirestore(FirebaseApp);
+  const storage = getStorage(FirebaseApp);
 
   useEffect(() => {
     if (emblaApi) {
@@ -72,7 +82,7 @@ const Modal = (props: ModalProps) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const uid = user.uid;
-        console.log(uid, "user uuid");
+        // console.log(uid, "user uuid");
         setUid(uid);
       }
     });
@@ -114,9 +124,10 @@ const Modal = (props: ModalProps) => {
       username: user,
       twitterUsername: xUsername,
       githubUsername: githubUsername,
+      profile_img: props.imgURL,
     });
     props.setProfileModal?.(false);
-    // uploadFile();
+    handleFileUpload();
   };
 
   useEffect(() => {
@@ -141,25 +152,59 @@ const Modal = (props: ModalProps) => {
     }
   }, [userDocId, props.profileModal]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      let img = e.target.files[0];
-      props.setImageState?.({ selectedImage: URL.createObjectURL(img) });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      props.setSelectedFile?.(file);
+    }
+  };
 
-      const storage = getStorage();
+  const handleFileUpload = async () => {
+    if (props.selectedFile) {
+      const storageRef = ref(
+        storage,
+        `${process.env.NEXT_PUBLIC_STORAGE_BUCKET}/${props.selectedFile.name}`
+      );
+      const uploadTask: UploadTask = uploadBytesResumable(
+        storageRef,
+        props.selectedFile
+      );
 
-      const storageRef = ref(storage);
+      try {
+        await new Promise((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log("Upload is " + progress + "% done");
 
-      const imagesRef = ref(storageRef, "images");
+              switch (snapshot.state) {
+                case "paused":
+                  console.log("Upload is paused");
+                  break;
+                case "running":
+                  console.log("Upload is running");
+                  break;
+              }
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                console.log("File available at", downloadURL);
+                props.setImgURL?.(downloadURL);
+              });
+              resolve(getDownloadURL);
+            }
+          );
+        });
 
-      const fileName = "profile.jpg";
-      const spaceRef = ref(imagesRef, fileName);
-      const path = spaceRef.fullPath;
-      const name = spaceRef.name;
-      const imagesRefAgain = spaceRef.parent;
-      uploadBytes(storageRef, img).then((snapshot) => {
-        console.log("Uploaded a blob or file!");
-      });
+        console.log("File uploaded successfully.");
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
     }
   };
 
@@ -303,7 +348,7 @@ const Modal = (props: ModalProps) => {
                   <div className={styles.pf_img_input}>
                     <div className={styles.pf_img_div}>
                       {/* <img
-                        src={imageState.selectedImage || "userDefaultImg"}
+                        src={selectedFile.selectedImage || "userDefaultImg"}
                         className={styles.pf_img}
                       /> */}
                       <label
@@ -320,7 +365,7 @@ const Modal = (props: ModalProps) => {
                         type="file"
                         accept="image/*"
                         id="fileInput"
-                        onChange={handleImageChange}
+                        onChange={handleFileChange}
                         style={{ display: "none" }}
                       />
                     </div>

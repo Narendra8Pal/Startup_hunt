@@ -52,6 +52,7 @@ const Auth = () => {
         userId: uid,
         twitterUsername: "",
         githubUsername: "",
+        profile_img: "",
       });
       // console.log(docRef, 'docRef bro')
       docId = docRef.id;

@@ -28,10 +28,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 //other packages
 import useEmblaCarousel from "embla-carousel-react";
 
-type ImageState = {
-  selectedImage: string | null;
-};
-
 type Project = {
   id: string;
   Project_title: string;
@@ -47,9 +43,9 @@ const Profile = () => {
   const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
   const [xUsername, setXUsername] = useState<string>("");
   const [gitUsername, setGitUsername] = useState<string>("");
-  const [imageState, setImageState] = useState<ImageState>({
-    selectedImage: null,
-  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imgURL, setImgURL] = useState<string>("");
+
   const [uid, setUid] = useState<string>("");
   const [projectsData, setProjectsData] = useState<Project[]>([]);
 
@@ -160,7 +156,7 @@ const Profile = () => {
             <div className={styles.pp_username}>
               <div className={styles.show_pp}>
                 <img
-                  src={imageState.selectedImage || "/defaultProfile3.png"}
+                  src={imgURL || "/defaultProfile3.png"}
                   className={styles.show_img}
                 />
               </div>
@@ -268,8 +264,10 @@ const Profile = () => {
         setProfileModal={setProfileModal}
         opnEditProject={opnEditProject}
         setOpnEditProject={setOpnEditProject}
-        setImageState={setImageState}
-        imageState={imageState}
+        setSelectedFile={setSelectedFile}
+        selectedFile={selectedFile}
+        imgURL={imgURL}
+        setImgURL={setImgURL}
       />
     </>
   );
