@@ -1,5 +1,5 @@
 //next.js, style,files
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Sidebar from "@/utils/sidebar";
 import styles from "@/styles/profile.module.css";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import Modal from "@/utils/modal";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
 import { setUser } from "@/store/userName";
+import { setImgUrl } from "@/store/imgURL";
 //firebase
 import FirebaseApp from "../../utils/firebase";
 import { getFirestore } from "firebase/firestore";
@@ -27,6 +28,9 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 import useEmblaCarousel from "embla-carousel-react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 type Project = {
   id: string;
@@ -35,6 +39,7 @@ type Project = {
   github_link: string;
   userId: string;
   web_link: string;
+  project_img: string[];
 };
 
 const Profile = () => {
@@ -44,7 +49,8 @@ const Profile = () => {
   const [xUsername, setXUsername] = useState<string>("");
   const [gitUsername, setGitUsername] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imgURL, setImgURL] = useState<string>("");
+  const [userImgURL, setUserImgURL] = useState<string>("");
+  const [editProjObj, setEditProjObj] = useState<Project>();
 
   const [uid, setUid] = useState<string>("");
   const [projectsData, setProjectsData] = useState<Project[]>([]);
@@ -56,14 +62,7 @@ const Profile = () => {
   const userDocId = useSelector(
     (state: RootState) => state.usersDocId.usersDocId
   );
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-
-  useEffect(() => {
-    if (emblaApi) {
-      console.log(emblaApi.slideNodes());
-    }
-  }, [emblaApi]);
+  const imgURL = useSelector((state: RootState) => state.imgURL.imgURL);
 
   useEffect(() => {
     const auth = getAuth();
@@ -85,6 +84,7 @@ const Profile = () => {
             dispatch(setUser(data.username));
             setXUsername(data.twitterUsername);
             setGitUsername(data.githubUsername);
+            setUserImgURL(data.profile_img);
           } else {
             console.log("No such document!");
           }
@@ -92,11 +92,12 @@ const Profile = () => {
         .catch((error) => {
           console.error("Error getting document: ", error);
         });
+      dispatch(setImgUrl(false));
     };
     if (userDocId) {
       modalCloseUpdate();
     }
-  }, [profileModal, userDocId]);
+  }, [profileModal, userDocId, imgURL]);
 
   useEffect(() => {
     const getProjectsData = async () => {
@@ -131,6 +132,21 @@ const Profile = () => {
     }
   };
 
+  const handleEditProject = (project: Project) => {
+    setOpnEditProject(true);
+    setEditProjObj(project);
+  };
+
+  const settings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: projectsData.length,
+    slidesToScroll: 1,
+  };
+
+  console.log(projectsData.length, 'projectsDAta .lenght bro')
+
   return (
     <>
       <Sidebar />
@@ -156,7 +172,7 @@ const Profile = () => {
             <div className={styles.pp_username}>
               <div className={styles.show_pp}>
                 <img
-                  src={imgURL || "/defaultProfile3.png"}
+                  src={userImgURL || "/defaultProfile3.png"}
                   className={styles.show_img}
                 />
               </div>
@@ -206,52 +222,65 @@ const Profile = () => {
               </div>
               <hr className={styles.ruler} />
 
-              {projectsData.map((project, index) => (
-                <div className={styles.project_list} key={index}>
-                  <div className={styles.project_showcase}>
-                    <div
-                      className={styles.name_link}
-                      onClick={() => handleProject()}
-                    >
-                      <h2 className={styles.name}>{project.Project_title}</h2>
-                      <Image
-                        src="/external_link.png"
-                        alt="externalLink"
-                        width={30}
-                        height={30}
-                        priority={true}
-                        className={styles.link_icon}
-                      />
-                    </div>
+              {projectsData.map((project, index) => {
+                return (
+                  <div className={styles.project_list} key={index}>
+                    <div className={styles.project_showcase}>
+                      {/* <div className={styles.carousel_container}>
+                        <div className={styles.slider}>
+                          {project.project_img.map((img, imgIndex) => (
+                            <div className={styles.slider__container}>
+                              <div className={styles.slider__slide}>
+                                <img
+                                  src={img}
+                                  alt={`project_img_${imgIndex}`}
+                                  className={styles.slider_img}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div> */}
 
-                    <div className={styles.carousel_container}>
-                      <div className={styles.embla} ref={emblaRef}>
-                        <div className={styles.embla__container}>
-                          <div className={styles.embla__slide}>Slide 1</div>
-                          <div className={styles.embla__slide}>Slide 2</div>
-                          <div className={styles.embla__slide}>Slide 3</div>
+                      <div className={styles.slider}>
+                        <Slider
+                          {...settings}
+                          className={styles.carousel_container}
+                        >
+                          {project.project_img.map((img, imgIndex) => (
+                            <div className={styles.slider__container}>
+                              <div className={styles.slider__slide}>
+                                <img
+                                  src={img}
+                                  alt={`project_img_${imgIndex}`}
+                                  className={styles.slider_img}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </Slider>
+                      </div>
+
+                      <div className={styles.desc}>{project.description}</div>
+                      <div className={styles.btm_part}>
+                        <div>
+                          <ul className={styles.btm_content}>
+                            <li onClick={() => handleEditProject(project)}>
+                              Edit
+                            </li>
+                            <li onClick={() => handleProjectDelete(project.id)}>
+                              Delete
+                            </li>
+                            <Link href={project.github_link} target="_blank">
+                              <li>GitHub</li>
+                            </Link>
+                          </ul>
                         </div>
                       </div>
                     </div>
-
-                    <div className={styles.desc}>{project.description}</div>
-
-                    <div className={styles.btm_part}>
-                      <div>
-                        <ul className={styles.btm_content}>
-                          <li onClick={() => setOpnEditProject(true)}>Edit</li>
-                          <li onClick={() => handleProjectDelete(project.id)}>
-                            Delete
-                          </li>
-                          <Link href={project.github_link}>
-                            <li>GitHub</li>
-                          </Link>
-                        </ul>
-                      </div>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -266,8 +295,7 @@ const Profile = () => {
         setOpnEditProject={setOpnEditProject}
         setSelectedFile={setSelectedFile}
         selectedFile={selectedFile}
-        imgURL={imgURL}
-        setImgURL={setImgURL}
+        editProjObj={editProjObj}
       />
     </>
   );

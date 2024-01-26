@@ -27,7 +27,7 @@
 }
 
 .show_pp {
-  @apply w-60 h-60 rounded-full;
+  @apply w-60 h-60 rounded-full transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 duration-300;
 }
 
 .show_img {
@@ -66,12 +66,16 @@
   @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold hover:opacity-90 hover:bg-gradient-to-r from-index-logo_orange2 to-index-logo_orange1;
 }
 
+.ruler {
+  /* @apply border-t border-dotted my-4 */
+}
+
 .project_list {
   @apply border border-home-stroke bg-white rounded-md min-h-[24rem] h-auto /*transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300*/;
 }
 
 .project_showcase {
-  @apply p-6;
+  @apply p-6 w-[900px];
 }
 
 .name_link {
@@ -87,18 +91,22 @@
 }
 
 .carousel_container {
-  @apply p-6;
+  @apply p-6 h-[280px];
 }
 
-.embla {
+.slider {
   @apply overflow-hidden rounded-md border-2 border-home-stroke;
 }
 
-.embla__container {
+.slider__container {
   @apply flex flex-row h-[200px] gap-1 rounded-md;
 }
-.embla__slide {
-  @apply flex-shrink-0 flex-grow-0 w-[40%] min-w-0 bg-white rounded-md border border-home-stroke;
+.slider__slide {
+  @apply flex-shrink-0 flex-grow-0 min-w-0 bg-white rounded-md border border-home-stroke;
+}
+
+.slider_img{
+  @apply bg-cover object-cover w-full h-[280px]
 }
 
 .desc {
@@ -160,8 +168,24 @@
   @apply w-full max-h-[10rem] min-h-[5rem] common_input;
 }
 
+.embla__slide1 {
+  @apply grid flex-shrink-0 flex-grow-0 w-[40%] min-w-0 bg-white rounded-md border border-home-stroke  hover:bg-home-light_white;
+}
+
+.media_title_btn {
+  @apply flex justify-between items-center;
+}
+
 .carousel_title {
-  @apply text-sm font-semibold mb-2;
+  @apply text-sm font-semibold;
+}
+
+.media_btn {
+  @apply text-white bg-index-black_btn px-4 py-2 font-semibold text-sm  rounded-lg;
+}
+
+.add_media {
+  @apply m-auto;
 }
 
 .img_input {

@@ -42,7 +42,8 @@
 }
 
 .carousel_desc_box {
-  @apply border border-home-stroke p-6 rounded-lg;
+  /* @apply border border-home-stroke p-6 rounded-lg; */
+  @apply  border-dashed border-2 border-index-black_btn p-6 rounded-lg;
 }
 
 .carousel_container {

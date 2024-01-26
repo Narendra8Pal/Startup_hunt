@@ -13,11 +13,17 @@ import Modal from "@/utils/modal";
 import Styles from "@/styles/sidebar.module.css";
 
 //firebase
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  setDoc,
+  doc,
+} from "firebase/firestore";
 import FirebaseApp from "../../utils/firebase";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
-import useEmblaCarousel from "embla-carousel-react";
 
 type Project = {
   id: string;
@@ -35,6 +41,7 @@ const Explore = () => {
   const userDocId = useSelector(
     (state: RootState) => state.usersDocId.usersDocId
   );
+  const user = useSelector((state: RootState) => state.userName.user);
   const db = getFirestore(FirebaseApp);
 
   const [showDefault, setShowDefault] = useState<boolean>(true);
@@ -42,8 +49,19 @@ const Explore = () => {
   const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
   const [projectsData, setProjectsData] = useState<Project[]>([]);
   const [opnCommentModal, setOpnCommentModal] = useState<boolean>(false);
+  const [uid, setUid] = useState<string>("");
+  const [textarea, setTextarea] = useState<string>("");
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        setUid(uid);
+      }
+    });
+  }, [userDocId]);
 
   // for realtime comments
   //   const unsub = onSnapshot(doc(db, "projects", ""), (doc) => {
@@ -67,6 +85,18 @@ const Explore = () => {
     };
     getAllProjects();
   }, []);
+
+  const handleMsgSent = async () => {
+    const docRef = await setDoc(doc(db, "comments", uid), {
+      profile_img: "",
+      username: user,
+      comment: textarea,
+    });
+
+    console.log(docRef, "msgsent");
+  };
+
+  const handleChange = () => {};
 
   return (
     <>
@@ -184,7 +214,7 @@ const Explore = () => {
 
                     <div className={styles.carousel_desc_box}>
                       <div className={styles.carousel_container}>
-                        <div className={styles.embla} ref={emblaRef}>
+                        <div className={styles.embla}>
                           <div className={styles.embla__container}>
                             <div className={styles.embla__slide}>Slide 1</div>
                             <div className={styles.embla__slide}>Slide 2</div>
@@ -232,10 +262,14 @@ const Explore = () => {
                               <textarea
                                 placeholder="what do you wanna say?"
                                 className="p-2 outline-none min-h-[3rem] max-h-[6rem] text-sm"
+                                onChange={(e) => setTextarea(e.target.value)}
                               />
                               <hr />
                               <div className="flex">
-                                <div className="ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer">
+                                <div
+                                  className="ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer"
+                                  onClick={handleMsgSent}
+                                >
                                   <Image
                                     src="/Sent.png"
                                     alt="sent"

@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "@/styles/profile.module.css";
-import useEmblaCarousel from "embla-carousel-react";
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
 import { setUser } from "@/store/userName";
+import { setImgUrl } from "@/store/imgURL";
 
 //firebase
 import FirebaseApp from "../utils/firebase";
@@ -37,6 +37,17 @@ import { Tooltip } from "react-tooltip";
 //   selectedImage: File | null;
 // };
 
+type Project = {
+  id: string;
+  Project_title: string;
+  description: string;
+  github_link: string;
+  userId: string;
+  web_link: string;
+};
+
+type Project_img = string[];
+
 type ModalProps = {
   pathname?: any;
   setOpnAddProjectModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,8 +58,7 @@ type ModalProps = {
   setOpnEditProject: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedFile?: React.Dispatch<React.SetStateAction<File | null>>;
   selectedFile?: File | null;
-  imgURL?: string;
-  setImgURL?: React.Dispatch<React.SetStateAction<string>>;
+  editProjObj?: Project;
 };
 
 const Modal = (props: ModalProps) => {
@@ -59,8 +69,10 @@ const Modal = (props: ModalProps) => {
   const [webLink, setWebLink] = useState<string>("");
   const [gitLink, setGitLink] = useState<string>("");
   const [uid, setUid] = useState<string>("");
+  const [userImgURL, setUserImgURL] = useState<string>("");
+  const [uploadImg, setUploadImg] = useState<boolean>(false);
+  const [projectImg, setProjectImg] = useState<Project_img>([]);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userName.user);
@@ -70,12 +82,6 @@ const Modal = (props: ModalProps) => {
 
   const db = getFirestore(FirebaseApp);
   const storage = getStorage(FirebaseApp);
-
-  useEffect(() => {
-    if (emblaApi) {
-      console.log(emblaApi.slideNodes());
-    }
-  }, [emblaApi]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -103,6 +109,7 @@ const Modal = (props: ModalProps) => {
           break;
         case "projectTitle":
           setProjectTitle(e.target.value);
+          console.log("projectTitle in addProjectModal working bro");
           break;
         case "desc":
           setProjectDesc(e.target.value);
@@ -119,15 +126,15 @@ const Modal = (props: ModalProps) => {
     };
 
   const pfDataToUpdate = async () => {
+    props.setProfileModal?.(false);
     const docRef = doc(db, "users", userDocId);
     await updateDoc(docRef, {
       username: user,
       twitterUsername: xUsername,
       githubUsername: githubUsername,
-      profile_img: props.imgURL,
+      profile_img: userImgURL,
     });
-    props.setProfileModal?.(false);
-    handleFileUpload();
+    setImgUrl(true);
   };
 
   useEffect(() => {
@@ -156,11 +163,14 @@ const Modal = (props: ModalProps) => {
     const file = e.target.files?.[0];
     if (file) {
       props.setSelectedFile?.(file);
+      setUploadImg(true);
     }
   };
 
   const handleFileUpload = async () => {
+    props.setSelectedFile?.(null);
     if (props.selectedFile) {
+      console.log("its working bro");
       const storageRef = ref(
         storage,
         `${process.env.NEXT_PUBLIC_STORAGE_BUCKET}/${props.selectedFile.name}`
@@ -177,14 +187,14 @@ const Modal = (props: ModalProps) => {
             (snapshot) => {
               const progress =
                 (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log("Upload is " + progress + "% done");
+              // console.log("Upload is " + progress + "% done");
 
               switch (snapshot.state) {
                 case "paused":
-                  console.log("Upload is paused");
+                  // console.log("Upload is paused");
                   break;
                 case "running":
-                  console.log("Upload is running");
+                  // console.log("Upload is running");
                   break;
               }
             },
@@ -194,18 +204,35 @@ const Modal = (props: ModalProps) => {
             () => {
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 console.log("File available at", downloadURL);
-                props.setImgURL?.(downloadURL);
+                setUserImgURL(downloadURL);
+                setProjectImg((prevProjectImg) => [
+                  ...prevProjectImg,
+                  downloadURL,
+                ]);
               });
               resolve(getDownloadURL);
+              console.log(userImgURL, "userImgUrl");
             }
           );
         });
 
-        console.log("File uploaded successfully.");
+        // console.log("File uploaded successfully.");
       } catch (error) {
         console.error("Error uploading file:", error);
       }
     }
+  };
+
+  useEffect(() => {
+    handleFileUpload();
+    setUploadImg(false);
+  }, [uploadImg]);
+
+  const cleanInputElements = () => {
+    setProjectTitle("");
+    setProjectDesc("");
+    setWebLink("");
+    setGitLink("");
   };
 
   const handleCreateProject = async () => {
@@ -215,18 +242,58 @@ const Modal = (props: ModalProps) => {
       github_link: gitLink,
       userId: uid,
       web_link: webLink,
+      project_img: projectImg,
+      project_vid: {},
     });
     props.setOpnAddProjectModal(false);
+    cleanInputElements();
+  };
+
+  const handleEditProject = () => {
+    console.log("you clicked on edit btn bro");
+  };
+
+  const handlePfModal = () => {
+    props.setProfileModal?.(false);
+    setImgUrl(true);
+  };
+
+  const handleEditChange = (
+    fieldName: string,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (fieldName === "projectTitle") {
+      setProjectTitle(e.target.value);
+      console.log("project title in handleeditchange bro");
+    } else if (fieldName === "desc") {
+      setProjectDesc(e.target.value);
+    } else if (fieldName === "web_link") {
+      setWebLink(e.target.value);
+    }
+  };
+
+  const handleMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("just get it done now");
+
+    const file = e.target.files?.[0];
+    if (file) {
+      props.setSelectedFile?.(file);
+      setUploadImg(true);
+    }
   };
 
   return (
     <>
-      {props.opnAddProjectModal && (
+      {props.opnAddProjectModal || props.opnEditProject ? (
         <>
           <div className={styles.modal_div}></div>
           <div
             className={styles.add_modal_bg}
-            onClick={() => props.setOpnAddProjectModal(false)}
+            onClick={
+              props.opnAddProjectModal
+                ? () => props.setOpnAddProjectModal(false)
+                : () => props.setOpnEditProject(false)
+            }
           >
             <div
               className={styles.add_project_modal}
@@ -237,12 +304,25 @@ const Modal = (props: ModalProps) => {
                   <div className={styles.project_title_input}>
                     <h2 className={styles.project_title}>Project title</h2>
                     <div className={styles.title_div}>
-                      <input
-                        className={styles.title_input}
-                        type="text"
-                        onChange={handleChange("projectTitle")}
-                        value={projectTitle}
-                      />
+                      {props.opnAddProjectModal ? (
+                        <input
+                          className={styles.title_input}
+                          type="text"
+                          onChange={handleChange("projectTitle")}
+                          value={projectTitle}
+                        />
+                      ) : (
+                        <input
+                          className={styles.title_input}
+                          type="text"
+                          onChange={(e) => handleEditChange("projectTitle", e)}
+                          value={
+                            projectTitle ||
+                            props.editProjObj?.Project_title ||
+                            ""
+                          }
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -251,22 +331,53 @@ const Modal = (props: ModalProps) => {
                       Tell anything about your project
                     </h2>
                     <div className={styles.desc_div}>
-                      <textarea
-                        className={styles.desc_textarea}
-                        onChange={handleChange("desc")}
-                        value={projectDesc}
-                      />
+                      {props.opnAddProjectModal ? (
+                        <textarea
+                          className={styles.desc_textarea}
+                          onChange={handleChange("desc")}
+                          value={projectDesc}
+                        />
+                      ) : (
+                        <textarea
+                          className={styles.desc_textarea}
+                          onChange={(e) => handleEditChange("desc", e)}
+                          value={projectDesc || props.editProjObj?.description}
+                        />
+                      )}
                     </div>
                   </div>
 
                   <div>
-                    <h2 className={styles.carousel_title}>Embed Img & Video</h2>
+                    <div className={styles.media_title_btn}>
+                      <h2 className={styles.carousel_title}>
+                        Embed Img & Video
+                      </h2>
+                      {/* <button className={styles.media_btn}>Add Media</button> */}
+                    </div>
                     <div className={styles.carousel_container}>
-                      <div className={styles.embla} ref={emblaRef}>
+                      <div className={styles.embla} >
                         <div className={styles.embla__container}>
-                          <div className={styles.embla__slide}>Slide 1</div>
-                          <div className={styles.embla__slide}>Slide 2</div>
-                          <div className={styles.embla__slide}>Slide 3</div>
+                          <div className={styles.embla__slide1}>
+                            <label htmlFor="fileInput" className="grid">
+                              <Image
+                                alt="add"
+                                src="/add.png"
+                                width={50}
+                                height={50}
+                                priority={true}
+                                className={styles.add_media}
+                              />
+                              <input
+                                type="file"
+                                accept="image/*, video/*"
+                                id="fileInput"
+                                onChange={handleMedia}
+                                style={{ display: "none" }}
+                              />
+                            </label>
+                          </div>
+                          <div className={styles.embla__slide}></div>
+                          <div className={styles.embla__slide}></div>
                         </div>
                       </div>
                     </div>
@@ -285,12 +396,21 @@ const Modal = (props: ModalProps) => {
                       </div>
                       <div className={styles.h2_input}>
                         <h2 className={styles.input_head}>Add project link</h2>
-                        <input
-                          type="text"
-                          className={styles.link_input}
-                          onChange={handleChange("web_link")}
-                          value={webLink}
-                        />
+                        {props.opnAddProjectModal ? (
+                          <input
+                            type="text"
+                            className={styles.link_input}
+                            onChange={handleChange("web_link")}
+                            value={webLink}
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            className={styles.link_input}
+                            onChange={(e) => handleEditChange("web_link", e)}
+                            value={webLink || props.editProjObj?.web_link}
+                          />
+                        )}
                       </div>
                     </div>
 
@@ -307,12 +427,21 @@ const Modal = (props: ModalProps) => {
 
                       <div className={styles.h2_input}>
                         <h2 className={styles.input_head}>Add github link</h2>
-                        <input
-                          type="text"
-                          className={styles.link_input}
-                          onChange={handleChange("git_link")}
-                          value={gitLink}
-                        />
+                        {props.opnAddProjectModal ? (
+                          <input
+                            type="text"
+                            className={styles.link_input}
+                            onChange={handleChange("git_link")}
+                            value={gitLink}
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            className={styles.link_input}
+                            onChange={(e) => handleEditChange("git_link", e)}
+                            value={gitLink || props.editProjObj?.github_link}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -321,24 +450,25 @@ const Modal = (props: ModalProps) => {
                 <div className={styles.create_div}>
                   <button
                     className={styles.create_btn}
-                    onClick={handleCreateProject}
+                    onClick={
+                      props.opnAddProjectModal
+                        ? handleCreateProject
+                        : handleEditProject
+                    }
                   >
-                    Create
+                    {props.opnAddProjectModal ? "Create" : "Edit"}
                   </button>
                 </div>
               </div>
             </div>
           </div>
         </>
-      )}
+      ) : null}
 
       {props.profileModal && (
         <>
           <div className={styles.modal_div}></div>
-          <div
-            className={styles.add_modal_bg}
-            onClick={() => props.setProfileModal?.(false)}
-          >
+          <div className={styles.add_modal_bg} onClick={handlePfModal}>
             <div
               className={styles.add_profile_modal}
               onClick={(e) => e.stopPropagation()}
@@ -441,93 +571,6 @@ const Modal = (props: ModalProps) => {
                       Save Profile
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {props.opnEditProject && (
-        <>
-          <div className={styles.modal_div}></div>
-          <div
-            className={styles.add_modal_bg}
-            onClick={() => props.setOpnEditProject(false)}
-          >
-            <div
-              className={styles.add_project_modal}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className={styles.modal_container}>
-                <div className={styles.modal_content}>
-                  <div className={styles.project_title_input}>
-                    <h2 className={styles.project_title}>Project title</h2>
-                    <div className={styles.title_div}>
-                      <input className={styles.title_input} type="text" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <h2 className={styles.project_desc}>
-                      Tell anything about your project
-                    </h2>
-                    <div className={styles.desc_div}>
-                      <textarea className={styles.desc_textarea} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <h2 className={styles.carousel_title}>Embed Img & Video</h2>
-                    <div className={styles.carousel_container}>
-                      <div className={styles.embla} ref={emblaRef}>
-                        <div className={styles.embla__container}>
-                          <div className={styles.embla__slide}>Slide 1</div>
-                          <div className={styles.embla__slide}>Slide 2</div>
-                          <div className={styles.embla__slide}>Slide 3</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className={styles.img_input}>
-                      <div>
-                        <Image
-                          src="/addLink.png"
-                          alt="websiteLink"
-                          width={30}
-                          height={30}
-                          priority={true}
-                        />
-                      </div>
-                      <div className={styles.h2_input}>
-                        <h2 className={styles.input_head}>Add project link</h2>
-                        <input type="text" className={styles.link_input} />
-                      </div>
-                    </div>
-
-                    <div className={styles.img_input}>
-                      <div>
-                        <Image
-                          src="/addLink.png"
-                          alt="githubLink"
-                          width={30}
-                          height={30}
-                          priority={true}
-                        />
-                      </div>
-
-                      <div className={styles.h2_input}>
-                        <h2 className={styles.input_head}>Add github link</h2>
-                        <input type="text" className={styles.link_input} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.create_div}>
-                  <button className={styles.create_btn}>Edit</button>
                 </div>
               </div>
             </div>
