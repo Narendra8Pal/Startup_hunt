@@ -28,9 +28,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 import useEmblaCarousel from "embla-carousel-react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import EmblaCarouselReact from "embla-carousel-react";
 
 type Project = {
   id: string;
@@ -52,10 +50,22 @@ const Profile = () => {
   const [userImgURL, setUserImgURL] = useState<string>("");
   const [editProjObj, setEditProjObj] = useState<Project>();
 
+  const [refs, setRefs] = useState<(HTMLDivElement | null)[]>([]);
+
   const [uid, setUid] = useState<string>("");
   const [projectsData, setProjectsData] = useState<Project[]>([]);
 
   const db = getFirestore(FirebaseApp);
+
+  // const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+
+  // const emblaRef = useRef(null);
+
+  // useEffect(() => {
+  //   if (emblaRef.current) {
+  //     const embla = EmblaCarouselReact(emblaRef.current);
+  //   }
+  // }, [emblaRef]);
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userName.user);
@@ -107,7 +117,7 @@ const Profile = () => {
       querySnapshot.forEach((doc) => {
         const projectData = { id: doc.id, ...doc.data() } as Project;
         projectsArray.push(projectData);
-        console.log(doc.id);
+        // console.log(doc.id);
       });
       setProjectsData(projectsArray);
     };
@@ -144,8 +154,6 @@ const Profile = () => {
     slidesToShow: projectsData.length,
     slidesToScroll: 1,
   };
-
-  console.log(projectsData.length, 'projectsDAta .lenght bro')
 
   return (
     <>
@@ -226,55 +234,50 @@ const Profile = () => {
                 return (
                   <div className={styles.project_list} key={index}>
                     <div className={styles.project_showcase}>
-                      {/* <div className={styles.carousel_container}>
-                        <div className={styles.slider}>
-                          {project.project_img.map((img, imgIndex) => (
-                            <div className={styles.slider__container}>
-                              <div className={styles.slider__slide}>
-                                <img
-                                  src={img}
-                                  alt={`project_img_${imgIndex}`}
-                                  className={styles.slider_img}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div> */}
-
-                      <div className={styles.slider}>
-                        <Slider
-                          {...settings}
-                          className={styles.carousel_container}
-                        >
-                          {project.project_img.map((img, imgIndex) => (
-                            <div className={styles.slider__container}>
-                              <div className={styles.slider__slide}>
-                                <img
-                                  src={img}
-                                  alt={`project_img_${imgIndex}`}
-                                  className={styles.slider_img}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </Slider>
+                      <div
+                        className={styles.name_link}
+                        onClick={() => handleProject()}
+                      >
+                        <h2 className={styles.name}>{project.Project_title}</h2>
+                        <Image
+                          src="/external_link.png"
+                          alt="externalLink"
+                          width={30}
+                          height={30}
+                          priority={true}
+                          className={styles.link_icon}
+                        />
                       </div>
 
-                      <div className={styles.desc}>{project.description}</div>
-                      <div className={styles.btm_part}>
-                        <div>
-                          <ul className={styles.btm_content}>
-                            <li onClick={() => handleEditProject(project)}>
-                              Edit
-                            </li>
-                            <li onClick={() => handleProjectDelete(project.id)}>
-                              Delete
-                            </li>
-                            <Link href={project.github_link} target="_blank">
-                              <li>GitHub</li>
-                            </Link>
-                          </ul>
+                      <div className={styles.carousel_box}>
+                        {project.project_img.map((img, imgIndex) => (
+                          <img
+                            src={img}
+                            alt={`project_img_${imgIndex}`}
+                            className={styles.carousel_img}
+                            key={imgIndex}
+                          />
+                        ))}
+                      </div>
+
+                      <div className={styles.desc_btm}>
+                        <div className={styles.desc}>{project.description}</div>
+                        <div className={styles.btm_part}>
+                          <div>
+                            <ul className={styles.btm_content}>
+                              <li onClick={() => handleEditProject(project)}>
+                                Edit
+                              </li>
+                              <li
+                                onClick={() => handleProjectDelete(project.id)}
+                              >
+                                Delete
+                              </li>
+                              <Link href={project.github_link} target="_blank">
+                                <li>GitHub</li>
+                              </Link>
+                            </ul>
+                          </div>
                         </div>
                       </div>
                     </div>

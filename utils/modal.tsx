@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "@/styles/profile.module.css";
+import { MouseEventHandler } from "react";
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
@@ -29,7 +30,6 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-
 //other packages
 import { Tooltip } from "react-tooltip";
 
@@ -72,7 +72,6 @@ const Modal = (props: ModalProps) => {
   const [userImgURL, setUserImgURL] = useState<string>("");
   const [uploadImg, setUploadImg] = useState<boolean>(false);
   const [projectImg, setProjectImg] = useState<Project_img>([]);
-
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userName.user);
@@ -249,8 +248,27 @@ const Modal = (props: ModalProps) => {
     cleanInputElements();
   };
 
-  const handleEditProject = () => {
+  const handleEditProject = async (id: string) => {
     console.log("you clicked on edit btn bro");
+    await updateDoc(doc(db, "projects", id), {
+      Project_title: projectTitle,
+      description: projectDesc,
+      github_link: gitLink,
+      web_link: webLink,
+      projectImg: projectImg,
+    });
+    props.setOpnEditProject(false);
+    cleanInputElements();
+  };
+
+  const onClickHandler: MouseEventHandler<HTMLButtonElement> = async (
+    event
+  ) => {
+    if (props.opnAddProjectModal) {
+      await handleCreateProject();
+    } else {
+      await handleEditProject(props.editProjObj?.id || "");
+    }
   };
 
   const handlePfModal = () => {
@@ -264,21 +282,30 @@ const Modal = (props: ModalProps) => {
   ) => {
     if (fieldName === "projectTitle") {
       setProjectTitle(e.target.value);
-      console.log("project title in handleeditchange bro");
     } else if (fieldName === "desc") {
       setProjectDesc(e.target.value);
     } else if (fieldName === "web_link") {
       setWebLink(e.target.value);
+    } else if (fieldName === "git_link") {
+      setGitLink(e.target.value);
     }
   };
 
   const handleMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("just get it done now");
-
     const file = e.target.files?.[0];
     if (file) {
       props.setSelectedFile?.(file);
       setUploadImg(true);
+    }
+  };
+
+  const projectModalClose = () => {
+    if (props.opnAddProjectModal) {
+      props.setOpnAddProjectModal(false);
+      cleanInputElements();
+    } else {
+      props.setOpnEditProject(false);
+      cleanInputElements();
     }
   };
 
@@ -289,11 +316,7 @@ const Modal = (props: ModalProps) => {
           <div className={styles.modal_div}></div>
           <div
             className={styles.add_modal_bg}
-            onClick={
-              props.opnAddProjectModal
-                ? () => props.setOpnAddProjectModal(false)
-                : () => props.setOpnEditProject(false)
-            }
+            onClick={projectModalClose}
           >
             <div
               className={styles.add_project_modal}
@@ -354,32 +377,28 @@ const Modal = (props: ModalProps) => {
                       </h2>
                       {/* <button className={styles.media_btn}>Add Media</button> */}
                     </div>
-                    <div className={styles.carousel_container}>
-                      <div className={styles.embla} >
-                        <div className={styles.embla__container}>
-                          <div className={styles.embla__slide1}>
-                            <label htmlFor="fileInput" className="grid">
-                              <Image
-                                alt="add"
-                                src="/add.png"
-                                width={50}
-                                height={50}
-                                priority={true}
-                                className={styles.add_media}
-                              />
-                              <input
-                                type="file"
-                                accept="image/*, video/*"
-                                id="fileInput"
-                                onChange={handleMedia}
-                                style={{ display: "none" }}
-                              />
-                            </label>
-                          </div>
-                          <div className={styles.embla__slide}></div>
-                          <div className={styles.embla__slide}></div>
-                        </div>
-                      </div>
+
+                    <div className={styles.modal_carousel_box}>
+                      <label
+                        htmlFor="fileInput"
+                        className={styles.modal_upld_img}
+                      >
+                        <Image
+                          alt="add"
+                          src="/add.png"
+                          width={50}
+                          height={50}
+                          priority={true}
+                          className={styles.add_media}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*, video/*"
+                          id="fileInput"
+                          onChange={handleMedia}
+                          style={{ display: "none" }}
+                        />
+                      </label>
                     </div>
                   </div>
 
@@ -450,11 +469,7 @@ const Modal = (props: ModalProps) => {
                 <div className={styles.create_div}>
                   <button
                     className={styles.create_btn}
-                    onClick={
-                      props.opnAddProjectModal
-                        ? handleCreateProject
-                        : handleEditProject
-                    }
+                    onClick={onClickHandler}
                   >
                     {props.opnAddProjectModal ? "Create" : "Edit"}
                   </button>
