@@ -114,7 +114,7 @@
 }
 
 .carousel_img {
-  @apply min-w-[290px] object-cover m-0.5 border-2 rounded-md;
+  @apply min-w-[290px] w-[290px] object-cover m-0.5 border-2 rounded-md;
 }
 
 .desc_btm {
@@ -193,7 +193,7 @@
 }
 
 .modal_carousel_box {
-  @apply border-2 w-1/2 rounded-md h-40;
+  @apply border-2 w-1/2 rounded-md h-40 overflow-x-auto;
 }
 
 .both_box {
@@ -201,7 +201,7 @@
 }
 
 .modal_imgs {
-  @apply grid grid-cols-4 gap-0.5 p-1 row-auto;
+  @apply grid grid-cols-4 gap-0.5 p-1 row-auto ;
 }
 
 .box_img {

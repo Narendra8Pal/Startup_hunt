@@ -71,16 +71,17 @@ const Modal = (props: ModalProps) => {
   const [gitLink, setGitLink] = useState<string>("");
   const [uid, setUid] = useState<string>("");
   const [userImgURL, setUserImgURL] = useState<string>("");
+  const [uploadPfImg, setUploadPfImg] = useState<boolean>(false);
   const [uploadImg, setUploadImg] = useState<boolean>(false);
   const [projectImg, setProjectImg] = useState<Project_img>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [imgStoredURL, setImgStoredURL] = useState<string>("");
-  const [editDelImg, setEditDelImg] = useState<boolean>(false);
+  const [imgStoredURL, setImgStoredURL] = useState<Project_img>([]);
 
   const [changePT, setChangePT] = useState<boolean>(false);
   const [changePD, setChangePD] = useState<boolean>(false);
   const [changeGL, setChangeGL] = useState<boolean>(false);
   const [changeWL, setChangeWL] = useState<boolean>(false);
+  const [changePfImg, setChangePfImg] = useState<boolean>(false);
 
   const [projectTitle, setProjectTitle] = useState<string>(
     props.editProjObj?.Project_title || ""
@@ -179,12 +180,12 @@ const Modal = (props: ModalProps) => {
     const file = e.target.files?.[0];
     if (file) {
       props.setSelectedFile?.(file);
-      setUploadImg(true);
+      setUploadPfImg(true);
     }
   };
 
   const handleFileUpload = async () => {
-    props.setSelectedFile?.(null);
+    // props.setSelectedFile?.(null);
     if (props.selectedFile) {
       console.log("its working bro");
       const storageRef = ref(
@@ -220,14 +221,19 @@ const Modal = (props: ModalProps) => {
             () => {
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 console.log("File available at", downloadURL);
-                setUserImgURL(downloadURL);
-                setProjectImg((prevProjectImg) => [
-                  ...prevProjectImg,
-                  downloadURL,
-                ]);
+                if (uploadPfImg) {
+                  setUserImgURL(downloadURL);
+                  setUploadPfImg(false);
+                }
+                if (uploadImg) {
+                  setProjectImg((prevProjectImg) => [
+                    ...prevProjectImg,
+                    downloadURL,
+                  ]);
+                  setUploadImg(false);
+                }
               });
               resolve(getDownloadURL);
-              console.log(userImgURL, "userImgUrl");
             }
           );
         });
@@ -241,8 +247,7 @@ const Modal = (props: ModalProps) => {
 
   useEffect(() => {
     handleFileUpload();
-    setUploadImg(false);
-  }, [uploadImg]);
+  }, [uploadImg, uploadPfImg]);
 
   const cleanInputElements = () => {
     setProjectTitle("");
@@ -262,6 +267,7 @@ const Modal = (props: ModalProps) => {
       project_vid: {},
     });
     props.setOpnAddProjectModal(false);
+    setProjectImg([]);
     cleanInputElements();
   };
 
@@ -278,12 +284,15 @@ const Modal = (props: ModalProps) => {
       description: changePD ? projectDesc : props.editProjObj?.description,
       github_link: changeGL ? gitLink : props.editProjObj?.github_link,
       web_link: changeWL ? webLink : props.editProjObj?.web_link,
-      projectImg: projectImg,
+      project_img: changePfImg
+        ? [...projectImg, ...(props.editProjObj?.project_img || [])]
+        : props.editProjObj?.project_img,
     });
-    if (imgStoredURL !== null) {
+    if (imgStoredURL.length > 0) {
       handleDeleteImage(imgStoredURL);
     }
     props.setOpnEditProject(false);
+    setProjectImg([]);
     cleanInputElements();
     inputChangeFalse();
   };
@@ -322,7 +331,7 @@ const Modal = (props: ModalProps) => {
     }
   };
 
-  const handleMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       props.setSelectedFile?.(file);
@@ -330,8 +339,17 @@ const Modal = (props: ModalProps) => {
     }
   };
 
+  const handleEditMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      props.setSelectedFile?.(file);
+      setUploadImg(true);
+      setChangePfImg(true);
+    }
+  };
+
   const projectModalClose = () => {
-    setImgStoredURL("");
+    setImgStoredURL([]);
     if (props.opnAddProjectModal) {
       props.setOpnAddProjectModal(false);
       cleanInputElements();
@@ -344,16 +362,18 @@ const Modal = (props: ModalProps) => {
   };
 
   const storeImgInfoDel = (url: string, index: number) => {
-    setEditDelImg(true);
-    setImgStoredURL(url);
+    // setImgStoredURL(url);
+    setImgStoredURL((prevURLs) => [...prevURLs, url]);
   };
 
-  const handleDeleteImage = async (url: string) => {
-    console.log(url,'url bro')
+  const handleDeleteImage = async (urls: string[]) => {
+    console.log(urls, "url bro");
+    console.log(...urls, "spread urls here");
     try {
       await updateDoc(doc(db, "projects", props.editProjObj?.id ?? ""), {
-        project_img: arrayRemove(url),
+        project_img: arrayRemove(...urls),
       });
+      setImgStoredURL([]);
     } catch (error) {
       console.error("Error deleting project img:", error);
     }
@@ -447,18 +467,21 @@ const Modal = (props: ModalProps) => {
                             type="file"
                             accept="image/*, video/*"
                             id="fileInput"
-                            onChange={handleMedia}
+                            onChange={
+                              props.opnAddProjectModal
+                                ? handleAddMedia
+                                : handleEditMedia
+                            }
                             style={{ display: "none" }}
                           />
                         </label>
                       </div>
 
-                      <div className={styles.modal_carousel_box}>
-                        <div className={styles.modal_imgs}>
-                          {props.editProjObj?.project_img
-                            ?.filter((url) => url !== imgStoredURL)
-                            .map((url, index) => (
-                              <div className={styles.img_del} key={index}>
+                      {props.opnAddProjectModal ? (
+                        <div className={styles.modal_carousel_box}>
+                          <div className={styles.modal_imgs}>
+                            {projectImg.map((url, index) => (
+                              <div key={index} className={styles.img_del}>
                                 {hoveredIndex === index && (
                                   <div
                                     className={styles.deleteIcon}
@@ -483,8 +506,45 @@ const Modal = (props: ModalProps) => {
                                 />
                               </div>
                             ))}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className={styles.modal_carousel_box}>
+                          <div className={styles.modal_imgs}>
+                            {(props.editProjObj?.project_img || [])
+                              .concat(projectImg || [])
+                              ?.filter((url) => !imgStoredURL.includes(url))
+                              .map((url, index) => (
+                                <div className={styles.img_del} key={index}>
+                                  {hoveredIndex === index && (
+                                    <div
+                                      className={styles.deleteIcon}
+                                      onClick={() =>
+                                        storeImgInfoDel(url, index)
+                                      }
+                                    >
+                                      <Image
+                                        src="/delete.png"
+                                        alt="add_icon"
+                                        width={15}
+                                        height={15}
+                                        priority={true}
+                                      />
+                                    </div>
+                                  )}
+                                  <img
+                                    src={url}
+                                    alt={`project_image_${index}`}
+                                    className={styles.box_img}
+                                    onMouseEnter={() => setHoveredIndex(index)}
+                                    onMouseLeave={() => setHoveredIndex(null)}
+                                    onClick={() => storeImgInfoDel(url, index)}
+                                  />
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
