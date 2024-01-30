@@ -19,6 +19,8 @@ import {
   collection,
   getDoc,
   updateDoc,
+  deleteField,
+  arrayRemove,
   onSnapshot,
 } from "firebase/firestore";
 import {
@@ -44,6 +46,7 @@ type Project = {
   github_link: string;
   userId: string;
   web_link: string;
+  project_img: string[];
 };
 
 type Project_img = string[];
@@ -64,14 +67,28 @@ type ModalProps = {
 const Modal = (props: ModalProps) => {
   const [xUsername, setXUsername] = useState<string>("");
   const [githubUsername, setGithubUsername] = useState<string>("");
-  const [projectTitle, setProjectTitle] = useState<string>("");
-  const [projectDesc, setProjectDesc] = useState<string>("");
   const [webLink, setWebLink] = useState<string>("");
   const [gitLink, setGitLink] = useState<string>("");
   const [uid, setUid] = useState<string>("");
   const [userImgURL, setUserImgURL] = useState<string>("");
   const [uploadImg, setUploadImg] = useState<boolean>(false);
   const [projectImg, setProjectImg] = useState<Project_img>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [imgStoredURL, setImgStoredURL] = useState<string>("");
+  const [editDelImg, setEditDelImg] = useState<boolean>(false);
+
+  const [changePT, setChangePT] = useState<boolean>(false);
+  const [changePD, setChangePD] = useState<boolean>(false);
+  const [changeGL, setChangeGL] = useState<boolean>(false);
+  const [changeWL, setChangeWL] = useState<boolean>(false);
+
+  const [projectTitle, setProjectTitle] = useState<string>(
+    props.editProjObj?.Project_title || ""
+  );
+
+  const [projectDesc, setProjectDesc] = useState<string>(
+    props.editProjObj?.description || ""
+  );
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userName.user);
@@ -248,17 +265,27 @@ const Modal = (props: ModalProps) => {
     cleanInputElements();
   };
 
+  const inputChangeFalse = () => {
+    setChangePT(false);
+    setChangePD(false);
+    setChangeWL(false);
+    setChangeGL(false);
+  };
+
   const handleEditProject = async (id: string) => {
-    console.log("you clicked on edit btn bro");
     await updateDoc(doc(db, "projects", id), {
-      Project_title: projectTitle,
-      description: projectDesc,
-      github_link: gitLink,
-      web_link: webLink,
+      Project_title: changePT ? projectTitle : props.editProjObj?.Project_title,
+      description: changePD ? projectDesc : props.editProjObj?.description,
+      github_link: changeGL ? gitLink : props.editProjObj?.github_link,
+      web_link: changeWL ? webLink : props.editProjObj?.web_link,
       projectImg: projectImg,
     });
+    if (imgStoredURL !== null) {
+      handleDeleteImage(imgStoredURL);
+    }
     props.setOpnEditProject(false);
     cleanInputElements();
+    inputChangeFalse();
   };
 
   const onClickHandler: MouseEventHandler<HTMLButtonElement> = async (
@@ -282,12 +309,16 @@ const Modal = (props: ModalProps) => {
   ) => {
     if (fieldName === "projectTitle") {
       setProjectTitle(e.target.value);
+      setChangePT(true);
     } else if (fieldName === "desc") {
       setProjectDesc(e.target.value);
+      setChangePD(true);
     } else if (fieldName === "web_link") {
       setWebLink(e.target.value);
+      setChangeWL(true);
     } else if (fieldName === "git_link") {
       setGitLink(e.target.value);
+      setChangeGL(true);
     }
   };
 
@@ -300,12 +331,31 @@ const Modal = (props: ModalProps) => {
   };
 
   const projectModalClose = () => {
+    setImgStoredURL("");
     if (props.opnAddProjectModal) {
       props.setOpnAddProjectModal(false);
       cleanInputElements();
+      inputChangeFalse();
     } else {
       props.setOpnEditProject(false);
       cleanInputElements();
+      inputChangeFalse();
+    }
+  };
+
+  const storeImgInfoDel = (url: string, index: number) => {
+    setEditDelImg(true);
+    setImgStoredURL(url);
+  };
+
+  const handleDeleteImage = async (url: string) => {
+    console.log(url,'url bro')
+    try {
+      await updateDoc(doc(db, "projects", props.editProjObj?.id ?? ""), {
+        project_img: arrayRemove(url),
+      });
+    } catch (error) {
+      console.error("Error deleting project img:", error);
     }
   };
 
@@ -314,10 +364,7 @@ const Modal = (props: ModalProps) => {
       {props.opnAddProjectModal || props.opnEditProject ? (
         <>
           <div className={styles.modal_div}></div>
-          <div
-            className={styles.add_modal_bg}
-            onClick={projectModalClose}
-          >
+          <div className={styles.add_modal_bg} onClick={projectModalClose}>
             <div
               className={styles.add_project_modal}
               onClick={(e) => e.stopPropagation()}
@@ -340,9 +387,9 @@ const Modal = (props: ModalProps) => {
                           type="text"
                           onChange={(e) => handleEditChange("projectTitle", e)}
                           value={
-                            projectTitle ||
-                            props.editProjObj?.Project_title ||
-                            ""
+                            changePT
+                              ? projectTitle
+                              : props.editProjObj?.Project_title || ""
                           }
                         />
                       )}
@@ -364,7 +411,11 @@ const Modal = (props: ModalProps) => {
                         <textarea
                           className={styles.desc_textarea}
                           onChange={(e) => handleEditChange("desc", e)}
-                          value={projectDesc || props.editProjObj?.description}
+                          value={
+                            changePD
+                              ? projectDesc
+                              : props.editProjObj?.description || ""
+                          }
                         />
                       )}
                     </div>
@@ -378,27 +429,62 @@ const Modal = (props: ModalProps) => {
                       {/* <button className={styles.media_btn}>Add Media</button> */}
                     </div>
 
-                    <div className={styles.modal_carousel_box}>
-                      <label
-                        htmlFor="fileInput"
-                        className={styles.modal_upld_img}
-                      >
-                        <Image
-                          alt="add"
-                          src="/add.png"
-                          width={50}
-                          height={50}
-                          priority={true}
-                          className={styles.add_media}
-                        />
-                        <input
-                          type="file"
-                          accept="image/*, video/*"
-                          id="fileInput"
-                          onChange={handleMedia}
-                          style={{ display: "none" }}
-                        />
-                      </label>
+                    <div className={styles.both_box}>
+                      <div className={styles.modal_carousel_box}>
+                        <label
+                          htmlFor="fileInput"
+                          className={styles.modal_upld_img}
+                        >
+                          <Image
+                            alt="add"
+                            src="/add.png"
+                            width={50}
+                            height={50}
+                            priority={true}
+                            className={styles.add_media}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*, video/*"
+                            id="fileInput"
+                            onChange={handleMedia}
+                            style={{ display: "none" }}
+                          />
+                        </label>
+                      </div>
+
+                      <div className={styles.modal_carousel_box}>
+                        <div className={styles.modal_imgs}>
+                          {props.editProjObj?.project_img
+                            ?.filter((url) => url !== imgStoredURL)
+                            .map((url, index) => (
+                              <div className={styles.img_del} key={index}>
+                                {hoveredIndex === index && (
+                                  <div
+                                    className={styles.deleteIcon}
+                                    onClick={() => storeImgInfoDel(url, index)}
+                                  >
+                                    <Image
+                                      src="/delete.png"
+                                      alt="add_icon"
+                                      width={15}
+                                      height={15}
+                                      priority={true}
+                                    />
+                                  </div>
+                                )}
+                                <img
+                                  src={url}
+                                  alt={`project_image_${index}`}
+                                  className={styles.box_img}
+                                  onMouseEnter={() => setHoveredIndex(index)}
+                                  onMouseLeave={() => setHoveredIndex(null)}
+                                  onClick={() => storeImgInfoDel(url, index)}
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -427,7 +513,11 @@ const Modal = (props: ModalProps) => {
                             type="text"
                             className={styles.link_input}
                             onChange={(e) => handleEditChange("web_link", e)}
-                            value={webLink || props.editProjObj?.web_link}
+                            value={
+                              changeWL
+                                ? webLink
+                                : props.editProjObj?.web_link || ""
+                            }
                           />
                         )}
                       </div>
@@ -458,7 +548,11 @@ const Modal = (props: ModalProps) => {
                             type="text"
                             className={styles.link_input}
                             onChange={(e) => handleEditChange("git_link", e)}
-                            value={gitLink || props.editProjObj?.github_link}
+                            value={
+                              changeGL
+                                ? gitLink
+                                : props.editProjObj?.github_link || ""
+                            }
                           />
                         )}
                       </div>

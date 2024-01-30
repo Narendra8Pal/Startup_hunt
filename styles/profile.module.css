@@ -101,7 +101,7 @@
 
 /* Handle */
 .carousel_box::-webkit-scrollbar-thumb {
-  @apply bg-modal-modal_bg;
+  @apply bg-modal-modal_bg rounded-md;
 }
 
 /* Handle on hover */
@@ -194,6 +194,30 @@
 
 .modal_carousel_box {
   @apply border-2 w-1/2 rounded-md h-40;
+}
+
+.both_box {
+  @apply flex flex-row space-x-2;
+}
+
+.modal_imgs {
+  @apply grid grid-cols-4 gap-0.5 p-1 row-auto;
+}
+
+.box_img {
+  @apply h-14 w-14 object-cover rounded-md border-2 border-home-stroke;
+}
+
+.box_img:hover {
+  @apply opacity-40 cursor-pointer border-2 border-index-black_btn;
+}
+
+.img_del {
+  @apply relative;
+}
+
+.deleteIcon {
+  @apply rounded-full z-10  absolute w-6 h-6 right-0 pointer-events-none bg-index-black_btn p-2 align-middle;
 }
 
 .modal_upld_img {

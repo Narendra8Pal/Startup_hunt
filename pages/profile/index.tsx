@@ -125,7 +125,7 @@ const Profile = () => {
     if (uid) {
       getProjectsData();
     }
-  }, [opnAddProjectModal, userDocId, uid]);
+  }, [opnAddProjectModal, userDocId, uid, opnEditProject]);
 
   const handleProject = () => {};
 
