@@ -1,13 +1,17 @@
 .layout_div {
-  @apply flex;
+  @apply grid mb-40 w-full;
+}
+
+.layout_content {
+  @apply gap-20 w-[800px] mt-20 mx-auto grid;
 }
 
 .container {
-  @apply mx-auto mt-20;
+  @apply mx-auto border-2 border-home-stroke rounded-xl bg-white w-[800px];
 }
 
 .container_content {
-  @apply w-[900px] p-6 border-2 border-home-stroke rounded-xl bg-white;
+  @apply w-[800px] p-6;
 }
 
 .default_page {
@@ -41,24 +45,39 @@
   @apply cursor-pointer;
 }
 
-.carousel_desc_box {
-  /* @apply border border-home-stroke p-6 rounded-lg; */
-  @apply  border-dashed border-2 border-index-black_btn p-6 rounded-lg;
+.carousel_box::-webkit-scrollbar {
+  @apply h-1.5;
 }
 
-.carousel_container {
-  @apply p-6;
+/* Track */
+.carousel_box::-webkit-scrollbar-track {
+  @apply bg-page-light;
 }
 
-.embla {
-  @apply overflow-hidden rounded-md;
+/* Handle */
+.carousel_box::-webkit-scrollbar-thumb {
+  @apply bg-modal-modal_bg rounded-md;
 }
 
-.embla__container {
-  @apply flex flex-row h-[200px] gap-1 rounded-md;
+/* Handle on hover */
+.carousel_box::-webkit-scrollbar-thumb:hover {
+  @apply bg-home-hover_gray;
 }
-.embla__slide {
-  @apply flex-shrink-0 flex-grow-0 w-[40%] min-w-0 bg-white rounded-md border border-home-stroke;
+
+.carousel_box {
+  @apply flex flex-row w-auto overflow-x-scroll overflow-y-hidden mx-6 mt-3 mb-6 h-[170px] border-2 rounded-sm;
+}
+
+.carousel_img {
+  @apply min-w-[250px] w-[250px] object-cover m-0.5 border-2 rounded-md;
+}
+
+.desc_btm {
+  @apply px-6 /*mb-6*/;
+}
+
+.desc {
+  @apply max-h-[33%];
 }
 
 .text_btn {
@@ -75,6 +94,10 @@
 
 .ruler {
   @apply w-[70%] mt-8 mx-auto;
+}
+
+.btm_cmnt_input {
+  @apply p-6 rounded-b-xl grid gap-3 bg-page-light;
 }
 
 .all_comments {
@@ -95,4 +118,8 @@
 
 .cmt_name_txt {
   @apply flex flex-col gap-2 ml-4 mt-2;
+}
+
+.cmt_textarea {
+  @apply p-2 outline-none min-h-[3rem] max-h-[6rem] text-sm border-2 border-home-stroke rounded-sm;
 }

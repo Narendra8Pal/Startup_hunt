@@ -11,6 +11,7 @@ import { RootState } from "@/store/index";
 //files
 import Modal from "@/utils/modal";
 import Styles from "@/styles/sidebar.module.css";
+import Sidebar from "@/utils/sidebar";
 
 //firebase
 import {
@@ -32,6 +33,7 @@ type Project = {
   github_link: string;
   userId: string;
   web_link: string;
+  project_img: string[];
 };
 
 const Explore = () => {
@@ -51,7 +53,6 @@ const Explore = () => {
   const [opnCommentModal, setOpnCommentModal] = useState<boolean>(false);
   const [uid, setUid] = useState<string>("");
   const [textarea, setTextarea] = useState<string>("");
-
 
   useEffect(() => {
     const auth = getAuth();
@@ -162,6 +163,8 @@ const Explore = () => {
         </div>
       </div>
 
+      {/* <Sidebar /> */}
+
       {showDefault ? (
         <div className={styles.default_page}>
           <div className={styles.df_bg}>
@@ -195,100 +198,103 @@ const Explore = () => {
         </div>
       ) : (
         <>
-          {projectsData.map((project, index) => (
-            <div className={styles.layout_div} key={index}>
-              <div className={styles.container}>
-                <div className={styles.container_content}>
-                  <div className={styles.project_showcase}>
-                    <div className={styles.header}>
-                      <h2 className={styles.title}>{project.Project_title}</h2>
-                      <Image
-                        alt="share"
-                        width={30}
-                        height={30}
-                        src="/Share.png"
-                        priority={true}
-                        className={styles.share}
-                      />
-                    </div>
+          <div className={styles.layout_div}>
+            <div className={styles.layout_content}>
+              {projectsData.map((project, index) => (
+                <div className={styles.container} key={index}>
+                  <div className={styles.container_content}>
+                    <div className={styles.project_showcase}>
+                      <div className={styles.header}>
+                        <h2 className={styles.title}>
+                          {project.Project_title}
+                        </h2>
+                        <Image
+                          alt="share"
+                          width={30}
+                          height={30}
+                          src="/Share.png"
+                          priority={true}
+                          className={styles.share}
+                        />
+                      </div>
 
-                    <div className={styles.carousel_desc_box}>
-                      <div className={styles.carousel_container}>
-                        <div className={styles.embla}>
-                          <div className={styles.embla__container}>
-                            <div className={styles.embla__slide}>Slide 1</div>
-                            <div className={styles.embla__slide}>Slide 2</div>
-                            <div className={styles.embla__slide}>Slide 3</div>
-                          </div>
+                      <div className={styles.carousel_box}>
+                        {project.project_img.map((img, imgIndex) => (
+                          <img
+                            src={img}
+                            alt={`project_img_${imgIndex}`}
+                            className={styles.carousel_img}
+                            key={imgIndex}
+                          />
+                        ))}
+                      </div>
+
+                      <div className={styles.desc_btm}>
+                        <div className={styles.desc}>{project.description}</div>
+                      </div>
+
+                      <div className={styles.comment_box}>
+                        <div className={styles.text_btn}>
+                          <h4 className={styles.txt}>Write your opinions.</h4>
+                          <button
+                            className={styles.cmnt_btn}
+                            onClick={() => setOpnCommentModal(true)}
+                          >
+                            comment
+                          </button>
                         </div>
-                      </div>
 
-                      <div className={styles.desc}>{project.description}</div>
-                    </div>
-
-                    <div className={styles.comment_box}>
-                      <div className={styles.text_btn}>
-                        <h4 className={styles.txt}>Write your opinions.</h4>
-                        <button
-                          className={styles.cmnt_btn}
-                          onClick={() => setOpnCommentModal(true)}
-                        >
-                          comment
-                        </button>
-                      </div>
-
-                      <hr className={styles.ruler} />
-
-                      <div className={styles.show_comment}>
-                        {opnCommentModal && (
-                          <>
-                            <div className=" p-6 rounded-md grid gap-3">
-                              <div className={styles.all_comments}>
-                                <div className={styles.cmt_pp_name}>
-                                  <div className={styles.cmt_pp}>
-                                    <img src="" />
-                                  </div>
-                                  <div className={styles.cmt_name_txt}>
-                                    <h2 className={styles.cmt_user}>
-                                      username
-                                    </h2>
-                                    <p className={styles.cmt_txt}>
-                                      what is the msg that user has written here
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <textarea
-                                placeholder="what do you wanna say?"
-                                className="p-2 outline-none min-h-[3rem] max-h-[6rem] text-sm"
-                                onChange={(e) => setTextarea(e.target.value)}
-                              />
-                              <hr />
-                              <div className="flex">
-                                <div
-                                  className="ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer"
-                                  onClick={handleMsgSent}
-                                >
-                                  <Image
-                                    src="/Sent.png"
-                                    alt="sent"
-                                    width={20}
-                                    height={20}
-                                    priority={true}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
+                        <hr className={styles.ruler} />
                       </div>
                     </div>
                   </div>
+
+                  <div className={styles.show_comment}>
+                    {opnCommentModal && (
+                      <>
+                        <div className={styles.btm_cmnt_input}>
+                          <div className={styles.all_comments}>
+                            <div className={styles.cmt_pp_name}>
+                              <div className={styles.cmt_pp}>
+                                <img src="" />
+                              </div>
+                              <div className={styles.cmt_name_txt}>
+                                <h2 className={styles.cmt_user}>username</h2>
+                                <p className={styles.cmt_txt}>
+                                  what is the msg that user has written here
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <textarea
+                            placeholder="what do you wanna say?"
+                            className={styles.cmt_textarea}
+                            onChange={(e) => setTextarea(e.target.value)}
+                          />
+                          <hr />
+                          <div className="flex">
+                            <div
+                              className="ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer"
+                              onClick={handleMsgSent}
+                            >
+                              <Image
+                                src="/Sent.png"
+                                alt="sent"
+                                width={20}
+                                height={20}
+                                priority={true}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </>
       )}
 

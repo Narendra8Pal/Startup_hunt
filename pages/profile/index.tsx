@@ -238,15 +238,22 @@ const Profile = () => {
                         className={styles.name_link}
                         onClick={() => handleProject()}
                       >
-                        <h2 className={styles.name}>{project.Project_title}</h2>
-                        <Image
-                          src="/external_link.png"
-                          alt="externalLink"
-                          width={30}
-                          height={30}
-                          priority={true}
-                          className={styles.link_icon}
-                        />
+                        <Link href={project.web_link} target="_blank">
+                          <h2 className={styles.name}>
+                            {project.Project_title}
+                          </h2>
+                        </Link>
+
+                        <Link href={project.web_link} target="_blank">
+                          <Image
+                            src="/external_link.png"
+                            alt="externalLink"
+                            width={30}
+                            height={30}
+                            priority={true}
+                            className={styles.link_icon}
+                          />
+                        </Link>
                       </div>
 
                       <div className={styles.carousel_box}>
@@ -259,26 +266,49 @@ const Profile = () => {
                           />
                         ))}
                       </div>
-
-                      <div className={styles.desc_btm}>
-                        <div className={styles.desc}>{project.description}</div>
-                        <div className={styles.btm_part}>
-                          <div>
-                            <ul className={styles.btm_content}>
-                              <li onClick={() => handleEditProject(project)}>
-                                Edit
-                              </li>
-                              <li
-                                onClick={() => handleProjectDelete(project.id)}
-                              >
-                                Delete
-                              </li>
-                              <Link href={project.github_link} target="_blank">
-                                <li>GitHub</li>
-                              </Link>
-                            </ul>
-                          </div>
-                        </div>
+                    </div>
+                    <div className={styles.desc_btm}>
+                      <div className={styles.desc}>{project.description}</div>
+                    </div>
+                    <div className={styles.btm_part}>
+                      <div>
+                        <ul className={styles.btm_content}>
+                          <Link href={project.github_link} target="_blank">
+                            <li className={styles.git_icon}>
+                              <Image
+                                src="/git_proj.png"
+                                alt="github.png"
+                                height={21}
+                                width={21}
+                                priority={true}
+                              />
+                            </li>
+                          </Link>
+                          <li
+                            onClick={() => handleProjectDelete(project.id)}
+                            className={styles.del_proj_icon}
+                          >
+                            <Image
+                              src="/delete_proj.png"
+                              alt="delte"
+                              height={18}
+                              width={18}
+                              priority={true}
+                            />
+                          </li>
+                          <li
+                            onClick={() => handleEditProject(project)}
+                            className={styles.edit_proj_icon}
+                          >
+                            <Image
+                              src="/edit_proj.png"
+                              alt="edit_proj"
+                              width={18}
+                              height={18}
+                              priority={true}
+                            />
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>

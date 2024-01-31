@@ -350,6 +350,7 @@ const Modal = (props: ModalProps) => {
 
   const projectModalClose = () => {
     setImgStoredURL([]);
+    setProjectImg([]);
     if (props.opnAddProjectModal) {
       props.setOpnAddProjectModal(false);
       cleanInputElements();

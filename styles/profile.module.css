@@ -7,11 +7,11 @@
 }
 
 .container_content {
-  @apply w-[900px] mx-auto p-6;
+  @apply mx-auto p-6;
 }
 
 .edit_btn_div {
-  @apply flex justify-end;
+  @apply flex justify-end w-[800px];
 }
 
 .edit_btn_icon {
@@ -55,7 +55,7 @@
 }
 
 .title_btn {
-  @apply flex flex-row justify-between items-center mt-8;
+  @apply flex flex-row justify-between items-center mt-8 w-[800px];
 }
 
 .text {
@@ -71,11 +71,11 @@
 }
 
 .project_list {
-  @apply border border-home-stroke bg-white rounded-md min-h-[24rem] h-auto /*transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300*/;
+  @apply border border-home-stroke bg-white rounded-md min-h-[21rem] h-auto w-[765px] m-auto;
 }
 
 .project_showcase {
-  @apply w-[900px];
+  /* @apply w-[900px]; */
 }
 
 .name_link {
@@ -110,15 +110,15 @@
 }
 
 .carousel_box {
-  @apply flex flex-row w-[850px] overflow-x-scroll overflow-y-hidden mx-6 mt-3 mb-6 h-[200px] border-2 rounded-sm;
+  @apply flex flex-row w-auto overflow-x-scroll overflow-y-hidden mx-6 mt-3 mb-6 h-[170px] border-2 rounded-sm;
 }
 
 .carousel_img {
-  @apply min-w-[290px] w-[290px] object-cover m-0.5 border-2 rounded-md;
+  @apply min-w-[250px] w-[250px] object-cover m-0.5 border-2 rounded-md;
 }
 
 .desc_btm {
-  @apply px-6;
+  @apply px-6 /*mb-6*/;
 }
 
 .desc {
@@ -126,15 +126,15 @@
 }
 
 .btm_part {
-  @apply flex w-full mt-3;
+  @apply flex w-full mt-6 justify-end bg-page-light rounded-b-md px-6 py-4;
 }
 
 .btm_content {
-  @apply flex gap-8;
+  @apply flex gap-8 items-center;
 }
 
 .btm_content li {
-  @apply cursor-pointer hover:underline hover:underline-offset-4 text-xs font-semibold;
+  @apply cursor-pointer;
 }
 
 .modal_div {
@@ -201,7 +201,7 @@
 }
 
 .modal_imgs {
-  @apply grid grid-cols-4 gap-0.5 p-1 row-auto ;
+  @apply grid grid-cols-4 gap-0.5 p-1 row-auto;
 }
 
 .box_img {
