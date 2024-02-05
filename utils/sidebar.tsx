@@ -23,7 +23,7 @@ const Sidebar = () => {
             <ul className={styles.ul_items}>
               <div
                 className={styles.icons_items}
-                onClick={() => router.push(`/explore`)}
+                onClick={() => router.push(`/explore/${userDocId}`)}
               >
                 <Image
                   src="/Compass.png"

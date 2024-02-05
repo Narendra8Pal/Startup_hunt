@@ -27,8 +27,7 @@ import {
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
-import useEmblaCarousel from "embla-carousel-react";
-import EmblaCarouselReact from "embla-carousel-react";
+
 
 type Project = {
   id: string;
@@ -56,16 +55,6 @@ const Profile = () => {
   const [projectsData, setProjectsData] = useState<Project[]>([]);
 
   const db = getFirestore(FirebaseApp);
-
-  // const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-
-  // const emblaRef = useRef(null);
-
-  // useEffect(() => {
-  //   if (emblaRef.current) {
-  //     const embla = EmblaCarouselReact(emblaRef.current);
-  //   }
-  // }, [emblaRef]);
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userName.user);
@@ -127,10 +116,6 @@ const Profile = () => {
     }
   }, [opnAddProjectModal, userDocId, uid, opnEditProject]);
 
-  const handleProject = () => {};
-
-  const addProject = () => {};
-
   const handleProjectDelete = async (projectId: string) => {
     try {
       await deleteDoc(doc(db, "projects", projectId));
@@ -145,14 +130,6 @@ const Profile = () => {
   const handleEditProject = (project: Project) => {
     setOpnEditProject(true);
     setEditProjObj(project);
-  };
-
-  const settings = {
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: projectsData.length,
-    slidesToScroll: 1,
   };
 
   return (
@@ -236,7 +213,6 @@ const Profile = () => {
                     <div className={styles.project_showcase}>
                       <div
                         className={styles.name_link}
-                        onClick={() => handleProject()}
                       >
                         <Link href={project.web_link} target="_blank">
                           <h2 className={styles.name}>

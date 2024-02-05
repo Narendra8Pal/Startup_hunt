@@ -20,9 +20,15 @@ import {
   getFirestore,
   setDoc,
   doc,
+  serverTimestamp,
+  addDoc,
+  getDoc,
+  query,
+  where,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import FirebaseApp from "../../utils/firebase";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 
@@ -34,6 +40,17 @@ type Project = {
   userId: string;
   web_link: string;
   project_img: string[];
+};
+
+type Comment = {
+  comment: string;
+  timestamp: any;
+};
+
+type CmntSection = {
+  profile_img: string;
+  username: string;
+  text: Comment[];
 };
 
 const Explore = () => {
@@ -50,18 +67,39 @@ const Explore = () => {
   const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
   const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
   const [projectsData, setProjectsData] = useState<Project[]>([]);
-  const [opnCommentModal, setOpnCommentModal] = useState<boolean>(false);
+  const [opnCommentBoxArray, setOpnCommentBoxArray] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [uid, setUid] = useState<string>("");
   const [textarea, setTextarea] = useState<string>("");
+  const [projectId, setProjectId] = useState<string>("");
+  const [projectUserId, setProjectUserId] = useState<string>("");
+  const [prjUsername, setPrjUsername] = useState<string>("");
+  const [userPfImg, setUserPfImg] = useState<string>("");
+  const [cmntBox, setCmntBox] = useState<CmntSection[]>([]);
+  const [showCmntSection, setShowCmntSection] = useState<boolean>(false);
+  const [cmntUsrImg, setCmntUsrImg] = useState<string>("");
 
   useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const uid = user.uid;
-        setUid(uid);
-      }
-    });
+    const modalCloseUpdate = () => {
+      console.log("modal close updates ran");
+      getDoc(doc(db, "users", `${userDocId}`))
+        .then((docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setUid(data.userId);
+            setCmntUsrImg(data.profile_img);
+          } else {
+            console.log("No such document!");
+          }
+        })
+        .catch((error) => {
+          console.error("Error getting document: ", error);
+        });
+    };
+    if (userDocId) {
+      modalCloseUpdate();
+    }
   }, [userDocId]);
 
   // for realtime comments
@@ -74,7 +112,7 @@ const Explore = () => {
       const querySnapshot = await getDocs(collection(db, "projects"));
       const projectsArray: Project[] = [];
       querySnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
+        // console.log(doc.id, " => ", doc.data());
         const projectData = { id: doc.id, ...doc.data() } as Project;
         projectsArray.push(projectData);
 
@@ -88,16 +126,112 @@ const Explore = () => {
   }, []);
 
   const handleMsgSent = async () => {
-    const docRef = await setDoc(doc(db, "comments", uid), {
-      profile_img: "",
+    console.log(user, "user name bro");
+    console.log("handlemsg sent ran bro");
+    const commentsCollection = collection(
+      db,
+      "projects",
+      projectId,
+      "comments"
+    );
+    const newCommentRef = doc(commentsCollection, uid);
+    const textCollectionRef = collection(newCommentRef, "text");
+    const newComment = {
+      profile_img: cmntUsrImg,
       username: user,
-      comment: textarea,
-    });
+    };
 
-    console.log(docRef, "msgsent");
+    try {
+      await setDoc(newCommentRef, newComment);
+      await addDoc(textCollectionRef, {
+        comment: textarea,
+        timestamp: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+    // setShowCmntSection(true);
   };
 
-  const handleChange = () => {};
+  const handleCommentButtonClick = (
+    projectId: string,
+    projectUserId: string
+  ) => {
+    console.log(projectId, 'projectId boss')
+    setProjectId(projectId);
+    // setProjectUserId(projectUserId);
+    // setOpnCommentBoxArray((prevOpnCommentModalArray) => ({
+    //   ...prevOpnCommentModalArray,
+    //   [projectId]: !prevOpnCommentModalArray[projectId],
+    // }));
+
+
+    setOpnCommentBoxArray((prevOpnCommentModalArray) => {
+      const updatedArray = { [projectId]: !prevOpnCommentModalArray[projectId] };
+  
+      Object.keys(prevOpnCommentModalArray).forEach((id) => {
+        if (id !== projectId) {
+          updatedArray[id] = false;
+        }
+      });
+  
+      return updatedArray;
+    });
+    
+    getPrjUserInfo(projectUserId);
+    setShowCmntSection(true);
+  };
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      console.log("fetchComments ran bro");
+      const commentsCollection = collection(
+        db,
+        "projects",
+        projectId,
+        "comments"
+      );
+      const querySnapshot = await getDocs(commentsCollection);
+
+      const comments: any = [];
+      querySnapshot.forEach(async (doc) => {
+        const commentData = doc.data();
+        const textCollectionRef = collection(doc.ref, "text");
+        const textQuerySnapshot = await getDocs(textCollectionRef);
+        const textData = textQuerySnapshot.docs.map((textDoc) =>
+          textDoc.data()
+        );
+
+        comments.push({
+          ...commentData,
+          text: textData,
+        });
+      });
+
+      console.log(comments, "comments bro");
+      setCmntBox(comments);
+      return comments;
+    };
+    if (projectId && showCmntSection) {
+      fetchComments();
+    }
+  }, [showCmntSection]);
+
+  const getPrjUserInfo = async (projectUserId: string) => {
+    // console.log(projectUserId, "projectUserId");
+    const userQuery = query(
+      collection(db, "users"),
+      where("userId", "==", projectUserId)
+    );
+    const userQuerySnapshot = await getDocs(userQuery);
+    if (!userQuerySnapshot.empty) {
+      const userData = userQuerySnapshot.docs[0].data();
+      setPrjUsername(userData.username);
+      setUserPfImg(userData.profile_img);
+    } else {
+      console.error("User not found.");
+    }
+  };
 
   return (
     <>
@@ -107,7 +241,7 @@ const Explore = () => {
             <ul className={Styles.ul_items}>
               <div
                 className={Styles.icons_items}
-                onClick={() => router.push(`/explore`)}
+                onClick={() => router.push(`/explore/${userDocId}`)}
               >
                 <Image
                   src="/Compass.png"
@@ -238,9 +372,16 @@ const Explore = () => {
                           <h4 className={styles.txt}>Write your opinions.</h4>
                           <button
                             className={styles.cmnt_btn}
-                            onClick={() => setOpnCommentModal(true)}
+                            onClick={() =>
+                              handleCommentButtonClick(
+                                project.id,
+                                project.userId
+                              )
+                            }
                           >
-                            comment
+                            {opnCommentBoxArray[project.id]
+                              ? "hide"
+                              : "comment"}
                           </button>
                         </div>
 
@@ -250,21 +391,35 @@ const Explore = () => {
                   </div>
 
                   <div className={styles.show_comment}>
-                    {opnCommentModal && (
+                    {opnCommentBoxArray[project.id] && (
                       <>
                         <div className={styles.btm_cmnt_input}>
                           <div className={styles.all_comments}>
-                            <div className={styles.cmt_pp_name}>
-                              <div className={styles.cmt_pp}>
-                                <img src="" />
+                            {cmntBox.map((comments, index) => (
+                              <div className={styles.cmt_pp_name} key={index}>
+                                <div className={styles.cmt_pp_div}>
+                                  <img
+                                    src={comments.profile_img}
+                                    className={styles.cmt_pp}
+                                  />
+                                </div>
+                                <div className={styles.cmt_name_txt}>
+                                  <h2 className={styles.cmt_user}>
+                                    {comments.username}
+                                  </h2>
+                                  {cmntBox[index].text.map(
+                                    (comment, textIndex) => (
+                                      <div key={textIndex}>
+                                        <p className={styles.cmt_txt}>
+                                          {comment.comment}
+                                        </p>
+                                        {/* <h2>{comment.timestamp}</h2> */}
+                                      </div>
+                                    )
+                                  )}
+                                </div>
                               </div>
-                              <div className={styles.cmt_name_txt}>
-                                <h2 className={styles.cmt_user}>username</h2>
-                                <p className={styles.cmt_txt}>
-                                  what is the msg that user has written here
-                                </p>
-                              </div>
-                            </div>
+                            ))}
                           </div>
 
                           <textarea
@@ -275,7 +430,7 @@ const Explore = () => {
                           <hr />
                           <div className="flex">
                             <div
-                              className="ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer"
+                              className={styles.send_btn}
                               onClick={handleMsgSent}
                             >
                               <Image

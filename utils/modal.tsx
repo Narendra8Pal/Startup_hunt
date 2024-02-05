@@ -266,6 +266,11 @@ const Modal = (props: ModalProps) => {
       project_img: projectImg,
       project_vid: {},
     });
+
+    if (imgStoredURL.length > 0) {
+      handleDeleteImage(imgStoredURL);
+    }
+
     props.setOpnAddProjectModal(false);
     setProjectImg([]);
     cleanInputElements();
@@ -351,6 +356,7 @@ const Modal = (props: ModalProps) => {
   const projectModalClose = () => {
     setImgStoredURL([]);
     setProjectImg([]);
+    setHoveredIndex(null);
     if (props.opnAddProjectModal) {
       props.setOpnAddProjectModal(false);
       cleanInputElements();
@@ -481,32 +487,36 @@ const Modal = (props: ModalProps) => {
                       {props.opnAddProjectModal ? (
                         <div className={styles.modal_carousel_box}>
                           <div className={styles.modal_imgs}>
-                            {projectImg.map((url, index) => (
-                              <div key={index} className={styles.img_del}>
-                                {hoveredIndex === index && (
-                                  <div
-                                    className={styles.deleteIcon}
+                            {(projectImg || [])
+                              ?.filter((url) => !imgStoredURL.includes(url))
+                              .map((url, index) => (
+                                <div key={index} className={styles.img_del}>
+                                  {hoveredIndex === index && (
+                                    <div
+                                      className={styles.deleteIcon}
+                                      onClick={() =>
+                                        storeImgInfoDel(url, index)
+                                      }
+                                    >
+                                      <Image
+                                        src="/delete.png"
+                                        alt="add_icon"
+                                        width={15}
+                                        height={15}
+                                        priority={true}
+                                      />
+                                    </div>
+                                  )}
+                                  <img
+                                    src={url}
+                                    alt={`project_image_${index}`}
+                                    className={styles.box_img}
+                                    onMouseEnter={() => setHoveredIndex(index)}
+                                    onMouseLeave={() => setHoveredIndex(null)}
                                     onClick={() => storeImgInfoDel(url, index)}
-                                  >
-                                    <Image
-                                      src="/delete.png"
-                                      alt="add_icon"
-                                      width={15}
-                                      height={15}
-                                      priority={true}
-                                    />
-                                  </div>
-                                )}
-                                <img
-                                  src={url}
-                                  alt={`project_image_${index}`}
-                                  className={styles.box_img}
-                                  onMouseEnter={() => setHoveredIndex(index)}
-                                  onMouseLeave={() => setHoveredIndex(null)}
-                                  onClick={() => storeImgInfoDel(url, index)}
-                                />
-                              </div>
-                            ))}
+                                  />
+                                </div>
+                              ))}
                           </div>
                         </div>
                       ) : (

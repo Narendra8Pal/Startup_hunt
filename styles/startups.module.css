@@ -38,7 +38,7 @@
   @apply flex justify-between;
 }
 .title {
-  @apply text-lg font-semibold cursor-pointer ml-2;
+  @apply text-lg font-semibold cursor-pointer;
 }
 
 .share {
@@ -81,7 +81,7 @@
 }
 
 .text_btn {
-  @apply flex flex-row justify-between;
+  @apply flex flex-row justify-between items-center;
 }
 
 .txt {
@@ -104,8 +104,12 @@
   @apply min-h-[8rem] flex flex-col text-sm;
 }
 
-.cmt_pp {
-  @apply h-10 w-10 rounded-full border border-home-stroke;
+.cmt_pp_div {
+  @apply h-10 w-10 rounded-full border-2 border-home-stroke;
+}
+
+.cmt_pp{
+  @apply rounded-full object-cover w-full h-full
 }
 
 .cmt_user {
@@ -122,4 +126,8 @@
 
 .cmt_textarea {
   @apply p-2 outline-none min-h-[3rem] max-h-[6rem] text-sm border-2 border-home-stroke rounded-sm;
+}
+
+.send_btn {
+  @apply ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer;
 }
