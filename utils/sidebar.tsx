@@ -44,7 +44,9 @@ const Sidebar = () => {
                 />
                 <li>Table</li>
               </div>
-              <div className={styles.icons_items}>
+              <div className={styles.icons_items}
+                onClick={() => router.push(`/tasks/${userDocId}`)}
+              >
                 <Image
                   src="/View Module.png"
                   alt="tasks&feedback"

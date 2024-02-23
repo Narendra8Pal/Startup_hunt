@@ -1,0 +1,75 @@
+.container {
+  @apply flex;
+}
+
+.content_container {
+  @apply ml-80  flex-1 gap-8 flex flex-col;
+}
+
+.content_div {
+  @apply gap-8 flex flex-col w-2/3 m-auto mt-8;
+}
+
+.switch_btn {
+  @apply flex flex-row w-2/3 m-auto justify-between items-center  py-3 px-4 rounded-full bg-home-light_gray; 
+}
+
+.dropdown {
+  @apply font-medium flex flex-row space-x-2 items-center cursor-pointer;
+}
+
+.top_content {
+  @apply flex flex-col gap-8 w-2/3 m-auto;
+}
+
+.name_desc {
+  /* @apply  */
+}
+
+.title {
+  @apply text-xl font-bold;
+}
+
+.desc {
+  /* @apply  */
+}
+
+.ruler {
+  /* @apply w-2/3 m-auto */
+}
+
+.modal_div {
+  @apply opacity-60 bg-modal-modal_bg h-full w-full left-0 top-0 fixed z-0;
+}
+
+.add_modal_bg {
+  @apply fixed top-0 left-0 w-full h-full flex items-center justify-center;
+}
+
+.add_profile_modal {
+  @apply w-1/5 bg-white shadow-sm rounded-md flex flex-col h-auto gap-16 p-6;
+}
+
+.modal_content {
+  @apply flex flex-col gap-6;
+}
+
+.common_input {
+  @apply rounded-sm focus:outline-index-logo_orange1 border-2 border-home-stroke p-1;
+}
+
+.input {
+  @apply common_input;
+}
+
+.textarea {
+  @apply w-full max-h-[15rem] min-h-[10rem] common_input;
+}
+
+.btn_div {
+  @apply flex justify-end items-center;
+}
+
+.btn {
+  @apply bg-index-black_btn px-4  py-2 text-white rounded-full text-sm font-bold;
+}

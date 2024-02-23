@@ -27,6 +27,7 @@ import {
   where,
   updateDoc,
   arrayUnion,
+  onSnapshot,
 } from "firebase/firestore";
 import FirebaseApp from "../../utils/firebase";
 
@@ -82,7 +83,6 @@ const Explore = () => {
 
   useEffect(() => {
     const modalCloseUpdate = () => {
-      console.log("modal close updates ran");
       getDoc(doc(db, "users", `${userDocId}`))
         .then((docSnap) => {
           if (docSnap.exists()) {
@@ -126,8 +126,6 @@ const Explore = () => {
   }, []);
 
   const handleMsgSent = async () => {
-    console.log(user, "user name bro");
-    console.log("handlemsg sent ran bro");
     const commentsCollection = collection(
       db,
       "projects",
@@ -150,72 +148,111 @@ const Explore = () => {
     } catch (error) {
       console.error("Error adding comment:", error);
     }
-    // setShowCmntSection(true);
+    setTextarea("");
+    setShowCmntSection(true);
   };
 
   const handleCommentButtonClick = (
     projectId: string,
     projectUserId: string
   ) => {
-    console.log(projectId, 'projectId boss')
+    setTextarea("");
     setProjectId(projectId);
-    // setProjectUserId(projectUserId);
-    // setOpnCommentBoxArray((prevOpnCommentModalArray) => ({
-    //   ...prevOpnCommentModalArray,
-    //   [projectId]: !prevOpnCommentModalArray[projectId],
-    // }));
-
 
     setOpnCommentBoxArray((prevOpnCommentModalArray) => {
-      const updatedArray = { [projectId]: !prevOpnCommentModalArray[projectId] };
-  
+      setCmntBox([]);
+      const updatedArray = {
+        [projectId]: !prevOpnCommentModalArray[projectId],
+      };
+
       Object.keys(prevOpnCommentModalArray).forEach((id) => {
         if (id !== projectId) {
           updatedArray[id] = false;
         }
       });
-  
+
       return updatedArray;
     });
-    
     getPrjUserInfo(projectUserId);
     setShowCmntSection(true);
   };
 
   useEffect(() => {
-    const fetchComments = async () => {
-      console.log("fetchComments ran bro");
-      const commentsCollection = collection(
-        db,
-        "projects",
-        projectId,
-        "comments"
-      );
-      const querySnapshot = await getDocs(commentsCollection);
-
-      const comments: any = [];
-      querySnapshot.forEach(async (doc) => {
-        const commentData = doc.data();
-        const textCollectionRef = collection(doc.ref, "text");
-        const textQuerySnapshot = await getDocs(textCollectionRef);
-        const textData = textQuerySnapshot.docs.map((textDoc) =>
-          textDoc.data()
+    const fetchCmnts = async () => {
+      try {
+        const commentsCollection = collection(
+          db,
+          "projects",
+          projectId,
+          "comments"
         );
-
-        comments.push({
-          ...commentData,
-          text: textData,
+        const q = query(commentsCollection);
+        const unsubscribe = onSnapshot(q, async (snapshot) => {
+          const fetchedComments: any = [];
+          // snapshot.forEach(async (doc) => {
+          await Promise.all(
+            snapshot.docs.map(async (doc) => {
+              const commentData = doc.data();
+              const textCollectionRef = collection(doc.ref, "text");
+              const textQuerySnapshot = await getDocs(textCollectionRef);
+              const textData = textQuerySnapshot.docs.map((textDoc) =>
+                textDoc.data()
+              );
+              fetchedComments.push({
+                id: doc.id,
+                ...commentData,
+                text: textData,
+              });
+              setCmntBox(fetchedComments);
+              console.log(fetchedComments, "fetched comments bro realtime");
+            })
+          );
+          setShowCmntSection(false);
         });
-      });
-
-      console.log(comments, "comments bro");
-      setCmntBox(comments);
-      return comments;
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
     };
     if (projectId && showCmntSection) {
-      fetchComments();
+      fetchCmnts();
     }
   }, [showCmntSection]);
+
+  // useEffect(() => {
+  //   const fetchComments = async () => {
+  //     console.log("fetchComments ran bro");
+  //     const commentsCollection = collection(
+  //       db,
+  //       "projects",
+  //       projectId,
+  //       "comments"
+  //     );
+  //     const querySnapshot = await getDocs(commentsCollection);
+
+  //     const comments: any = [];
+  //     querySnapshot.forEach(async (doc) => {
+  //       const commentData = doc.data();
+  //       const textCollectionRef = collection(doc.ref, "text");
+  //       const textQuerySnapshot = await getDocs(textCollectionRef);
+  //       const textData = textQuerySnapshot.docs.map((textDoc) =>
+  //         textDoc.data()
+  //       );
+
+  //       comments.push({
+  //         ...commentData,
+  //         text: textData,
+  //       });
+  //       setCmntBox(comments);
+  //     });
+
+  //     setShowCmntSection(false);
+  //     return comments;
+  //   };
+  //   if (projectId && showCmntSection) {
+  //     fetchComments();
+  //   }
+  // }, [showCmntSection]);
 
   const getPrjUserInfo = async (projectUserId: string) => {
     // console.log(projectUserId, "projectUserId");
@@ -262,7 +299,10 @@ const Explore = () => {
                 />
                 <li>Table</li>
               </div>
-              <div className={Styles.icons_items}>
+              <div
+                className={Styles.icons_items}
+                onClick={() => router.push(`/tasks/${userDocId}`)}
+              >
                 <Image
                   src="/View Module.png"
                   alt="tasks&feedback"
@@ -395,37 +435,40 @@ const Explore = () => {
                       <>
                         <div className={styles.btm_cmnt_input}>
                           <div className={styles.all_comments}>
-                            {cmntBox.map((comments, index) => (
-                              <div className={styles.cmt_pp_name} key={index}>
-                                <div className={styles.cmt_pp_div}>
-                                  <img
-                                    src={comments.profile_img}
-                                    className={styles.cmt_pp}
-                                  />
-                                </div>
-                                <div className={styles.cmt_name_txt}>
-                                  <h2 className={styles.cmt_user}>
-                                    {comments.username}
-                                  </h2>
-                                  {cmntBox[index].text.map(
-                                    (comment, textIndex) => (
-                                      <div key={textIndex}>
+                            <div className={styles.user_reply_box}>
+                              {cmntBox.map((comments, index) => (
+                                <div key={index}>
+                                  {comments.text.map((comment, textIndex) => (
+                                    <div
+                                      key={textIndex}
+                                      className={styles.img_username}
+                                    >
+                                      <div className={styles.cmt_pp_div}>
+                                        <img
+                                          src={comments.profile_img}
+                                          className={styles.cmt_pp}
+                                        />
+                                      </div>
+                                      <div className={styles.cmt_name_txt}>
+                                        <h2 className={styles.cmt_user}>
+                                          {comments.username}
+                                        </h2>
                                         <p className={styles.cmt_txt}>
                                           {comment.comment}
                                         </p>
-                                        {/* <h2>{comment.timestamp}</h2> */}
                                       </div>
-                                    )
-                                  )}
+                                    </div>
+                                  ))}
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
 
                           <textarea
                             placeholder="what do you wanna say?"
                             className={styles.cmt_textarea}
                             onChange={(e) => setTextarea(e.target.value)}
+                            value={textarea}
                           />
                           <hr />
                           <div className="flex">
