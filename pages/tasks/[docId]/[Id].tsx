@@ -1,30 +1,39 @@
+// next.js, files, style
 import React from "react";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-
 import Sidebar from "@/utils/sidebar";
-import Explore from "./index";
-
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import Tasks from "../index";
+import styles from '@/styles/tasks.module.css'
 //redux
-import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userName";
 import { setUsersDocId } from "@/store/usersDocId";
+import { useDispatch } from "react-redux";
 
 //firebase
-import { collection, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+} from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
-import FirebaseApp from "../../utils/firebase";
+import FirebaseApp from "../../../utils/firebase";
 
-const StartupName = () => {
+const TasksId = () => {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { docId } = router.query;
+  const { docId, Id} = router.query;
 
   const db = getFirestore(FirebaseApp);
   const docRef = doc(db, "users", `${docId}`);
 
   useEffect(() => {
+    console.log(docId, Id, 'docid and id did u get that')
     getDoc(docRef)
       .then((docSnap) => {
         if (docSnap.exists()) {
@@ -38,11 +47,15 @@ const StartupName = () => {
     dispatch(setUsersDocId(docId));
   }, [docId]);
 
+
   return (
-    <div>
-      <Explore />
-    </div>
+    <>
+      <Sidebar />
+      <Tasks 
+      Id = {Id}
+      />
+    </>
   );
 };
 
-export default StartupName;
+export default TasksId;

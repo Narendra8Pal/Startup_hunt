@@ -3,7 +3,7 @@ import React from "react";
 import Sidebar from "@/utils/sidebar";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import Tasks from "./index";
+import Tasks from "../index";
 import styles from '@/styles/tasks.module.css'
 //redux
 import { setUser } from "@/store/userName";
@@ -13,18 +13,19 @@ import { useDispatch } from "react-redux";
 //firebase
 import { collection, doc, getDoc } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
-import FirebaseApp from "../../utils/firebase";
+import FirebaseApp from "../../../utils/firebase";
 
-const TasksId = () => {
+const TasksDocId = () => {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { docId } = router.query;
+  const { docId, id} = router.query;
 
   const db = getFirestore(FirebaseApp);
   const docRef = doc(db, "users", `${docId}`);
 
   useEffect(() => {
+    console.log(docId, id, 'docid and id bro')
     getDoc(docRef)
       .then((docSnap) => {
         if (docSnap.exists()) {
@@ -46,4 +47,4 @@ const TasksId = () => {
   );
 };
 
-export default TasksId;
+export default TasksDocId;

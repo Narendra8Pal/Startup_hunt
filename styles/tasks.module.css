@@ -11,11 +11,43 @@
 }
 
 .switch_btn {
-  @apply flex flex-row w-2/3 m-auto justify-between items-center  py-3 px-4 rounded-full bg-home-light_gray; 
+  @apply relative flex flex-row m-auto justify-between items-center  py-2 px-4 rounded-full bg-home-light_white border-2 border-home-stroke;
 }
 
 .dropdown {
   @apply font-medium flex flex-row space-x-2 items-center cursor-pointer;
+}
+
+.up_btn {
+  @apply transform scale-y-[-1];
+}
+
+.drop_box {
+  @apply bg-white shadow-lg border border-home-stroke rounded-md m-auto w-full px-3 py-2 items-center absolute top-full mt-1 max-h-48 h-auto overflow-x-auto;
+}
+
+.drop_box::-webkit-scrollbar {
+  @apply w-1;
+}
+
+.drop_box::-webkit-scrollbar-track {
+  @apply bg-[#f1f1f1];
+}
+
+.drop_box::-webkit-scrollbar-thumb {
+  @apply bg-[#888] rounded-full;
+}
+
+.drop_box::-webkit-scrollbar-thumb:hover {
+  @apply bg-[#555] opacity-80;
+}
+
+.box_content {
+  @apply flex flex-col h-auto;
+}
+
+.box_content li {
+  @apply hover:bg-gray-100 cursor-pointer px-2 py-1 rounded-md;
 }
 
 .top_content {
@@ -27,7 +59,7 @@
 }
 
 .title {
-  @apply text-xl font-bold;
+  @apply text-4xl font-bold;
 }
 
 .desc {
@@ -72,4 +104,8 @@
 
 .btn {
   @apply bg-index-black_btn px-4  py-2 text-white rounded-full text-sm font-bold;
+}
+
+.add_icon{
+  @apply cursor-pointer
 }
