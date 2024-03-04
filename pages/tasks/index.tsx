@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "@/styles/tasks.module.css";
 import Image from "next/image";
 import { useRouter } from "next/router";
-
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
@@ -19,6 +18,11 @@ import {
 } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import FirebaseApp from "../../utils/firebase";
+
+// dnd
+import { useDrag, useDrop } from "react-dnd";
+
+import { uuid } from "uuidv4";
 
 type Tasks_Content = {
   id: string;
@@ -37,6 +41,20 @@ type TaskData = {
   userId: string;
 };
 
+type TaskContentData = {
+  id: string;
+  desc: string;
+  status: string;
+  title: string;
+  col: string;
+  row: string;
+};
+
+export const ItemTypes = {
+  CARD: "card",
+  TASK: "task",
+};
+
 const Tasks = (props: TasksProps) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [taskModalContent, setTaskModalContent] = useState<boolean>(false);
@@ -51,6 +69,10 @@ const Tasks = (props: TasksProps) => {
     Project_Desc: "",
     userId: "",
   });
+  const [taskContentDocData, setTaskContentDocData] = useState<
+    TaskContentData[]
+  >([]);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const db = getFirestore(FirebaseApp);
@@ -89,23 +111,31 @@ const Tasks = (props: TasksProps) => {
       querySnapshot.forEach((doc) => {
         const projectData = { id: doc.id, ...doc.data() } as Tasks_Content;
         projectsArray.push(projectData);
-        console.log(projectsArray, "projectData bro is here");
       });
       setTasksData(projectsArray);
     };
     if (userDocId) {
       getTasksData();
     }
-  }, [userDocId]);
+  }, [userDocId, ddOpen]);
 
   useEffect(() => {
     const getTaskDocData = async () => {
       const docRef = doc(db, "tasks", `${props.Id}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        console.log(docSnap.data(), "task doc data here ");
         const docData = docSnap.data() as TaskData;
         setTaskDocIdData(docData);
+
+        const querySnapshot = await getDocs(
+          collection(db, "tasks", `${props.Id}`, "tasks_content")
+        );
+        const data: TaskContentData[] = [];
+        querySnapshot.forEach((doc) => {
+          data.push(doc.data() as TaskContentData);
+        });
+        setTaskContentDocData(data);
+        console.log(data, "gettask box data");
       }
     };
     if (props.Id) {
@@ -152,18 +182,22 @@ const Tasks = (props: TasksProps) => {
   };
 
   const handleAddTasks = async () => {
+    handleModal();
     try {
+      const tasksRef = collection(db, "tasks");
+      const taskSnapshot = await getDocs(tasksRef);
+
       const subcollectionRef = collection(
-        doc(db, "tasks", taskId),
+        doc(db, "tasks", `${props.Id}`),
         "tasks_content"
       );
       await addDoc(subcollectionRef, {
-        title: "",
-        desc: "",
+        id: uuid(),
+        title: projectTitle,
+        desc: projectDesc,
         status: "",
+        done: "",
       });
-
-      console.log("Subcollection created successfully!");
     } catch (error) {
       console.error("Error creating subcollection: ", error);
     }
@@ -184,6 +218,33 @@ const Tasks = (props: TasksProps) => {
 
   const handlePrjClick = (id: string) => {
     router.push(`/tasks/${userDocId}/${id}`);
+  };
+
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    item: string
+  ) => {
+    console.log(item, "handle drag start id");
+    setDraggedItem(item);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    console.log('on Drag over bro')
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    console.log("onDrop ran bro");
+    const taskId = e.dataTransfer.getData("taskId");
+    const updatedData = taskContentDocData.map((item) => {
+      if (item.id === taskId) {
+        return { ...item };
+      }
+      return item;
+    });
+
+    setTaskContentDocData(updatedData);
   };
 
   return (
@@ -270,6 +331,76 @@ const Tasks = (props: TasksProps) => {
                   Add
                 </button>
               </div>
+
+              <div className={styles.grid_box}>
+                <div className={styles.box_col}>
+                  <div className={styles.two_boxes}>
+                    {taskContentDocData
+                      // .filter((item) => item.col === "col1")
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className={styles.task_box}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, item.id)}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e)}
+                        >
+                          <div>{item.status}</div>
+                          <div className={styles.task_title}>{item.title}</div>
+                          <div className={styles.task_desc}>{item.desc}</div>
+                          <div className={styles.task_btn_div}>
+                            <div className={styles.two_btn_div}>
+                              <div className={styles.add_icon}>
+                                <Image
+                                  src="/add.png"
+                                  alt="add"
+                                  width={26}
+                                  height={26}
+                                  priority={true}
+                                />
+                              </div>
+                              <div className={styles.task_btn}>comment</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                <div className={styles.box_col2}>
+                  {taskContentDocData
+                    // .filter((item) => item.col === "col3")
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        className={styles.task_box}
+                        // draggable
+                        // onDragStart={(e) => handleDragStart(e, item.id)}
+                        // onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e)}
+                      >
+                        <div>{item.status}</div>
+                        <div className={styles.task_title}>{item.title}</div>
+                        <div className={styles.task_desc}>{item.desc}</div>
+                        <div className={styles.task_btn_div}>
+                          <div className={styles.two_btn_div}>
+                            <div className={styles.add_icon}>
+                              <Image
+                                src="/add.png"
+                                alt="add"
+                                width={26}
+                                height={26}
+                                priority={true}
+                              />
+                            </div>
+                            <div className={styles.task_btn}>comment</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -311,7 +442,10 @@ const Tasks = (props: TasksProps) => {
               </div>
 
               <div className={styles.btn_div}>
-                <button className={styles.btn} onClick={handleCreate}>
+                <button
+                  className={styles.btn}
+                  onClick={taskModalContent ? handleAddTasks : handleCreate}
+                >
                   {taskModalContent ? "Create Task" : "Create"}
                 </button>
               </div>

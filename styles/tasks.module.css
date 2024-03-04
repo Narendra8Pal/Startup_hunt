@@ -106,6 +106,50 @@
   @apply bg-index-black_btn px-4  py-2 text-white rounded-full text-sm font-bold;
 }
 
-.add_icon{
-  @apply cursor-pointer
+.add_icon {
+  @apply cursor-pointer;
+}
+
+.grid_box {
+  @apply grid grid-cols-3 row-auto gap-8 mt-8 mb-80;
+}
+
+.two_grids {
+  @apply flex-row flex;
+}
+
+.box_col {
+  @apply col-span-2;
+}
+
+.two_boxes {
+  @apply grid grid-cols-2 gap-8;
+}
+
+.box_col2 {
+  @apply grid col-span-1 gap-8 pl-4 border-l-2 border-index-black_btn border-dashed;
+}
+
+.task_box {
+  @apply bg-white border-2 border-home-stroke p-6 rounded-lg;
+}
+
+.task_title {
+  @apply text-lg font-bold;
+}
+
+.task_desc {
+  @apply text-base;
+}
+
+.task_btn_div {
+  @apply flex justify-end items-center mt-8;
+}
+
+.task_btn {
+  @apply bg-index-black_btn px-2.5 py-1.5 text-white rounded-full text-xs font-semibold cursor-pointer;
+}
+
+.two_btn_div {
+  @apply flex space-x-2 items-center;
 }
