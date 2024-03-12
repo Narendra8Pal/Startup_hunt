@@ -19,10 +19,11 @@ import {
 import { getFirestore } from "firebase/firestore";
 import FirebaseApp from "../../utils/firebase";
 
-// dnd
+// packages
 import { useDrag, useDrop } from "react-dnd";
+import EmojiPicker from "emoji-picker-react";
 
-import { uuid } from "uuidv4";
+import { v4 as uuidv4 } from "uuid";
 
 type Tasks_Content = {
   id: string;
@@ -41,6 +42,13 @@ type TaskData = {
   userId: string;
 };
 
+const initialTaskData: TaskData = {
+  id: "",
+  Project_Title: "",
+  Project_Desc: "",
+  userId: "",
+};
+
 type TaskContentData = {
   id: string;
   desc: string;
@@ -50,9 +58,11 @@ type TaskContentData = {
   row: string;
 };
 
-export const ItemTypes = {
-  CARD: "card",
-  TASK: "task",
+type Task = {
+  id: string;
+  status: string;
+  title: string;
+  desc: string;
 };
 
 const Tasks = (props: TasksProps) => {
@@ -63,16 +73,18 @@ const Tasks = (props: TasksProps) => {
   const [projectDesc, setProjectDesc] = useState<string>("");
   const [uid, setUid] = useState<string>("");
   const [tasksData, setTasksData] = useState<Tasks_Content[]>([]);
-  const [taskDocIdData, setTaskDocIdData] = useState<TaskData>({
-    id: "",
-    Project_Title: "",
-    Project_Desc: "",
-    userId: "",
-  });
+  const [taskDocIdData, setTaskDocIdData] = useState(initialTaskData);
   const [taskContentDocData, setTaskContentDocData] = useState<
     TaskContentData[]
   >([]);
+  const [userImgURL, setUserImgURL] = useState<string>("");
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [addEmoji, setAddEmoji] = useState<boolean>(false);
+
+  // draggable functionality based usestate hooks
+  const [items1, setItems1] = useState<Task[]>([]);
+  const [items2, setItems2] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const db = getFirestore(FirebaseApp);
@@ -89,7 +101,7 @@ const Tasks = (props: TasksProps) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setUid(data.userId);
-            // setCmntUsrImg(data.profile_img);
+            setUserImgURL(data.profile_img);
           } else {
             console.log("No such document!");
           }
@@ -141,7 +153,7 @@ const Tasks = (props: TasksProps) => {
     if (props.Id) {
       getTaskDocData();
     }
-  }, [props.Id]);
+  }, [props.Id, tasks]);
 
   const handleModal = () => {
     setOpenModal(false);
@@ -185,19 +197,26 @@ const Tasks = (props: TasksProps) => {
     handleModal();
     try {
       const tasksRef = collection(db, "tasks");
-      const taskSnapshot = await getDocs(tasksRef);
 
       const subcollectionRef = collection(
         doc(db, "tasks", `${props.Id}`),
         "tasks_content"
       );
-      await addDoc(subcollectionRef, {
-        id: uuid(),
+
+      const taskSnapshot = await getDocs(subcollectionRef);
+      const tasksCount = taskSnapshot.docs.length;
+
+      const newTask = {
+        id: uuidv4(),
         title: projectTitle,
         desc: projectDesc,
         status: "",
         done: "",
-      });
+        col: tasksCount % 2 == 0 ? "col1" : "col2",
+      };
+
+      setTasks([...tasks, newTask]);
+      await addDoc(subcollectionRef, newTask);
     } catch (error) {
       console.error("Error creating subcollection: ", error);
     }
@@ -222,29 +241,25 @@ const Tasks = (props: TasksProps) => {
 
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
-    item: string
+    taskId: string
   ) => {
-    console.log(item, "handle drag start id");
-    setDraggedItem(item);
+    e.dataTransfer.setData("taskId", taskId);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    console.log('on Drag over bro')
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetCol: string
+  ) => {
     e.preventDefault();
-    console.log("onDrop ran bro");
     const taskId = e.dataTransfer.getData("taskId");
-    const updatedData = taskContentDocData.map((item) => {
-      if (item.id === taskId) {
-        return { ...item };
-      }
-      return item;
-    });
-
-    setTaskContentDocData(updatedData);
+    const updatedTasks = taskContentDocData.map((task) =>
+      task.id === taskId ? { ...task, col: targetCol } : task
+    );
+    setTaskContentDocData(updatedTasks);
   };
 
   return (
@@ -259,6 +274,13 @@ const Tasks = (props: TasksProps) => {
                   onClick={() => setDDOpen(!ddOpen)}
                   ref={dropdownRef}
                 >
+                  <Image
+                    src="/large_ViewModule.png"
+                    alt="boxes"
+                    width={30}
+                    height={30}
+                    priority={true}
+                  />
                   <p>{taskDocIdData.Project_Title}</p>
 
                   {ddOpen ? (
@@ -285,12 +307,16 @@ const Tasks = (props: TasksProps) => {
                     onClick={() => setOpenModal(true)}
                   >
                     <Image
-                      src="/add.png"
+                      src="/tabs.png"
                       alt="add"
                       width={30}
                       height={30}
                       priority={true}
                     />
+                  </div>
+
+                  <div className={styles.pf_img}>
+                    <img src={userImgURL} />
                   </div>
                 </div>
 
@@ -315,7 +341,6 @@ const Tasks = (props: TasksProps) => {
 
             <div className={styles.top_content}>
               <div className={styles.name_desc}>
-                <h2 className={styles.title}>{taskDocIdData.Project_Title}</h2>
                 <p className={styles.desc}>{taskDocIdData.Project_Desc}</p>
               </div>
             </div>
@@ -323,53 +348,163 @@ const Tasks = (props: TasksProps) => {
             <hr className={styles.ruler} />
 
             <div className={styles.bottom_content}>
-              <div className={styles.btn_div}>
-                <button
-                  className={styles.btn}
-                  onClick={() => setTaskModalContent(true)}
-                >
-                  Add
-                </button>
-              </div>
-
               <div className={styles.grid_box}>
                 <div className={styles.box_col}>
                   <div className={styles.two_boxes}>
-                    {taskContentDocData
-                      // .filter((item) => item.col === "col1")
-                      .map((item) => (
-                        <div
-                          key={item.id}
-                          className={styles.task_box}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, item.id)}
-                          onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(e)}
-                        >
-                          <div>{item.status}</div>
-                          <div className={styles.task_title}>{item.title}</div>
-                          <div className={styles.task_desc}>{item.desc}</div>
-                          <div className={styles.task_btn_div}>
-                            <div className={styles.two_btn_div}>
-                              <div className={styles.add_icon}>
-                                <Image
-                                  src="/add.png"
-                                  alt="add"
-                                  width={26}
-                                  height={26}
-                                  priority={true}
-                                />
+                    <div
+                      className={styles.col1}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, "col1")}
+                    >
+                      {taskContentDocData
+                        .filter((item) => item.col === "col1")
+                        .map((item) => (
+                          <>
+                            <div
+                              key={item.id}
+                              className={styles.task_box}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, item.id)}
+                            >
+                              <div className={styles.tit_desc}>
+                                <div>{item.status}</div>
+                                <div className={styles.task_title}>
+                                  {item.title
+                                    ? item.title.length > 30
+                                      ? `${item.title.slice(0, 30)}...`
+                                      : item.title
+                                    : null}
+                                </div>
+                                <div className={styles.task_desc}>
+                                  {item.desc
+                                    ? item.desc.length > 300
+                                      ? `${item.desc.slice(0, 300)}...`
+                                      : item.desc
+                                    : null}
+                                </div>
                               </div>
-                              <div className={styles.task_btn}>comment</div>
+
+                              <div className={styles.task_btn_div}>
+                                <div className={styles.thumbs_icon_div}>
+                                  <div className={styles.both_icons}>
+                                    <button>
+                                      <div className={styles.thumb_img}>👍</div>
+                                      <span className={styles.thumb_no}></span>
+                                    </button>
+                                    <button>
+                                      <div className={styles.thumb_img}>👎</div>
+                                      <span className={styles.thumb_no}></span>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className={styles.two_btn_div}>
+                                  <Image
+                                    src="/expand.png"
+                                    alt="expand"
+                                    width={15}
+                                    height={15}
+                                    priority={true}
+                                  />
+                                  <div
+                                    className={styles.add_icon}
+                                    onClick={() => setAddEmoji(true)}
+                                  >
+                                    <Image
+                                      src="/add.png"
+                                      alt="add"
+                                      width={26}
+                                      height={26}
+                                      priority={true}
+                                    />
+                                  </div>
+                                  <div className={styles.task_btn}>comment</div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          </>
+                        ))}
+                    </div>
+
+                    <div
+                      className={styles.col2}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, "col2")}
+                    >
+                      {taskContentDocData
+                        .filter((item) => item.col === "col2")
+                        .map((item) => (
+                          <>
+                            <div
+                              key={item.id}
+                              className={styles.task_box}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, item.id)}
+                            >
+                              <div className={styles.tit_desc}>
+                                <div>{item.status}</div>
+                                <div className={styles.task_title}>
+                                  {item.title
+                                    ? item.title.length > 30
+                                      ? `${item.title.slice(0, 30)}...`
+                                      : item.title
+                                    : null}
+                                </div>
+                                <div className={styles.task_desc}>
+                                  {item.desc
+                                    ? item.desc.length > 300
+                                      ? `${item.desc.slice(0, 300)}...`
+                                      : item.desc
+                                    : null}
+                                </div>
+                              </div>
+
+                              <div className={styles.task_btn_div}>
+                                <div className={styles.thumbs_icon_div}>
+                                  <div className={styles.both_icons}>
+                                    <button>
+                                      <div className={styles.thumb_img}>👍</div>
+                                      <span className={styles.thumb_no}></span>
+                                    </button>
+                                    <button>
+                                      <div className={styles.thumb_img}>👎</div>
+                                      <span className={styles.thumb_no}></span>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className={styles.two_btn_div}>
+                                  <Image
+                                    src="/expand.png"
+                                    alt="expand"
+                                    width={15}
+                                    height={15}
+                                    priority={true}
+                                  />
+                                  <div
+                                    className={styles.add_icon}
+                                    onClick={() => setAddEmoji(true)}
+                                  >
+                                    <Image
+                                      src="/add.png"
+                                      alt="add"
+                                      width={26}
+                                      height={26}
+                                      priority={true}
+                                    />
+                                  </div>
+                                  <div className={styles.task_btn}>comment</div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ))}
+                    </div>
                   </div>
                 </div>
 
                 <div className={styles.box_col2}>
-                  {taskContentDocData
+                  {/* {taskContentDocData
                     // .filter((item) => item.col === "col3")
                     .map((item) => (
                       <div
@@ -383,7 +518,7 @@ const Tasks = (props: TasksProps) => {
                         <div>{item.status}</div>
                         <div className={styles.task_title}>{item.title}</div>
                         <div className={styles.task_desc}>{item.desc}</div>
-                        <div className={styles.task_btn_div}>
+                        <div className={styles.task_btn_done_div}>
                           <div className={styles.two_btn_div}>
                             <div className={styles.add_icon}>
                               <Image
@@ -398,11 +533,29 @@ const Tasks = (props: TasksProps) => {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className={styles.fixed_add_btn}>
+        <div className={styles.short_width_add}>
+          <button
+            className={styles.add_btn}
+            onClick={() => setTaskModalContent(true)}
+          >
+            <Image
+              src="/plus.png"
+              alt="plus"
+              width={30}
+              height={30}
+              priority={true}
+            />
+            Create Brick
+          </button>
         </div>
       </div>
 
@@ -450,6 +603,14 @@ const Tasks = (props: TasksProps) => {
                 </button>
               </div>
             </div>
+          </div>
+        </>
+      ) : null}
+
+      {addEmoji ? (
+        <>
+          <div className={styles.emoji_picker}>
+            <EmojiPicker />
           </div>
         </>
       ) : null}

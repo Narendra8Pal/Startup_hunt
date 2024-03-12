@@ -11,11 +11,11 @@
 }
 
 .switch_btn {
-  @apply relative flex flex-row m-auto justify-between items-center  py-2 px-4 rounded-full bg-home-light_white border-2 border-home-stroke;
+  @apply relative flex flex-row items-center  py-2 px-4;
 }
 
 .dropdown {
-  @apply font-medium flex flex-row space-x-2 items-center cursor-pointer;
+  @apply flex flex-row space-x-2 items-center cursor-pointer m-auto text-2xl font-bold;
 }
 
 .up_btn {
@@ -99,7 +99,7 @@
 }
 
 .btn_div {
-  @apply flex justify-end items-center;
+  @apply flex justify-end items-center space-x-2;
 }
 
 .btn {
@@ -108,6 +108,14 @@
 
 .add_icon {
   @apply cursor-pointer;
+}
+
+.pf_img {
+  @apply border-2 border-home-stroke rounded-full;
+}
+
+.pf_img img {
+  @apply rounded-full w-8 h-8 bg-cover;
 }
 
 .grid_box {
@@ -126,12 +134,24 @@
   @apply grid grid-cols-2 gap-8;
 }
 
+.col1{
+  @apply gap-8 grid
+}
+
+.col2{
+  @apply gap-8 grid
+}
+
 .box_col2 {
   @apply grid col-span-1 gap-8 pl-4 border-l-2 border-index-black_btn border-dashed;
 }
 
 .task_box {
-  @apply bg-white border-2 border-home-stroke p-6 rounded-lg;
+  @apply bg-white border border-home-stroke p-6 rounded-lg flex flex-col justify-between;
+}
+
+.tit_desc{
+  /* @apply overflow-x-auto; */
 }
 
 .task_title {
@@ -143,13 +163,57 @@
 }
 
 .task_btn_div {
-  @apply flex justify-end items-center mt-8;
+  @apply flex items-center mt-8 justify-between;
+}
+
+.task_btn_done_div {
+  @apply flex items-center mt-8 justify-end;
 }
 
 .task_btn {
-  @apply bg-index-black_btn px-2.5 py-1.5 text-white rounded-full text-xs font-semibold cursor-pointer;
+  @apply border-2 border-index-black_btn px-2.5 py-1.5 rounded-full text-xs font-bold cursor-pointer hover:bg-index-black_btn hover:text-white;
 }
 
 .two_btn_div {
   @apply flex space-x-2 items-center;
+}
+
+.fixed_add_btn {
+  @apply fixed mb-8  bottom-0 ml-[16.8%] w-[83.2%] flex;
+}
+
+.short_width_add {
+  @apply w-2/3 m-auto flex justify-center;
+}
+
+.add_btn {
+  @apply bg-black text-white rounded-full flex flex-row px-4 py-2 items-center font-bold text-sm;
+}
+
+.thumbs_icon_div {
+  @apply border-2 border-home-stroke flex flex-row rounded-full;
+}
+
+.both_icons {
+  @apply px-3 py-1 space-x-3 text-sm;
+}
+
+.thumb_img {
+  @apply transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110;
+}
+
+.thumb_no {
+  @apply text-xs;
+}
+
+.emoji_picker {
+  @apply absolute left-1/2;
+}
+
+.show_comment {
+  /* @apply  */
+}
+
+.btm_cmnt_input {
+  /* @apply  */
 }
