@@ -134,23 +134,23 @@
   @apply grid grid-cols-2 gap-8;
 }
 
-.col1{
-  @apply gap-8 grid
+.col1 {
+  @apply gap-8 flex flex-col;
 }
 
-.col2{
-  @apply gap-8 grid
+.col2 {
+  @apply gap-8 flex flex-col;
 }
 
 .box_col2 {
-  @apply grid col-span-1 gap-8 pl-4 border-l-2 border-index-black_btn border-dashed;
+  @apply flex flex-col gap-8 pl-4 border-l-2 border-index-black_btn border-dashed;
 }
 
 .task_box {
   @apply bg-white border border-home-stroke p-6 rounded-lg flex flex-col justify-between;
 }
 
-.tit_desc{
+.tit_desc {
   /* @apply overflow-x-auto; */
 }
 
@@ -174,8 +174,16 @@
   @apply border-2 border-index-black_btn px-2.5 py-1.5 rounded-full text-xs font-bold cursor-pointer hover:bg-index-black_btn hover:text-white;
 }
 
-.two_btn_div {
-  @apply flex space-x-2 items-center;
+.three_icon_div {
+  @apply flex space-x-3 items-center;
+}
+
+.cmnt_icon {
+  @apply cursor-pointer;
+}
+
+.expand_icon {
+  @apply cursor-pointer;
 }
 
 .fixed_add_btn {
@@ -210,10 +218,10 @@
   @apply absolute left-1/2;
 }
 
-.show_comment {
-  /* @apply  */
+.custom_menu {
+  @apply border border-home-stroke bg-white absolute min-w-[20rem] min-h-[15rem] rounded-lg p-6 right-0;
 }
 
-.btm_cmnt_input {
-  /* @apply  */
+.box_placeholder {
+  @apply border border-sky-500 bg-sky-200 opacity-50 h-4 rounded-sm;
 }

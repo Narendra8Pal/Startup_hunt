@@ -31,6 +31,9 @@ const config: Config = {
           gray: "#fbfbfa",
           hover_gray: "#5e5e5e",
         },
+        table:{
+          bg_table: "#f8f8f8",
+        },
         modal: {
           modal_bg: "#999999",
         },

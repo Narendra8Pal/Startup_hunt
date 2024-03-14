@@ -1,0 +1,58 @@
+.container {
+  @apply flex;
+}
+
+.content_container {
+  @apply ml-80  flex-1 gap-8 flex flex-col;
+}
+
+.content_div{
+  @apply gap-4 flex flex-col w-2/3 m-auto mt-8;
+
+}
+
+.heading{
+    @apply text-2xl font-bold
+}
+
+.selection{
+  @apply flex 
+}
+
+.selection_bg{
+  @apply bg-table-bg_table px-3 py-2 rounded-md flex flex-row space-x-3
+}
+
+.selected{
+  @apply bg-white py-1 px-4 rounded-md text-sm 
+}
+
+.tasks_list{
+@apply mt-8
+}
+
+.list_content{
+  /* @apply bg-black */
+}
+
+.box{
+  @apply border-2 border-home-stroke h-28 rounded-md p-6
+}
+
+.date_day{
+  @apply flex
+}
+
+.date_day_ul{
+  @apply flex flex-col items-center pr-6 border-r-2 border-home-stroke
+}
+
+.day{
+  @apply font-medium
+}
+
+.date{
+  @apply text-3xl font-semibold
+}
+
+

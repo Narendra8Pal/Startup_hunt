@@ -34,7 +34,9 @@ const Sidebar = () => {
                 />
                 <li>Explore</li>
               </div>
-              <div className={styles.icons_items}>
+              <div className={styles.icons_items}
+              onClick={() => router.push(`/table/${userDocId}`)}
+              >
                 <Image
                   src="/Grid.png"
                   alt="grid"
