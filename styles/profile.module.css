@@ -63,7 +63,7 @@
 }
 
 .add_btn {
-  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold hover:opacity-90 hover:bg-gradient-to-r from-index-logo_orange2 to-index-logo_orange1;
+  @apply bg-index-black_btn px-5 py-2 shadow-md rounded-lg text-white font-bold hover:opacity-90;
 }
 
 .ruler {
@@ -166,7 +166,7 @@
 }
 
 .common_input {
-  @apply rounded-sm focus:outline-index-logo_orange1 border-2 border-home-stroke p-1;
+  @apply rounded-sm focus:outline-index-black_btn border-2 border-home-stroke p-1;
 }
 
 .title_input {
@@ -253,7 +253,7 @@
 }
 
 .create_btn {
-  @apply bg-index-logo_orange1 px-6 py-3 text-white rounded-full font-bold;
+  @apply bg-index-black_btn px-6 py-3 text-white rounded-full font-bold;
 }
 
 .pf_modal_content {
@@ -293,7 +293,7 @@
 }
 
 .save_btn {
-  @apply bg-index-logo_orange1 px-6  py-3 text-white rounded-full text-sm font-bold;
+  @apply bg-index-black_btn px-6  py-3 text-white rounded-full text-sm font-bold;
 }
 
 .pf_img {

@@ -87,7 +87,7 @@
 }
 
 .common_input {
-  @apply rounded-sm focus:outline-index-logo_orange1 border-2 border-home-stroke p-1;
+  @apply rounded-sm focus:outline-index-black_btn border-2 border-home-stroke p-1;
 }
 
 .input {

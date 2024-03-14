@@ -15,28 +15,20 @@
     @apply text-2xl font-bold
 }
 
-.selection{
-  @apply flex 
-}
-
-.selection_bg{
-  @apply bg-table-bg_table px-3 py-2 rounded-md flex flex-row space-x-3
-}
-
-.selected{
-  @apply bg-white py-1 px-4 rounded-md text-sm 
-}
-
 .tasks_list{
 @apply mt-8
 }
 
 .list_content{
-  /* @apply bg-black */
+  @apply grid gap-8
 }
 
 .box{
-  @apply border-2 border-home-stroke h-28 rounded-md p-6
+  @apply border-2 border-home-stroke rounded-md p-6
+}
+
+.box_content{
+  @apply flex flex-row justify-between
 }
 
 .date_day{
@@ -44,7 +36,7 @@
 }
 
 .date_day_ul{
-  @apply flex flex-col items-center pr-6 border-r-2 border-home-stroke
+  @apply flex flex-col items-center pr-6 border-r-2 border-home-stroke justify-center
 }
 
 .day{
@@ -53,6 +45,14 @@
 
 .date{
   @apply text-3xl font-semibold
+}
+
+.project_info{
+  /* @apply   */
+}
+
+.title_desc{
+  @apply text-sm font-semibold
 }
 
 

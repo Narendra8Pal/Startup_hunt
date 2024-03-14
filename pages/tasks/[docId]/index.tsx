@@ -25,7 +25,6 @@ const TasksDocId = () => {
   const docRef = doc(db, "users", `${docId}`);
 
   useEffect(() => {
-    console.log(docId, id, 'docid and id bro')
     getDoc(docRef)
       .then((docSnap) => {
         if (docSnap.exists()) {

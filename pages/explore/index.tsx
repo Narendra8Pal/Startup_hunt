@@ -204,7 +204,6 @@ const Explore = () => {
                 text: textData,
               });
               setCmntBox(fetchedComments);
-              console.log(fetchedComments, "fetched comments bro realtime");
             })
           );
           setShowCmntSection(false);

@@ -126,7 +126,6 @@ const Modal = (props: ModalProps) => {
           break;
         case "projectTitle":
           setProjectTitle(e.target.value);
-          console.log("projectTitle in addProjectModal working bro");
           break;
         case "desc":
           setProjectDesc(e.target.value);
@@ -187,7 +186,6 @@ const Modal = (props: ModalProps) => {
   const handleFileUpload = async () => {
     // props.setSelectedFile?.(null);
     if (props.selectedFile) {
-      console.log("its working bro");
       const storageRef = ref(
         storage,
         `${process.env.NEXT_PUBLIC_STORAGE_BUCKET}/${props.selectedFile.name}`
@@ -220,7 +218,6 @@ const Modal = (props: ModalProps) => {
             },
             () => {
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                console.log("File available at", downloadURL);
                 if (uploadPfImg) {
                   setUserImgURL(downloadURL);
                   setUploadPfImg(false);
@@ -374,8 +371,6 @@ const Modal = (props: ModalProps) => {
   };
 
   const handleDeleteImage = async (urls: string[]) => {
-    console.log(urls, "url bro");
-    console.log(...urls, "spread urls here");
     try {
       await updateDoc(doc(db, "projects", props.editProjObj?.id ?? ""), {
         project_img: arrayRemove(...urls),
