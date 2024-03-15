@@ -23,7 +23,7 @@
 }
 
 .drop_box {
-  @apply bg-white shadow-lg border border-home-stroke rounded-md m-auto w-full px-3 py-2 items-center absolute top-full mt-1 max-h-48 h-auto overflow-x-auto;
+  @apply bg-white border border-home-stroke rounded-md m-auto w-1/3 px-3 py-2 items-center absolute top-full mt-1 h-auto left-[30%] min-w-[30%] overflow-x-auto max-h-64 drop-shadow-sm;
 }
 
 .drop_box::-webkit-scrollbar {
@@ -35,7 +35,7 @@
 }
 
 .drop_box::-webkit-scrollbar-thumb {
-  @apply bg-[#888] rounded-full;
+  @apply bg-[#888];
 }
 
 .drop_box::-webkit-scrollbar-thumb:hover {
@@ -47,7 +47,7 @@
 }
 
 .box_content li {
-  @apply hover:bg-gray-100 cursor-pointer px-2 py-1 rounded-md;
+  @apply hover:bg-hover-dropdown cursor-pointer px-2 py-1 rounded-md;
 }
 
 .top_content {
@@ -87,7 +87,7 @@
 }
 
 .common_input {
-  @apply rounded-sm focus:outline-index-black_btn border-2 border-home-stroke p-1;
+  @apply rounded-lg focus:outline-slate-300 border-2 border-home-stroke p-1;
 }
 
 .input {
@@ -95,7 +95,15 @@
 }
 
 .textarea {
-  @apply w-full max-h-[15rem] min-h-[10rem] common_input;
+  @apply w-full max-h-[25rem] overflow-auto min-h-[20rem] common_input;
+}
+
+.red_border {
+  @apply border-red-400 border-2 focus:outline-red-400;
+}
+
+.red_text {
+  @apply text-red-500;
 }
 
 .btn_div {
@@ -224,4 +232,56 @@
 
 .box_placeholder {
   @apply border border-sky-500 bg-sky-200 opacity-50 h-4 rounded-sm;
+}
+
+.expand_modal {
+  @apply bg-[#fff0d4] justify-center h-[80%] w-1/2 rounded-xl p-6 shadow-lg;
+}
+
+.modal_container {
+  @apply h-full;
+}
+
+.modal_content {
+  @apply flex flex-row h-full;
+}
+
+.left_content {
+  @apply flex flex-col  py-8 w-[60%] pr-6;
+}
+
+.right_content {
+  @apply flex flex-col w-[40%] bg-white rounded-md h-full;
+}
+
+.show_reply {
+  @apply flex justify-end h-[80%];
+}
+
+.reply_input_div {
+  @apply flex  rounded-md p-6 space-x-2 justify-center items-center h-[20%];
+}
+
+.reply_input {
+  @apply px-2 py-2 rounded-md h-16 focus:outline-slate-300 border-2 border-home-stroke max-h-20 min-h-[3rem];
+}
+
+.send_btn {
+  @apply bg-index-black_btn p-2 rounded-full cursor-pointer;
+}
+
+.title_desc {
+  @apply gap-8 flex flex-col;
+}
+
+.ex_txt_title {
+  @apply font-bold text-lg;
+}
+
+.ex_txt_desc {
+  @apply font-bold text-lg;
+}
+
+.modal_play {
+  /* @apply bg-black h */
 }

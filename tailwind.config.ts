@@ -37,6 +37,9 @@ const config: Config = {
         modal: {
           modal_bg: "#999999",
         },
+        hover:{
+          dropdown: "#f9f9f9",
+        }
       },
     },
   },

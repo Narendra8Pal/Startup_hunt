@@ -6,53 +6,103 @@
   @apply ml-80  flex-1 gap-8 flex flex-col;
 }
 
-.content_div{
-  @apply gap-4 flex flex-col w-2/3 m-auto mt-8;
-
+.content_div {
+  @apply gap-4 flex flex-col w-2/3 m-auto mt-8 mb-56;
 }
 
-.heading{
-    @apply text-2xl font-bold
+.heading {
+  @apply text-2xl font-bold;
 }
 
-.tasks_list{
-@apply mt-8
+.tasks_list {
+  @apply mt-8;
 }
 
-.list_content{
-  @apply grid gap-8
+.list_content {
+  @apply grid gap-8;
 }
 
-.box{
-  @apply border-2 border-home-stroke rounded-md p-6
+.box {
+  @apply border-2 border-home-stroke rounded-md p-6 hover:bg-table-bg_table;
 }
 
-.box_content{
-  @apply flex flex-row justify-between
+.box_content {
+  @apply flex flex-row gap-8;
 }
 
-.date_day{
-  @apply flex
+.user_content {
+  @apply flex flex-row items-center;
 }
 
-.date_day_ul{
-  @apply flex flex-col items-center pr-6 border-r-2 border-home-stroke justify-center
+.date_day {
+  @apply flex;
 }
 
-.day{
-  @apply font-medium
+.date_day_ul {
+  @apply flex flex-col items-center pr-6 border-r-2 border-home-stroke justify-center;
 }
 
-.date{
-  @apply text-3xl font-semibold
+.day {
+  @apply font-medium;
 }
 
-.project_info{
-  /* @apply   */
+.date {
+  @apply text-3xl font-semibold;
 }
 
-.title_desc{
-  @apply text-sm font-semibold
+.text_content {
+  @apply flex flex-row ml-20;
 }
 
+.prj_info {
+  @apply flex flex-row space-x-11;
+}
 
+.desc_div {
+  @apply w-[70%];
+}
+
+.title_desc {
+  @apply text-sm font-semibold;
+}
+
+.name_social_div {
+  @apply flex flex-row w-[25%];
+}
+
+.name_social {
+  /* @apply w-full items-center flex flex-col  justify-center; */
+  @apply flex flex-col space-y-2;
+}
+
+.username {
+  @apply text-sm font-semibold;
+}
+
+.social_icons {
+  @apply flex flex-row h-10 space-x-3 items-center;
+}
+
+.icon {
+  @apply cursor-pointer opacity-80 hover:opacity-100;
+}
+
+.title_div {
+  @apply w-[25%];
+}
+
+.title_content {
+  /* @apply w-full items-center flex flex-col  justify-center h-full; */
+}
+
+.desc_content {
+  /* @apply w-full items-; */
+}
+
+.visit_btn_div {
+  @apply flex items-center;
+}
+
+.visit_btn {
+  @apply hover:bg-index-black_btn px-4  py-2 hover:text-white rounded-md text-sm font-bold border-2 border-index-black_btn text-black;
+}

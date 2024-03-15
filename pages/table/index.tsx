@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "@/styles/table.module.css";
 import Image from "next/image";
+import Link from "next/link";
 
 //firebase
 import { collection, doc, getDocs, getDoc, query } from "firebase/firestore";
@@ -72,17 +73,14 @@ const Table = () => {
       <div className={styles.content_container}>
         <div className={styles.content_div}>
           <div className={styles.heading}>View Tasks</div>
-          <div className={styles.bg_box}>is this working or notd</div>
+          <div className={styles.bg_box}>View all the tasks created by the user and give them feedback by visiting the task.</div>
 
           <div className={styles.tasks_list}>
             <div className={styles.list_content}>
-
-
               {tasksData &&
                 tasksData.map((tasks, index) => (
                   <div className={styles.box} key={index}>
                     <div className={styles.box_content}>
-
                       <div className={styles.date_day}>
                         <ul className={styles.date_day_ul}>
                           <li className={styles.day}>
@@ -94,51 +92,74 @@ const Table = () => {
                         </ul>
                       </div>
 
-                      <div>
+                      <div className={styles.name_social_div}>
                         {usersData &&
-                          usersData.map((user, index) => (
-                            <div key={index}>
-                              <div>{user.username}</div>
+                          usersData
+                            .filter((data) => data.userId === tasks.userId)
+                            .map((user, index) => (
+                              <div key={index} className={styles.name_social}>
+                                <div className={styles.username}>
+                                  {user.username}
+                                </div>
 
-                              <div>
-                                <Image
-                                  alt="x"
-                                  src="/X_table.png"
-                                  width={15}
-                                  height={15}
-                                  priority={true}
-                                />
-                              </div>
+                                <div className={styles.social_icons}>
+                                  <div className={styles.icon}>
+                                    <Link
+                                      href={`https://twitter.com/${user.twitterUsername}`}
+                                      target="_blank"
+                                    >
+                                      <Image
+                                        alt="x"
+                                        src="/X_table.png"
+                                        width={17}
+                                        height={17}
+                                        priority={true}
+                                      />
+                                    </Link>
+                                  </div>
 
-                              <div>
-                                <Image
-                                  alt="git"
-                                  src="/git_table.png"
-                                  width={15}
-                                  height={15}
-                                  priority={true}
-                                />
+                                  <div className={styles.icon}>
+                                    <Link
+                                      href={`https://github.com/${user.githubUsername}`}
+                                      target="_blank"
+                                    >
+                                      <Image
+                                        alt="git"
+                                        src="/git_table.png"
+                                        width={17}
+                                        height={17}
+                                        priority={true}
+                                      />
+                                    </Link>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
                       </div>
 
-                      <div className={styles.project_info}>
-                        <div>
-                          <div>
-                            <div className={styles.title_desc}>
-                              Task Title
-                            </div>
-                            <div>{tasks.Project_Title}</div>
-                          </div>
-
-                          <div>
-                            <div className={styles.title_desc}>
-                              Task Description
-                            </div>
-                            <div>{tasks.Project_Desc}</div>
-                          </div>
+                      <div className={styles.title_div}>
+                        <div className={styles.title_content}>
+                          <div className={styles.title_desc}>Task Title</div>
+                          <div>{tasks.Project_Title}</div>
                         </div>
+                      </div>
+
+                      <div className={styles.desc_div}>
+                        <div className={styles.desc_content}>
+                          <div className={styles.title_desc}>
+                            Task Description
+                          </div>
+                          {tasks.Project_Desc.split(" ").slice(0, 20).join(" ")}
+                          {tasks.Project_Desc.split(" ").length > 20
+                            ? "..."
+                            : ""}{" "}
+                        </div>
+                      </div>
+
+                      <div className={styles.visit_btn_div}>
+                        {/* <Link href={`${}`}> */}
+                        <button className={styles.visit_btn}>visit</button>
+                        {/* </Link> */}
                       </div>
                     </div>
                   </div>

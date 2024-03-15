@@ -166,7 +166,7 @@
 }
 
 .common_input {
-  @apply rounded-sm focus:outline-index-black_btn border-2 border-home-stroke p-1;
+  @apply rounded-lg focus:outline-slate-300 border-2 border-home-stroke p-1;
 }
 
 .title_input {
@@ -221,7 +221,7 @@
 }
 
 .modal_upld_img {
-  @apply h-full flex;
+  @apply h-full flex cursor-pointer;
 }
 
 .media_btn {

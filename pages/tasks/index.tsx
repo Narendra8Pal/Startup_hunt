@@ -84,6 +84,12 @@ const Tasks = (props: TasksProps) => {
   const [addEmoji, setAddEmoji] = useState<boolean>(false);
   const [taskDocIds, setTaskDocIds] = useState<string[]>([]);
   const [DocIds, setDocIds] = useState<string[]>([]);
+  const [titleCountExc, setTitleCountExc] = useState<boolean>();
+  const [wordCountExceeded, setWordCountExceeded] = useState<boolean>(false);
+
+  const [expandModalOpen, setExpandModalOpen] = useState<boolean>(false);
+  const [expandTitle, setExpandTitle] = useState<string>("");
+  const [expandDesc, setExpandDesc] = useState<string>("");
 
   // draggable functionality based usestate hooks
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -261,10 +267,22 @@ const Tasks = (props: TasksProps) => {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       switch (key) {
         case "ProjectTitle":
-          setProjectTitle(e.target.value);
+          const title = e.target.value.split(/\s+/);
+          if (title.length <= 10) {
+            setProjectTitle(e.target.value);
+            setTitleCountExc(false);
+          } else {
+            setTitleCountExc(true);
+          }
           break;
         case "ProjectDesc":
-          setProjectDesc(e.target.value);
+          const words = e.target.value.split(/\s+/);
+          if (words.length <= 80) {
+            setProjectDesc(e.target.value);
+            setWordCountExceeded(false);
+          } else {
+            setWordCountExceeded(true);
+          }
           break;
       }
     };
@@ -321,6 +339,12 @@ const Tasks = (props: TasksProps) => {
     }
   };
 
+  const handleExpandView = (title: string, desc: string) => {
+    setExpandModalOpen(true);
+    setExpandTitle(title);
+    setExpandDesc(desc);
+  };
+
   return (
     <>
       <div className={styles.container}>
@@ -342,22 +366,13 @@ const Tasks = (props: TasksProps) => {
                   />
                   <p>{taskDocIdData.Project_Title}</p>
 
-                  {ddOpen ? (
-                    <Image
-                      src="/down_btn.png"
-                      alt="up_btn"
-                      height={20}
-                      width={20}
-                      className={styles.up_btn}
-                    />
-                  ) : (
-                    <Image
-                      src="/down_btn.png"
-                      alt="down_btn"
-                      height={20}
-                      width={20}
-                    />
-                  )}
+                  <Image
+                    src="/down_btn.png"
+                    alt={ddOpen ? "up_btn" : "down_btn"}
+                    height={20}
+                    width={20}
+                    className={ddOpen ? styles.up_btn : ""}
+                  />
                 </div>
 
                 <div className={styles.btn_div}>
@@ -405,7 +420,7 @@ const Tasks = (props: TasksProps) => {
                 <p className={styles.desc}>
                   {props.Id
                     ? taskDocIdData.Project_Desc
-                    : "please create a task first using the layer icon placed before your profile or choose your created task using dropdown :)"}
+                    : "please create a task first using the layer icon placed before your profile image or choose your created task using dropdown :)"}
                 </p>
               </div>
             </div>
@@ -469,7 +484,12 @@ const Tasks = (props: TasksProps) => {
                                 </div>
 
                                 <div className={styles.three_icon_div}>
-                                  <div className={styles.expand_icon}>
+                                  <div
+                                    className={styles.expand_icon}
+                                    onClick={() =>
+                                      handleExpandView(item.title, item.desc)
+                                    }
+                                  >
                                     <Image
                                       src="/expand.png"
                                       alt="expand"
@@ -581,7 +601,12 @@ const Tasks = (props: TasksProps) => {
                                 </div>
 
                                 <div className={styles.three_icon_div}>
-                                  <div className={styles.expand_icon}>
+                                  <div
+                                    className={styles.expand_icon}
+                                    onClick={() =>
+                                      handleExpandView(item.title, item.desc)
+                                    }
+                                  >
                                     <Image
                                       src="/expand.png"
                                       alt="expand"
@@ -665,7 +690,12 @@ const Tasks = (props: TasksProps) => {
 
                           <div className={styles.task_btn_done_div}>
                             <div className={styles.three_icon_div}>
-                              <div className={styles.expand_icon}>
+                              <div
+                                className={styles.expand_icon}
+                                onClick={() =>
+                                  handleExpandView(item.title, item.desc)
+                                }
+                              >
                                 <Image
                                   src="/expand.png"
                                   alt="expand"
@@ -736,10 +766,15 @@ const Tasks = (props: TasksProps) => {
                   <div>{taskModalContent ? "Brick Title" : "Task Title"}</div>
                   <input
                     type="text"
-                    className={styles.input}
+                    className={`${styles.input} ${
+                      titleCountExc ? `${styles.red_border}` : ""
+                    }  `}
                     onChange={handleChange("ProjectTitle")}
                     value={projectTitle}
                   />
+                  {titleCountExc && (
+                    <p className={styles.red_text}>Word count exceeded</p>
+                  )}
                 </div>
 
                 <div>
@@ -749,10 +784,15 @@ const Tasks = (props: TasksProps) => {
                       : "Task Description"}
                   </div>
                   <textarea
-                    className={styles.textarea}
+                    className={`${styles.textarea} ${
+                      wordCountExceeded ? `${styles.red_border}` : ""
+                    }  `}
                     onChange={handleChange("ProjectDesc")}
                     value={projectDesc}
                   />
+                  {wordCountExceeded && (
+                    <p className={styles.red_text}>Word count exceeded</p>
+                  )}
                 </div>
 
                 {taskModalContent ? <div>Brick Status</div> : null}
@@ -766,6 +806,65 @@ const Tasks = (props: TasksProps) => {
                   {taskModalContent ? "Create" : "Create"}
                 </button>
               </div>
+            </div>
+          </div>
+        </>
+      ) : null}
+
+      {expandModalOpen ? (
+        <>
+          <div className={styles.modal_div}></div>
+          <div
+            className={styles.add_modal_bg}
+            onClick={() => setExpandModalOpen(false)}
+          >
+            <div
+              className={styles.expand_modal}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modal_container}>
+
+
+                <div className={styles.modal_content}>
+                  <div className={styles.left_content}>
+                    <div className={styles.title_desc}>
+                      <div className={styles.ex_title}>
+                        <div className={styles.ex_txt_title}>
+                          Title
+                        </div>
+                        {expandTitle}
+                        </div>
+
+                      <div>
+                        <div className={styles.ex_txt_desc}>
+                          Description
+                        </div>
+                        {expandDesc}
+                        </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.right_content}>
+                      <div className={styles.show_reply}></div>
+
+                      <div className={styles.reply_input_div}>
+                        <textarea placeholder="type your reply here..." className={styles.reply_input}/>
+                        <div className={styles.send_btn}>
+                          <Image
+                            alt="send"
+                            src="/Sent.png"
+                            width={20}
+                            height={20}
+                            priority={true}
+                          />
+                        </div>
+                      </div>
+                  </div>
+                </div>
+
+
+              </div>
+                
             </div>
           </div>
         </>

@@ -288,7 +288,10 @@ const Explore = () => {
                 />
                 <li>Explore</li>
               </div>
-              <div className={Styles.icons_items}>
+              <div
+                className={Styles.icons_items}
+                onClick={() => router.push(`/table/${userDocId}`)}
+              >
                 <Image
                   src="/Grid.png"
                   alt="grid"
