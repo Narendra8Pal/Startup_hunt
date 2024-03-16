@@ -17,6 +17,7 @@ import {
   doc,
   updateDoc,
   setDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import FirebaseApp from "../../utils/firebase";
@@ -90,15 +91,22 @@ const Tasks = (props: TasksProps) => {
   const [expandModalOpen, setExpandModalOpen] = useState<boolean>(false);
   const [expandTitle, setExpandTitle] = useState<string>("");
   const [expandDesc, setExpandDesc] = useState<string>("");
+  const [replyTaskId, setReplyTaskId] = useState<string>("");
+  const [textarea, setTextarea] = useState<string>("");
 
   // draggable functionality based usestate hooks
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const [customMenuOpen, setCustomMenuOpen] = useState<boolean>(false);
+  const [col2MenuOpen, setCol2MenuOpen] = useState<boolean>(false);
+  const [col3MenuOpen, setCol3MenuOpen] = useState<boolean>(false);
+  const [customMenuPosition, setCustomMenuPosition] = useState({ x: 0, y: 0 });
+  const [editMenu, setEditMenu] = useState<boolean>(false);
+  const [editTitle, setEditTitle] = useState<string>("");
+  const [editDesc, setEditDesc] = useState<string>("");
 
+  const user = useSelector((state: RootState) => state.userName.user);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const db = getFirestore(FirebaseApp);
   const userDocId = useSelector(
@@ -106,6 +114,8 @@ const Tasks = (props: TasksProps) => {
   );
 
   const router = useRouter();
+
+  const customMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const getUserData = () => {
@@ -174,8 +184,13 @@ const Tasks = (props: TasksProps) => {
   const handleModal = () => {
     setOpenModal(false);
     setTaskModalContent(false);
+    setEditMenu(false);
     setProjectTitle("");
     setProjectDesc("");
+    setEditTitle("");
+    setEditDesc("");
+    setWordCountExceeded(false);
+    setTitleCountExc(false);
   };
 
   useEffect(() => {
@@ -215,7 +230,7 @@ const Tasks = (props: TasksProps) => {
     }
   };
 
-  const handleAddTasks = async () => {
+  const handleAddBrick = async () => {
     handleModal();
     try {
       const tasksRef = collection(db, "tasks");
@@ -257,9 +272,18 @@ const Tasks = (props: TasksProps) => {
     }
   };
 
-  const handleUpdateTasks = async () => {
+  const updateBrick = async () => {
     try {
     } catch (error) {}
+  };
+
+  const handleEditClick = (id: string, title: string, desc: string) => {
+    setEditMenu(true);
+    setEditTitle(title);
+    setEditDesc(desc);
+    setTaskModalContent(true);
+    console.log(title, 'title bru')
+    console.log(desc, 'desc bru')
   };
 
   const handleChange =
@@ -284,6 +308,24 @@ const Tasks = (props: TasksProps) => {
             setWordCountExceeded(true);
           }
           break;
+        case "EditTitle":
+          const editText = e.target.value.split(/\s+/);
+          if (editText.length <= 10) {
+            setEditTitle(e.target.value);
+            setTitleCountExc(false);
+          } else {
+            setTitleCountExc(true);
+          }
+          break;
+        case "EditDesc":
+          const editDesc = e.target.value.split(/\s+/);
+          if (editDesc.length <= 80) {
+            setEditDesc(e.target.value);
+            setWordCountExceeded(false);
+          } else {
+            setWordCountExceeded(true);
+          }
+          break;
       }
     };
 
@@ -296,15 +338,10 @@ const Tasks = (props: TasksProps) => {
     // taskId: string,
     taskDocId: string
   ) => {
-    setIsDragging(true);
-    setDraggedItem(taskDocId);
     e.dataTransfer.setData("taskId", taskDocId);
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    setDraggedItem(null);
-  };
+  const handleDragEnd = () => {};
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -314,8 +351,6 @@ const Tasks = (props: TasksProps) => {
     e: React.DragEvent<HTMLDivElement>,
     targetCol: string
   ) => {
-    setIsDragging(false);
-    setDraggedItem(null);
     setHoveredIndex(null);
     e.preventDefault();
     const taskId = e.dataTransfer.getData("taskId");
@@ -339,11 +374,97 @@ const Tasks = (props: TasksProps) => {
     }
   };
 
-  const handleExpandView = (title: string, desc: string) => {
+  const handleExpandView = (title: string, desc: string, id: string) => {
     setExpandModalOpen(true);
     setExpandTitle(title);
     setExpandDesc(desc);
+    setReplyTaskId(id);
   };
+
+  // will do it late on bro firebase need to know about tasks_content beofre that it need to know about tasks collection
+  const handleMsg = async () => {
+    const commentsCollection = collection(
+      db,
+      "tasks_content",
+      replyTaskId,
+      "comments"
+    );
+    const newCommentRef = doc(commentsCollection, uid);
+    const textCollectionRef = collection(newCommentRef, "text");
+
+    console.log(replyTaskId, "reply task id bro");
+
+    const newComment = {
+      profile_img: userImgURL,
+      username: user,
+    };
+
+    try {
+      await setDoc(newCommentRef, newComment);
+      await addDoc(textCollectionRef, {
+        comment: textarea,
+        timestamp: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+    setTextarea("");
+  };
+
+  const handleScrollPosition = (rect: any) => {
+    const scrollX = document.documentElement.scrollLeft;
+    const scrollY = document.documentElement.scrollTop;
+    setCustomMenuPosition({ x: rect.left + scrollX, y: rect.bottom + scrollY });
+  };
+
+  const handleAddIconClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    handleScrollPosition(rect);
+    setCustomMenuOpen(true);
+    setCol2MenuOpen(false);
+    setCol3MenuOpen(false);
+  };
+
+  const handleCol2Menu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    handleScrollPosition(rect);
+    setCol2MenuOpen(true);
+    setCustomMenuOpen(false);
+    setCol3MenuOpen(false);
+  };
+  const handleCol3Menu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    handleScrollPosition(rect);
+    setCol3MenuOpen(true);
+    setCustomMenuOpen(false);
+    setCol2MenuOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        customMenuRef.current &&
+        !customMenuRef.current.contains(e.target as Node)
+      ) {
+        setCustomMenuOpen(false);
+        setCol2MenuOpen(false);
+        setCol3MenuOpen(false);
+      }
+    };
+
+    if (customMenuOpen || col2MenuOpen || col3MenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [customMenuOpen, col2MenuOpen, col3MenuOpen]);
 
   return (
     <>
@@ -487,7 +608,11 @@ const Tasks = (props: TasksProps) => {
                                   <div
                                     className={styles.expand_icon}
                                     onClick={() =>
-                                      handleExpandView(item.title, item.desc)
+                                      handleExpandView(
+                                        item.title,
+                                        item.desc,
+                                        item.taskDocId
+                                      )
                                     }
                                   >
                                     <Image
@@ -499,7 +624,16 @@ const Tasks = (props: TasksProps) => {
                                     />
                                   </div>
 
-                                  <div className={styles.cmnt_icon}>
+                                  <div
+                                    className={styles.cmnt_icon}
+                                    onClick={() =>
+                                      handleExpandView(
+                                        item.title,
+                                        item.desc,
+                                        item.taskDocId
+                                      )
+                                    }
+                                  >
                                     <Image
                                       src="/comment.png"
                                       alt="comment"
@@ -511,7 +645,7 @@ const Tasks = (props: TasksProps) => {
 
                                   <div
                                     className={styles.add_icon}
-                                    onClick={() => setCustomMenuOpen(true)}
+                                    onClick={(e) => handleAddIconClick(e)}
                                   >
                                     <Image
                                       src="/more.png"
@@ -532,21 +666,60 @@ const Tasks = (props: TasksProps) => {
                                 className={styles.box_placeholder}
                               ></div>
                             )}
+
+                            {customMenuOpen && (
+                              <div
+                                className={styles.custom_menu}
+                                style={{
+                                  top: customMenuPosition.y,
+                                  left: customMenuPosition.x,
+                                }}
+                                ref={customMenuRef}
+                              >
+                                <ul className={styles.menu_li}>
+                                  <div
+                                    className={styles.menu_edit}
+                                    onClick={() =>
+                                      handleEditClick(
+                                        item.id,
+                                        item.title,
+                                        item.desc
+                                      )
+                                    }
+                                  >
+                                    <div className={styles.menu_edit_img}>
+                                      <Image
+                                        alt="edit"
+                                        src="/menu_edit.png"
+                                        width={24}
+                                        height={24}
+                                        priority={true}
+                                      />
+                                    </div>
+                                    <li className={styles.menu_li_txt}>Edit</li>
+                                  </div>
+
+                                  <div className={styles.menu_delete}>
+                                    <div className={styles.menu_delete_img}>
+                                      <Image
+                                        alt="del"
+                                        src="/menu_delete_black.png"
+                                        width={24}
+                                        height={24}
+                                        priority={true}
+                                      />
+                                    </div>
+                                    <li className={styles.menu_li_txt}>
+                                      Delete
+                                    </li>
+                                  </div>
+
+                                  <div className={styles.bg_box}></div>
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         ))}
-
-                      {customMenuOpen ? (
-                        <>
-                          <div className={styles.custom_menu}>
-                            <ul>
-                              <li>Edit</li>
-                              <li>Delete</li>
-
-                              <div className={styles.bg_box}></div>
-                            </ul>
-                          </div>
-                        </>
-                      ) : null}
                     </div>
 
                     <div
@@ -604,7 +777,11 @@ const Tasks = (props: TasksProps) => {
                                   <div
                                     className={styles.expand_icon}
                                     onClick={() =>
-                                      handleExpandView(item.title, item.desc)
+                                      handleExpandView(
+                                        item.title,
+                                        item.desc,
+                                        item.taskDocId
+                                      )
                                     }
                                   >
                                     <Image
@@ -616,7 +793,16 @@ const Tasks = (props: TasksProps) => {
                                     />
                                   </div>
 
-                                  <div className={styles.cmnt_icon}>
+                                  <div
+                                    className={styles.cmnt_icon}
+                                    onClick={() =>
+                                      handleExpandView(
+                                        item.title,
+                                        item.desc,
+                                        item.taskDocId
+                                      )
+                                    }
+                                  >
                                     <Image
                                       src="/comment.png"
                                       alt="comment"
@@ -626,7 +812,10 @@ const Tasks = (props: TasksProps) => {
                                     />
                                   </div>
 
-                                  <div className={styles.add_icon}>
+                                  <div
+                                    className={styles.add_icon}
+                                    onClick={(e) => handleCol2Menu(e)}
+                                  >
                                     <Image
                                       src="/more.png"
                                       alt="more"
@@ -645,6 +834,62 @@ const Tasks = (props: TasksProps) => {
                                 className={styles.box_placeholder}
                               ></div>
                             )}
+
+                            {col2MenuOpen ? (
+                              <>
+                                <div
+                                  className={styles.custom_menu}
+                                  style={{
+                                    top: customMenuPosition.y,
+                                    left: customMenuPosition.x,
+                                  }}
+                                  ref={customMenuRef}
+                                >
+                                  <ul className={styles.menu_li}>
+                                    <div
+                                      className={styles.menu_edit}
+                                      onClick={() =>
+                                        handleEditClick(
+                                          item.id,
+                                          item.title,
+                                          item.desc
+                                        )
+                                      }
+                                    >
+                                      <div className={styles.menu_edit_img}>
+                                        <Image
+                                          alt="edit"
+                                          src="/menu_edit.png"
+                                          width={24}
+                                          height={24}
+                                          priority={true}
+                                        />
+                                      </div>
+                                      <li className={styles.menu_li_txt}>
+                                        Edit
+                                      </li>
+                                    </div>
+
+                                    <div className={styles.menu_delete}>
+                                      <div className={styles.menu_delete_img}>
+                                        <Image
+                                          alt="del"
+                                          src="/menu_delete_black.png"
+                                          width={24}
+                                          height={24}
+                                          priority={true}
+                                        />
+                                      </div>
+                                      <li className={styles.menu_li_txt}>
+                                        Delete
+                                      </li>
+                                    </div>
+
+                                    <div className={styles.bg_box}></div>
+                                  </ul>
+                                </div>
+                              </>
+                            ) : null}
                           </div>
                         ))}
                     </div>
@@ -693,7 +938,11 @@ const Tasks = (props: TasksProps) => {
                               <div
                                 className={styles.expand_icon}
                                 onClick={() =>
-                                  handleExpandView(item.title, item.desc)
+                                  handleExpandView(
+                                    item.title,
+                                    item.desc,
+                                    item.id
+                                  )
                                 }
                               >
                                 <Image
@@ -705,7 +954,10 @@ const Tasks = (props: TasksProps) => {
                                 />
                               </div>
 
-                              <div className={styles.add_icon}>
+                              <div
+                                className={styles.add_icon}
+                                onClick={(e) => handleCol3Menu(e)}
+                              >
                                 <Image
                                   src="/more.png"
                                   alt="more"
@@ -724,6 +976,58 @@ const Tasks = (props: TasksProps) => {
                             className={styles.box_placeholder}
                           ></div>
                         )}
+
+                        {col3MenuOpen ? (
+                          <>
+                            <div
+                              className={styles.custom_menu}
+                              style={{
+                                top: customMenuPosition.y,
+                                left: customMenuPosition.x,
+                              }}
+                              ref={customMenuRef}
+                            >
+                              <ul className={styles.menu_li}>
+                                <div
+                                  className={styles.menu_edit}
+                                  onClick={() =>
+                                    handleEditClick(
+                                      item.id,
+                                      item.title,
+                                      item.desc
+                                    )
+                                  }
+                                >
+                                  <div className={styles.menu_edit_img}>
+                                    <Image
+                                      alt="edit"
+                                      src="/menu_edit.png"
+                                      width={24}
+                                      height={24}
+                                      priority={true}
+                                    />
+                                  </div>
+                                  <li className={styles.menu_li_txt}>Edit</li>
+                                </div>
+
+                                <div className={styles.menu_delete}>
+                                  <div className={styles.menu_delete_img}>
+                                    <Image
+                                      alt="del"
+                                      src="/menu_delete_black.png"
+                                      width={24}
+                                      height={24}
+                                      priority={true}
+                                    />
+                                  </div>
+                                  <li className={styles.menu_li_txt}>Delete</li>
+                                </div>
+
+                                <div className={styles.bg_box}></div>
+                              </ul>
+                            </div>
+                          </>
+                        ) : null}
                       </div>
                     ))}
                 </div>
@@ -769,8 +1073,12 @@ const Tasks = (props: TasksProps) => {
                     className={`${styles.input} ${
                       titleCountExc ? `${styles.red_border}` : ""
                     }  `}
-                    onChange={handleChange("ProjectTitle")}
-                    value={projectTitle}
+                    onChange={
+                      editMenu
+                        ? handleChange("EditTitle")
+                        : handleChange("ProjectTitle")
+                    }
+                    value={editMenu ? editTitle : projectTitle}
                   />
                   {titleCountExc && (
                     <p className={styles.red_text}>Word count exceeded</p>
@@ -787,8 +1095,12 @@ const Tasks = (props: TasksProps) => {
                     className={`${styles.textarea} ${
                       wordCountExceeded ? `${styles.red_border}` : ""
                     }  `}
-                    onChange={handleChange("ProjectDesc")}
-                    value={projectDesc}
+                    onChange={
+                      editMenu
+                        ? handleChange("EditDesc")
+                        : handleChange("ProjectDesc")
+                    }
+                    value={editMenu ? editDesc : projectDesc}
                   />
                   {wordCountExceeded && (
                     <p className={styles.red_text}>Word count exceeded</p>
@@ -799,12 +1111,18 @@ const Tasks = (props: TasksProps) => {
               </div>
 
               <div className={styles.btn_div}>
-                <button
-                  className={styles.btn}
-                  onClick={taskModalContent ? handleAddTasks : handleCreate}
-                >
-                  {taskModalContent ? "Create" : "Create"}
-                </button>
+                {editMenu ? (
+                  <button className={styles.btn} onClick={updateBrick}>
+                    Edit
+                  </button>
+                ) : (
+                  <button
+                    className={styles.btn}
+                    onClick={taskModalContent ? handleAddBrick : handleCreate}
+                  >
+                    {taskModalContent ? "Create" : "Create"}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -823,48 +1141,47 @@ const Tasks = (props: TasksProps) => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className={styles.modal_container}>
-
-
-                <div className={styles.modal_content}>
+                <div className={styles.ex_modal_content}>
                   <div className={styles.left_content}>
                     <div className={styles.title_desc}>
                       <div className={styles.ex_title}>
-                        <div className={styles.ex_txt_title}>
-                          Title
-                        </div>
+                        <div className={styles.ex_txt_title}>Title</div>
                         {expandTitle}
-                        </div>
+                      </div>
 
                       <div>
-                        <div className={styles.ex_txt_desc}>
-                          Description
-                        </div>
+                        <div className={styles.ex_txt_desc}>Description</div>
                         {expandDesc}
-                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <div className={styles.right_content}>
-                      <div className={styles.show_reply}></div>
+                    <div className={styles.show_reply}></div>
 
-                      <div className={styles.reply_input_div}>
-                        <textarea placeholder="type your reply here..." className={styles.reply_input}/>
-                        <div className={styles.send_btn}>
-                          <Image
-                            alt="send"
-                            src="/Sent.png"
-                            width={20}
-                            height={20}
-                            priority={true}
-                          />
-                        </div>
+                    <div className={styles.reply_input_div}>
+                      <textarea
+                        placeholder="type your reply here..."
+                        className={styles.reply_input}
+                        onChange={(e) => setTextarea(e.target.value)}
+                        value={textarea}
+                      />
+                      <div
+                        className={styles.send_btn}
+                        onClick={() => handleMsg()}
+                      >
+                        <Image
+                          alt="send"
+                          src="/Sent.png"
+                          width={20}
+                          height={20}
+                          priority={true}
+                        />
                       </div>
+                    </div>
                   </div>
                 </div>
-
-
               </div>
-                
             </div>
           </div>
         </>
