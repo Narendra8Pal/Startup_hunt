@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, ChangeEvent } from "react";
 import styles from "@/styles/tasks.module.css";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -16,6 +16,7 @@ import {
   where,
   doc,
   updateDoc,
+  deleteDoc,
   setDoc,
   serverTimestamp,
 } from "firebase/firestore";
@@ -58,8 +59,12 @@ type TaskContentData = {
   status: string;
   title: string;
   col: string;
-  row: string;
   taskDocId: string;
+  thumbUp: number;
+  thumbDn: number;
+  thumbUpClicked: boolean;
+  thumbDnClicked: boolean;
+  bgColor: string;
 };
 
 type Task = {
@@ -67,6 +72,12 @@ type Task = {
   status: string;
   title: string;
   desc: string;
+  taskDocId: string;
+  thumbUp: number;
+  thumbDn: number;
+  thumbUpClicked: boolean;
+  thumbDnClicked: boolean;
+  bgColor: string;
 };
 
 const Tasks = (props: TasksProps) => {
@@ -84,7 +95,6 @@ const Tasks = (props: TasksProps) => {
   const [userImgURL, setUserImgURL] = useState<string>("");
   const [addEmoji, setAddEmoji] = useState<boolean>(false);
   const [taskDocIds, setTaskDocIds] = useState<string[]>([]);
-  const [DocIds, setDocIds] = useState<string[]>([]);
   const [titleCountExc, setTitleCountExc] = useState<boolean>();
   const [wordCountExceeded, setWordCountExceeded] = useState<boolean>(false);
 
@@ -105,6 +115,15 @@ const Tasks = (props: TasksProps) => {
   const [editMenu, setEditMenu] = useState<boolean>(false);
   const [editTitle, setEditTitle] = useState<string>("");
   const [editDesc, setEditDesc] = useState<string>("");
+  const [editStatusSelected, setEditStatusSelected] = useState<string>("");
+  const [editTaskDocId, setEditTaskDocId] = useState<string>("");
+
+  //menu bg
+  const [bgBox, setBgBox] = useState<boolean>(false);
+  const [bgBoxColor, setBgBoxColor] = useState<string>("");
+  const [exBgColor, setExBgColor] = useState<string>("");
+
+  const [statusSelected, setStatusSelected] = useState<string>("");
 
   const user = useSelector((state: RootState) => state.userName.user);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -247,10 +266,14 @@ const Tasks = (props: TasksProps) => {
         id: uuidv4(),
         title: projectTitle,
         desc: projectDesc,
-        status: "",
-        done: "",
+        status: statusSelected,
         col: tasksCount % 2 == 0 ? "col1" : "col2",
         taskDocId: "",
+        thumbUp: 0,
+        thumbDn: 0,
+        thumbUpClicked: false,
+        thumbDnClicked: false,
+        bgColor: "#ffffff",
       };
 
       const docRef = await addDoc(subcollectionRef, newTask);
@@ -272,18 +295,139 @@ const Tasks = (props: TasksProps) => {
     }
   };
 
-  const updateBrick = async () => {
-    try {
-    } catch (error) {}
+  const handleStatusChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (editMenu) {
+      setEditStatusSelected(event.target.value);
+    } else {
+      setStatusSelected(event.target.value);
+    }
   };
 
-  const handleEditClick = (id: string, title: string, desc: string) => {
-    setEditMenu(true);
+  useEffect(() => {
+    const updateBgBrick = async () => {
+      try {
+        const subcollectionRef = collection(
+          db,
+          "tasks",
+          `${props.Id}`,
+          "tasks_content"
+        );
+
+        const updatedTaskBoxBg = {
+          bgColor: bgBoxColor,
+        };
+
+        const taskRef = doc(subcollectionRef, editTaskDocId);
+        await updateDoc(taskRef, updatedTaskBoxBg);
+
+        const updatedTasks = tasks.map((task) =>
+          task.taskDocId === editTaskDocId
+            ? { ...task, ...updatedTaskBoxBg }
+            : task
+        );
+        setTasks(updatedTasks);
+      } catch (error) {
+        console.error("Error updating taskBox color: ", error);
+      }
+    };
+    if (bgBox) {
+      updateBgBrick();
+    }
+  }, [bgBoxColor]);
+
+  const updateBrick = async () => {
+    handleModal();
+    try {
+      const subcollectionRef = collection(
+        db,
+        "tasks",
+        `${props.Id}`,
+        "tasks_content"
+      );
+
+      const taskSnapshot = await getDocs(subcollectionRef);
+      const tasksCount = taskSnapshot.docs.length;
+
+      const updatedTaskData = {
+        title: editTitle,
+        desc: editDesc,
+        status: editStatusSelected,
+      };
+
+      const taskRef = doc(subcollectionRef, editTaskDocId);
+      await updateDoc(taskRef, updatedTaskData);
+
+      const updatedTasks = tasks.map((task) =>
+        task.taskDocId === editTaskDocId
+          ? { ...task, ...updatedTaskData }
+          : task
+      );
+      setTasks(updatedTasks);
+    } catch (error) {
+      console.error("Error updating subcollection: ", error);
+    }
+  };
+
+  const handleEditArg = (
+    id: string,
+    title: string,
+    desc: string,
+    taskDocId: string,
+    status: string
+  ) => {
     setEditTitle(title);
     setEditDesc(desc);
+    setEditTaskDocId(taskDocId);
+    setEditStatusSelected(status);
+  };
+
+  const handleEditMouse = (
+    id: string,
+    title: string,
+    desc: string,
+    taskDocId: string,
+    status: string
+  ) => {
+    handleEditArg(id, title, desc, taskDocId, status);
+  };
+
+  const handleEditClick = () => {
+    handleFalseMenu();
+    setEditMenu(true);
     setTaskModalContent(true);
-    console.log(title, 'title bru')
-    console.log(desc, 'desc bru')
+  };
+
+  const handleBgBox = (color: string) => {
+    setBgBox(true);
+    setBgBoxColor(color);
+  };
+
+  const handleFalseMenu = () => {
+    setCustomMenuOpen(false);
+    setCol2MenuOpen(false);
+    setCol3MenuOpen(false);
+  };
+
+  const handleBrickDelete = async () => {
+    handleFalseMenu();
+    try {
+      const subcollectionRef = collection(
+        db,
+        "tasks",
+        `${props.Id}`,
+        "tasks_content"
+      );
+
+      const taskRef = doc(subcollectionRef, editTaskDocId);
+      await deleteDoc(taskRef);
+
+      const updatedTasks = tasks.filter(
+        (task) => task.taskDocId !== editTaskDocId
+      );
+      setTasks(updatedTasks);
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    }
   };
 
   const handleChange =
@@ -374,11 +518,17 @@ const Tasks = (props: TasksProps) => {
     }
   };
 
-  const handleExpandView = (title: string, desc: string, id: string) => {
+  const handleExpandView = (
+    title: string,
+    desc: string,
+    id: string,
+    bgColor: string
+  ) => {
     setExpandModalOpen(true);
     setExpandTitle(title);
     setExpandDesc(desc);
     setReplyTaskId(id);
+    setExBgColor(bgColor);
   };
 
   // will do it late on bro firebase need to know about tasks_content beofre that it need to know about tasks collection
@@ -409,6 +559,68 @@ const Tasks = (props: TasksProps) => {
       console.error("Error adding comment:", error);
     }
     setTextarea("");
+  };
+
+  const emojiHit = async (taskId: string, emojiType: string) => {
+    const subcollectionRef = collection(
+      db,
+      "tasks",
+      `${props.Id}`,
+      "tasks_content"
+    );
+
+    const taskRef = doc(subcollectionRef, taskId);
+    const taskDoc = await getDoc(taskRef);
+    const taskData = taskDoc.data();
+
+    if (taskData) {
+      let updatedCount: number;
+      let updatedClickedField;
+      if (emojiType === "thumbUp") {
+        updatedCount = taskData.thumbUpClicked
+          ? (taskData.thumbUp || 0) - 1
+          : (taskData.thumbUp || 0) + 1;
+        updatedClickedField = { thumbUpClicked: !taskData.thumbUpClicked };
+
+        await updateDoc(taskRef, {
+          thumbUp: emojiType === "thumbUp" ? updatedCount : taskData.thumbUp,
+          ...updatedClickedField,
+        });
+      } else if (emojiType === "thumbDn") {
+        updatedCount = taskData.thumbDnClicked
+          ? (taskData.thumbDn || 0) - 1
+          : (taskData.thumbDn || 0) + 1;
+        updatedClickedField = { thumbDnClicked: !taskData.thumbDnClicked };
+
+        await updateDoc(taskRef, {
+          thumbDn: updatedCount,
+          ...updatedClickedField,
+        });
+      }
+
+      const updatedTasks = tasks.map((task) => {
+        if (task.id === taskId) {
+          return {
+            ...task,
+            thumbUp: emojiType === "thumbUp" ? updatedCount : task.thumbUp,
+            thumbDn: emojiType === "thumbDn" ? updatedCount : task.thumbDn,
+            thumbUpClicked:
+              emojiType === "thumbUp"
+                ? !taskData.thumbUpClicked
+                : task.thumbUpClicked,
+            thumbDnClicked:
+              emojiType === "thumbDn"
+                ? !taskData.thumbDnClicked
+                : task.thumbDnClicked,
+          };
+        } else {
+          return task;
+        }
+      });
+      setTasks(updatedTasks);
+    } else {
+      console.error("taskData is undefined");
+    }
   };
 
   const handleScrollPosition = (rect: any) => {
@@ -449,9 +661,7 @@ const Tasks = (props: TasksProps) => {
         customMenuRef.current &&
         !customMenuRef.current.contains(e.target as Node)
       ) {
-        setCustomMenuOpen(false);
-        setCol2MenuOpen(false);
-        setCol3MenuOpen(false);
+        handleFalseMenu();
       }
     };
 
@@ -564,6 +774,9 @@ const Tasks = (props: TasksProps) => {
                             <div
                               key={item.id}
                               className={styles.task_box}
+                              style={{
+                                backgroundColor: item.bgColor,
+                              }}
                               draggable
                               onDragStart={(e) =>
                                 handleDragStart(e, item.taskDocId)
@@ -573,7 +786,20 @@ const Tasks = (props: TasksProps) => {
                               onDragLeave={() => setHoveredIndex(null)}
                             >
                               <div className={styles.tit_desc}>
-                                <div>{item.status}</div>
+                                <div className={styles.show_label_div}>
+                                  <div
+                                    className={
+                                      item.status === "building"
+                                        ? styles.build_label
+                                        : item.status === "thinking"
+                                        ? styles.think_label
+                                        : styles.idea_label
+                                    }
+                                  >
+                                    <div className={styles.dot_label}></div>
+                                    {item.status}
+                                  </div>
+                                </div>
                                 <div className={styles.task_title}>
                                   {item.title
                                     ? item.title.length > 30
@@ -593,13 +819,31 @@ const Tasks = (props: TasksProps) => {
                               <div className={styles.task_btn_div}>
                                 <div className={styles.thumbs_icon_div}>
                                   <div className={styles.both_icons}>
-                                    <button>
-                                      <div className={styles.thumb_img}>👍</div>
-                                      <span className={styles.thumb_no}></span>
+                                    <button className={styles.thumb_up}>
+                                      <div
+                                        className={styles.thumb_img}
+                                        onClick={() =>
+                                          emojiHit(item.taskDocId, "thumbUp")
+                                        }
+                                      >
+                                        👍
+                                      </div>
+                                      <span className={styles.thumb_no}>
+                                        {item.thumbUp}
+                                      </span>
                                     </button>
-                                    <button>
-                                      <div className={styles.thumb_img}>👎</div>
-                                      <span className={styles.thumb_no}></span>
+                                    <button className={styles.thumb_dn}>
+                                      <div
+                                        className={styles.thumb_img}
+                                        onClick={() =>
+                                          emojiHit(item.taskDocId, "thumbDn")
+                                        }
+                                      >
+                                        👎
+                                      </div>
+                                      <span className={styles.thumb_no}>
+                                        {item.thumbDn}
+                                      </span>
                                     </button>
                                   </div>
                                 </div>
@@ -611,7 +855,8 @@ const Tasks = (props: TasksProps) => {
                                       handleExpandView(
                                         item.title,
                                         item.desc,
-                                        item.taskDocId
+                                        item.taskDocId,
+                                        item.bgColor
                                       )
                                     }
                                   >
@@ -630,7 +875,8 @@ const Tasks = (props: TasksProps) => {
                                       handleExpandView(
                                         item.title,
                                         item.desc,
-                                        item.taskDocId
+                                        item.taskDocId,
+                                        item.bgColor
                                       )
                                     }
                                   >
@@ -646,6 +892,15 @@ const Tasks = (props: TasksProps) => {
                                   <div
                                     className={styles.add_icon}
                                     onClick={(e) => handleAddIconClick(e)}
+                                    onMouseEnter={() =>
+                                      handleEditMouse(
+                                        item.id,
+                                        item.title,
+                                        item.desc,
+                                        item.taskDocId,
+                                        item.status
+                                      )
+                                    }
                                   >
                                     <Image
                                       src="/more.png"
@@ -679,13 +934,7 @@ const Tasks = (props: TasksProps) => {
                                 <ul className={styles.menu_li}>
                                   <div
                                     className={styles.menu_edit}
-                                    onClick={() =>
-                                      handleEditClick(
-                                        item.id,
-                                        item.title,
-                                        item.desc
-                                      )
-                                    }
+                                    onClick={() => handleEditClick()}
                                   >
                                     <div className={styles.menu_edit_img}>
                                       <Image
@@ -699,7 +948,10 @@ const Tasks = (props: TasksProps) => {
                                     <li className={styles.menu_li_txt}>Edit</li>
                                   </div>
 
-                                  <div className={styles.menu_delete}>
+                                  <div
+                                    className={styles.menu_delete}
+                                    onClick={() => handleBrickDelete()}
+                                  >
                                     <div className={styles.menu_delete_img}>
                                       <Image
                                         alt="del"
@@ -714,7 +966,30 @@ const Tasks = (props: TasksProps) => {
                                     </li>
                                   </div>
 
-                                  <div className={styles.bg_box}></div>
+                                  <div className={styles.bg_box}>
+                                    <div className={styles.menu_grid}>
+                                      <div
+                                        className={styles.bg0}
+                                        onClick={() => handleBgBox("#ffffff")}
+                                      ></div>
+                                      <div
+                                        className={styles.bg1}
+                                        onClick={() => handleBgBox("#d7e3fc")}
+                                      ></div>
+                                      <div
+                                        className={styles.bg2}
+                                        onClick={() => handleBgBox("#fff6ea")}
+                                      ></div>
+                                      <div
+                                        className={styles.bg3}
+                                        onClick={() => handleBgBox("#efd7cf")}
+                                      ></div>
+                                      <div
+                                        className={styles.bg4}
+                                        onClick={() => handleBgBox("#fbe0e0")}
+                                      ></div>
+                                    </div>
+                                  </div>
                                 </ul>
                               </div>
                             )}
@@ -733,6 +1008,9 @@ const Tasks = (props: TasksProps) => {
                           <div key={item.id}>
                             <div
                               className={styles.task_box}
+                              style={{
+                                backgroundColor: item.bgColor,
+                              }}
                               draggable
                               onDragStart={(e) =>
                                 handleDragStart(e, item.taskDocId)
@@ -742,7 +1020,21 @@ const Tasks = (props: TasksProps) => {
                               onDragLeave={() => setHoveredIndex(null)}
                             >
                               <div className={styles.tit_desc}>
-                                <div>{item.status}</div>
+                                <div className={styles.show_label_div}>
+                                  <div
+                                    className={
+                                      item.status === "building"
+                                        ? styles.build_label
+                                        : item.status === "thinking"
+                                        ? styles.think_label
+                                        : styles.idea_label
+                                    }
+                                  >
+                                    <div className={styles.dot_label}></div>
+                                    {item.status}
+                                  </div>
+                                </div>
+
                                 <div className={styles.task_title}>
                                   {item.title
                                     ? item.title.length > 30
@@ -762,13 +1054,31 @@ const Tasks = (props: TasksProps) => {
                               <div className={styles.task_btn_div}>
                                 <div className={styles.thumbs_icon_div}>
                                   <div className={styles.both_icons}>
-                                    <button>
-                                      <div className={styles.thumb_img}>👍</div>
-                                      <span className={styles.thumb_no}></span>
+                                    <button className={styles.thumb_up}>
+                                      <div
+                                        className={styles.thumb_img}
+                                        onClick={() =>
+                                          emojiHit(item.taskDocId, "thumbUp")
+                                        }
+                                      >
+                                        👍
+                                      </div>
+                                      <span className={styles.thumb_no}>
+                                        {item.thumbUp}
+                                      </span>
                                     </button>
-                                    <button>
-                                      <div className={styles.thumb_img}>👎</div>
-                                      <span className={styles.thumb_no}></span>
+                                    <button className={styles.thumb_dn}>
+                                      <div
+                                        className={styles.thumb_img}
+                                        onClick={() =>
+                                          emojiHit(item.taskDocId, "thumbDn")
+                                        }
+                                      >
+                                        👎
+                                      </div>
+                                      <span className={styles.thumb_no}>
+                                        {item.thumbDn}
+                                      </span>
                                     </button>
                                   </div>
                                 </div>
@@ -780,7 +1090,8 @@ const Tasks = (props: TasksProps) => {
                                       handleExpandView(
                                         item.title,
                                         item.desc,
-                                        item.taskDocId
+                                        item.taskDocId,
+                                        item.bgColor
                                       )
                                     }
                                   >
@@ -799,7 +1110,8 @@ const Tasks = (props: TasksProps) => {
                                       handleExpandView(
                                         item.title,
                                         item.desc,
-                                        item.taskDocId
+                                        item.taskDocId,
+                                        item.bgColor
                                       )
                                     }
                                   >
@@ -815,6 +1127,15 @@ const Tasks = (props: TasksProps) => {
                                   <div
                                     className={styles.add_icon}
                                     onClick={(e) => handleCol2Menu(e)}
+                                    onMouseEnter={() =>
+                                      handleEditMouse(
+                                        item.id,
+                                        item.title,
+                                        item.desc,
+                                        item.taskDocId,
+                                        item.status
+                                      )
+                                    }
                                   >
                                     <Image
                                       src="/more.png"
@@ -848,13 +1169,7 @@ const Tasks = (props: TasksProps) => {
                                   <ul className={styles.menu_li}>
                                     <div
                                       className={styles.menu_edit}
-                                      onClick={() =>
-                                        handleEditClick(
-                                          item.id,
-                                          item.title,
-                                          item.desc
-                                        )
-                                      }
+                                      onClick={() => handleEditClick()}
                                     >
                                       <div className={styles.menu_edit_img}>
                                         <Image
@@ -870,7 +1185,10 @@ const Tasks = (props: TasksProps) => {
                                       </li>
                                     </div>
 
-                                    <div className={styles.menu_delete}>
+                                    <div
+                                      className={styles.menu_delete}
+                                      onClick={() => handleBrickDelete()}
+                                    >
                                       <div className={styles.menu_delete_img}>
                                         <Image
                                           alt="del"
@@ -885,7 +1203,30 @@ const Tasks = (props: TasksProps) => {
                                       </li>
                                     </div>
 
-                                    <div className={styles.bg_box}></div>
+                                    <div className={styles.bg_box}>
+                                      <div className={styles.menu_grid}>
+                                        <div
+                                          className={styles.bg0}
+                                          onClick={() => handleBgBox("#ffffff")}
+                                        ></div>
+                                        <div
+                                          className={styles.bg1}
+                                          onClick={() => handleBgBox("#d7e3fc")}
+                                        ></div>
+                                        <div
+                                          className={styles.bg2}
+                                          onClick={() => handleBgBox("#fff6ea")}
+                                        ></div>
+                                        <div
+                                          className={styles.bg3}
+                                          onClick={() => handleBgBox("#efd7cf")}
+                                        ></div>
+                                        <div
+                                          className={styles.bg4}
+                                          onClick={() => handleBgBox("#fbe0e0")}
+                                        ></div>
+                                      </div>
+                                    </div>
                                   </ul>
                                 </div>
                               </>
@@ -907,6 +1248,9 @@ const Tasks = (props: TasksProps) => {
                       <div key={item.id}>
                         <div
                           className={styles.task_box}
+                          style={{
+                            backgroundColor: item.bgColor,
+                          }}
                           draggable
                           onDragStart={(e) =>
                             handleDragStart(e, item.taskDocId)
@@ -916,7 +1260,20 @@ const Tasks = (props: TasksProps) => {
                           onDragLeave={() => setHoveredIndex(null)}
                         >
                           <div className={styles.tit_desc}>
-                            <div>{item.status}</div>
+                            <div className={styles.show_label_div}>
+                              <div
+                                className={
+                                  item.status === "building"
+                                    ? styles.build_label
+                                    : item.status === "thinking"
+                                    ? styles.think_label
+                                    : styles.idea_label
+                                }
+                              >
+                                <div className={styles.dot_label}></div>
+                                {item.status}
+                              </div>
+                            </div>
                             <div className={styles.task_title}>
                               {item.title
                                 ? item.title.length > 30
@@ -941,7 +1298,8 @@ const Tasks = (props: TasksProps) => {
                                   handleExpandView(
                                     item.title,
                                     item.desc,
-                                    item.id
+                                    item.id,
+                                    item.bgColor
                                   )
                                 }
                               >
@@ -957,6 +1315,15 @@ const Tasks = (props: TasksProps) => {
                               <div
                                 className={styles.add_icon}
                                 onClick={(e) => handleCol3Menu(e)}
+                                onMouseEnter={() =>
+                                  handleEditMouse(
+                                    item.id,
+                                    item.title,
+                                    item.desc,
+                                    item.taskDocId,
+                                    item.status
+                                  )
+                                }
                               >
                                 <Image
                                   src="/more.png"
@@ -990,13 +1357,7 @@ const Tasks = (props: TasksProps) => {
                               <ul className={styles.menu_li}>
                                 <div
                                   className={styles.menu_edit}
-                                  onClick={() =>
-                                    handleEditClick(
-                                      item.id,
-                                      item.title,
-                                      item.desc
-                                    )
-                                  }
+                                  onClick={() => handleEditClick()}
                                 >
                                   <div className={styles.menu_edit_img}>
                                     <Image
@@ -1010,7 +1371,10 @@ const Tasks = (props: TasksProps) => {
                                   <li className={styles.menu_li_txt}>Edit</li>
                                 </div>
 
-                                <div className={styles.menu_delete}>
+                                <div
+                                  className={styles.menu_delete}
+                                  onClick={() => handleBrickDelete()}
+                                >
                                   <div className={styles.menu_delete_img}>
                                     <Image
                                       alt="del"
@@ -1023,7 +1387,30 @@ const Tasks = (props: TasksProps) => {
                                   <li className={styles.menu_li_txt}>Delete</li>
                                 </div>
 
-                                <div className={styles.bg_box}></div>
+                                <div className={styles.bg_box}>
+                                  <div className={styles.menu_grid}>
+                                    <div
+                                      className={styles.bg0}
+                                      onClick={() => handleBgBox("#ffffff")}
+                                    ></div>
+                                    <div
+                                      className={styles.bg1}
+                                      onClick={() => handleBgBox("#d7e3fc")}
+                                    ></div>
+                                    <div
+                                      className={styles.bg2}
+                                      onClick={() => handleBgBox("#fff6ea")}
+                                    ></div>
+                                    <div
+                                      className={styles.bg3}
+                                      onClick={() => handleBgBox("#efd7cf")}
+                                    ></div>
+                                    <div
+                                      className={styles.bg4}
+                                      onClick={() => handleBgBox("#fbe0e0")}
+                                    ></div>
+                                  </div>
+                                </div>
                               </ul>
                             </div>
                           </>
@@ -1108,6 +1495,65 @@ const Tasks = (props: TasksProps) => {
                 </div>
 
                 {taskModalContent ? <div>Brick Status</div> : null}
+
+                {taskModalContent ? (
+                  <div className={styles.status_label}>
+                    <div className={styles.label_div}>
+                      <label>
+                        <input
+                          type="radio"
+                          name="status"
+                          value="building"
+                          checked={
+                            editMenu
+                              ? editStatusSelected === "building"
+                              : statusSelected === "building"
+                          }
+                          className={styles.radio_btn}
+                          onChange={handleStatusChange}
+                        />
+                      </label>
+                      <div className={styles.build_label}>building</div>
+                    </div>
+
+                    <div className={styles.label_div}>
+                      <label>
+                        <input
+                          type="radio"
+                          name="status"
+                          value="idea"
+                          checked={
+                            editMenu
+                              ? editStatusSelected === "idea"
+                              : statusSelected === "idea"
+                          }
+                          className={styles.radio_btn}
+                          onChange={handleStatusChange}
+                        />
+                      </label>
+
+                      <div className={styles.idea_label}>idea</div>
+                    </div>
+
+                    <div className={styles.label_div}>
+                      <label>
+                        <input
+                          type="radio"
+                          name="status"
+                          value="thinking"
+                          checked={
+                            editMenu
+                              ? editStatusSelected === "thinking"
+                              : statusSelected === "thinking"
+                          }
+                          className={styles.radio_btn}
+                          onChange={handleStatusChange}
+                        />
+                      </label>
+                      <div className={styles.think_label}>thinking</div>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className={styles.btn_div}>
@@ -1139,6 +1585,10 @@ const Tasks = (props: TasksProps) => {
             <div
               className={styles.expand_modal}
               onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor:
+                  exBgColor === "#ffffff" ? "#fff0d4" : exBgColor,
+              }}
             >
               <div className={styles.modal_container}>
                 <div className={styles.ex_modal_content}>

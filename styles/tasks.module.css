@@ -106,6 +106,38 @@
   @apply text-red-500;
 }
 
+.status_label {
+  @apply flex flex-row space-x-6;
+}
+
+.radio_btn {
+  @apply accent-index-black_btn cursor-pointer;
+}
+
+.label_div {
+  @apply flex flex-row items-center space-x-2;
+}
+
+.build_label {
+  @apply px-3 py-1 bg-red-400 rounded-full text-white text-sm font-bold items-center flex;
+}
+
+.idea_label {
+  @apply px-3 py-1 bg-yellow-500 rounded-full text-white text-sm font-bold items-center flex;
+}
+
+.think_label {
+  @apply px-3 py-1 bg-green-400 rounded-full text-white text-sm font-bold items-center flex;
+}
+
+.show_label_div {
+  @apply flex mb-2;
+}
+
+.dot_label {
+  @apply rounded-full bg-white w-2 h-2 mr-1;
+}
+
 .btn_div {
   @apply flex justify-end items-center space-x-2;
 }
@@ -155,7 +187,7 @@
 }
 
 .task_box {
-  @apply bg-white border border-home-stroke p-6 rounded-lg flex flex-col justify-between;
+  @apply border border-home-stroke p-6 rounded-lg flex flex-col justify-between;
 }
 
 .tit_desc {
@@ -211,7 +243,15 @@
 }
 
 .both_icons {
-  @apply px-3 py-1 space-x-3 text-sm;
+  @apply px-3 py-1 text-sm flex flex-row items-center;
+}
+
+.thumb_up {
+  @apply flex flex-row space-x-1 items-center pr-1;
+}
+
+.thumb_dn {
+  @apply flex flex-row space-x-1 items-center border-l border-l-home-stroke pl-1;
 }
 
 .thumb_img {
@@ -258,12 +298,36 @@
   @apply text-sm font-semibold;
 }
 
+.menu_grid {
+  @apply grid grid-cols-4 row-auto gap-2 p-2;
+}
+
+.menu_bg_border {
+  @apply hover:border hover:border-slate-300 cursor-pointer hover:drop-shadow-md;
+}
+
+.bg0 {
+  @apply bg-white border border-home-stroke h-10 w-10 rounded-lg menu_bg_border;
+}
+.bg1 {
+  @apply menu_bg_border  bg-[#d7e3fc] h-10 w-10 rounded-lg;
+}
+.bg2 {
+  @apply menu_bg_border bg-[#fff6ea] h-10 w-10 rounded-lg;
+}
+.bg3 {
+  @apply menu_bg_border bg-[#efd7cf] h-10  w-10 rounded-lg;
+}
+.bg4 {
+  @apply menu_bg_border bg-[#fbe0e0] h-10  rounded-lg w-10;
+}
+
 .box_placeholder {
   @apply border border-sky-500 bg-sky-200 opacity-50 h-4 rounded-sm;
 }
 
 .expand_modal {
-  @apply bg-[#fff0d4] justify-center h-[80%] w-1/2 rounded-xl p-6 shadow-lg;
+  @apply justify-center h-[80%] w-1/2 rounded-xl p-6 shadow-lg;
 }
 
 .modal_container {
