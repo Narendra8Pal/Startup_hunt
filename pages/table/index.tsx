@@ -36,6 +36,10 @@ const Table = () => {
 
   const db = getFirestore(FirebaseApp);
 
+  const userDocId = useSelector(
+    (state: RootState) => state.usersDocId.usersDocId
+  );
+
   useEffect(() => {
     const getTasksData = async () => {
       const q = query(collection(db, "tasks"));
@@ -73,7 +77,10 @@ const Table = () => {
       <div className={styles.content_container}>
         <div className={styles.content_div}>
           <div className={styles.heading}>View Tasks</div>
-          <div className={styles.bg_box}>View all the tasks created by the user and give them feedback by visiting the task.</div>
+          <div className={styles.bg_box}>
+            View all the tasks created by the user and give them feedback by
+            visiting the task.
+          </div>
 
           <div className={styles.tasks_list}>
             <div className={styles.list_content}>
@@ -83,10 +90,22 @@ const Table = () => {
                     <div className={styles.box_content}>
                       <div className={styles.date_day}>
                         <ul className={styles.date_day_ul}>
-                          <li className={styles.day}>
+                          <li
+                            className={
+                              tasks.Day === "Sunday"
+                                ? styles.sunday
+                                : styles.day
+                            }
+                          >
                             {tasks.Day.slice(0, 3)}
                           </li>
-                          <li className={styles.date}>
+                          <li
+                            className={
+                              tasks.Day === "Sunday"
+                                ? styles.sun_date
+                                : styles.date
+                            }
+                          >
                             {tasks.Date.split("/")[1]}
                           </li>
                         </ul>
@@ -157,9 +176,9 @@ const Table = () => {
                       </div>
 
                       <div className={styles.visit_btn_div}>
-                        {/* <Link href={`${}`}> */}
-                        <button className={styles.visit_btn}>visit</button>
-                        {/* </Link> */}
+                        <Link href={`/tasks/${userDocId}/${tasks.id}`}>
+                          <button className={styles.visit_btn}>visit</button>
+                        </Link>
                       </div>
                     </div>
                   </div>

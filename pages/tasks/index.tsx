@@ -237,13 +237,15 @@ const Tasks = (props: TasksProps) => {
         weekday: "long",
       });
       const formattedDate = currentDate.toLocaleDateString("en-US");
-      await addDoc(collectionRef, {
+      const docRef = await addDoc(collectionRef, {
         Project_Title: projectTitle,
         Project_Desc: projectDesc,
         userId: uid,
         Date: formattedDate,
         Day: dayOfWeek,
       });
+      const docId = docRef.id;
+      handlePrjClick(docId);
     } catch (error) {
       console.error("Error creating collection: ", error);
     }
@@ -266,7 +268,7 @@ const Tasks = (props: TasksProps) => {
         id: uuidv4(),
         title: projectTitle,
         desc: projectDesc,
-        status: statusSelected,
+        status: statusSelected === "none" ? "" : statusSelected,
         col: tasksCount % 2 == 0 ? "col1" : "col2",
         taskDocId: "",
         thumbUp: 0,
@@ -329,11 +331,12 @@ const Tasks = (props: TasksProps) => {
       } catch (error) {
         console.error("Error updating taskBox color: ", error);
       }
+      setBgBox(false);
     };
     if (bgBox) {
       updateBgBrick();
     }
-  }, [bgBoxColor]);
+  }, [bgBoxColor, bgBox]);
 
   const updateBrick = async () => {
     handleModal();
@@ -351,7 +354,7 @@ const Tasks = (props: TasksProps) => {
       const updatedTaskData = {
         title: editTitle,
         desc: editDesc,
-        status: editStatusSelected,
+        status: editStatusSelected === "none" ? "" : editStatusSelected,
       };
 
       const taskRef = doc(subcollectionRef, editTaskDocId);
@@ -398,6 +401,7 @@ const Tasks = (props: TasksProps) => {
   };
 
   const handleBgBox = (color: string) => {
+    handleFalseMenu();
     setBgBox(true);
     setBgBoxColor(color);
   };
@@ -436,7 +440,7 @@ const Tasks = (props: TasksProps) => {
       switch (key) {
         case "ProjectTitle":
           const title = e.target.value.split(/\s+/);
-          if (title.length <= 10) {
+          if (title.length <= 7) {
             setProjectTitle(e.target.value);
             setTitleCountExc(false);
           } else {
@@ -454,7 +458,7 @@ const Tasks = (props: TasksProps) => {
           break;
         case "EditTitle":
           const editText = e.target.value.split(/\s+/);
-          if (editText.length <= 10) {
+          if (editText.length <= 7) {
             setEditTitle(e.target.value);
             setTitleCountExc(false);
           } else {
@@ -489,6 +493,7 @@ const Tasks = (props: TasksProps) => {
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    handleFalseMenu();
   };
 
   const handleDrop = async (
@@ -533,32 +538,24 @@ const Tasks = (props: TasksProps) => {
 
   // will do it late on bro firebase need to know about tasks_content beofre that it need to know about tasks collection
   const handleMsg = async () => {
-    const commentsCollection = collection(
-      db,
-      "tasks_content",
-      replyTaskId,
-      "comments"
-    );
-    const newCommentRef = doc(commentsCollection, uid);
-    const textCollectionRef = collection(newCommentRef, "text");
-
-    console.log(replyTaskId, "reply task id bro");
-
-    const newComment = {
-      profile_img: userImgURL,
-      username: user,
-    };
-
-    try {
-      await setDoc(newCommentRef, newComment);
-      await addDoc(textCollectionRef, {
-        comment: textarea,
-        timestamp: serverTimestamp(),
-      });
-    } catch (error) {
-      console.error("Error adding comment:", error);
-    }
-    setTextarea("");
+    // const commentsCollection = collection(db, "tasks", replyTaskId, "comments");
+    // const newCommentRef = doc(commentsCollection, uid);
+    // const textCollectionRef = collection(newCommentRef, "text");
+    // console.log(replyTaskId, "reply task id bro");
+    // const newComment = {
+    //   profile_img: userImgURL,
+    //   username: user,
+    // };
+    // try {
+    //   await setDoc(newCommentRef, newComment);
+    //   await addDoc(textCollectionRef, {
+    //     comment: textarea,
+    //     timestamp: serverTimestamp(),
+    //   });
+    // } catch (error) {
+    //   console.error("Error adding comment:", error);
+    // }
+    // setTextarea("");
   };
 
   const emojiHit = async (taskId: string, emojiType: string) => {
@@ -793,10 +790,20 @@ const Tasks = (props: TasksProps) => {
                                         ? styles.build_label
                                         : item.status === "thinking"
                                         ? styles.think_label
-                                        : styles.idea_label
+                                        : item.status === "idea"
+                                        ? styles.idea_label
+                                        : item.status === ""
+                                        ? ""
+                                        : ""
                                     }
                                   >
-                                    <div className={styles.dot_label}></div>
+                                    <div
+                                      className={
+                                        item.status === ""
+                                          ? ""
+                                          : styles.dot_label
+                                      }
+                                    ></div>
                                     {item.status}
                                   </div>
                                 </div>
@@ -1027,10 +1034,20 @@ const Tasks = (props: TasksProps) => {
                                         ? styles.build_label
                                         : item.status === "thinking"
                                         ? styles.think_label
-                                        : styles.idea_label
+                                        : item.status === "idea"
+                                        ? styles.idea_label
+                                        : item.status === ""
+                                        ? ""
+                                        : ""
                                     }
                                   >
-                                    <div className={styles.dot_label}></div>
+                                    <div
+                                      className={
+                                        item.status === ""
+                                          ? ""
+                                          : styles.dot_label
+                                      }
+                                    ></div>
                                     {item.status}
                                   </div>
                                 </div>
@@ -1267,10 +1284,18 @@ const Tasks = (props: TasksProps) => {
                                     ? styles.build_label
                                     : item.status === "thinking"
                                     ? styles.think_label
-                                    : styles.idea_label
+                                    : item.status === "idea"
+                                    ? styles.idea_label
+                                    : item.status === ""
+                                    ? ""
+                                    : ""
                                 }
                               >
-                                <div className={styles.dot_label}></div>
+                                <div
+                                  className={
+                                    item.status === "" ? "" : styles.dot_label
+                                  }
+                                ></div>
                                 {item.status}
                               </div>
                             </div>
@@ -1521,6 +1546,24 @@ const Tasks = (props: TasksProps) => {
                         <input
                           type="radio"
                           name="status"
+                          value="thinking"
+                          checked={
+                            editMenu
+                              ? editStatusSelected === "thinking"
+                              : statusSelected === "thinking"
+                          }
+                          className={styles.radio_btn}
+                          onChange={handleStatusChange}
+                        />
+                      </label>
+                      <div className={styles.think_label}>thinking</div>
+                    </div>
+
+                    <div className={styles.label_div}>
+                      <label>
+                        <input
+                          type="radio"
+                          name="status"
                           value="idea"
                           checked={
                             editMenu
@@ -1534,26 +1577,28 @@ const Tasks = (props: TasksProps) => {
 
                       <div className={styles.idea_label}>idea</div>
                     </div>
-
-                    <div className={styles.label_div}>
-                      <label>
-                        <input
-                          type="radio"
-                          name="status"
-                          value="thinking"
-                          checked={
-                            editMenu
-                              ? editStatusSelected === "thinking"
-                              : statusSelected === "thinking"
-                          }
-                          className={styles.radio_btn}
-                          onChange={handleStatusChange}
-                        />
-                      </label>
-                      <div className={styles.think_label}>thinking</div>
-                    </div>
                   </div>
                 ) : null}
+
+                {taskModalContent && (
+                  <div className={styles.label_div}>
+                    <label>
+                      <input
+                        type="radio"
+                        name="status"
+                        value="none"
+                        checked={
+                          editMenu
+                            ? editStatusSelected === "none"
+                            : statusSelected === "none"
+                        }
+                        className={styles.radio_btn}
+                        onChange={handleStatusChange}
+                      />
+                    </label>
+                    <div className={styles.none_label}>none</div>
+                  </div>
+                )}
               </div>
 
               <div className={styles.btn_div}>

@@ -143,3 +143,55 @@
 .send_btn {
   @apply ml-auto bg-index-black_btn p-2 rounded-full cursor-pointer;
 }
+
+.share_modal_div {
+  @apply opacity-60 bg-modal-modal_bg h-full w-full left-0 top-0 fixed z-10;
+}
+
+.share_modal_bg {
+  @apply fixed top-0 left-0 w-full h-full flex items-center justify-center z-10;
+}
+
+.share_social_modal {
+  @apply bg-white justify-center h-auto w-[20%] rounded-xl p-6 shadow-lg;
+}
+
+/* .share_twt{
+  @apply bg-index-black_btn p-2 rounded-full;
+} */
+
+.share_content {
+  @apply flex justify-center flex-col gap-4 m-auto;
+}
+
+.share_logo {
+  @apply w-full m-auto justify-center flex;
+}
+
+.share_twt {
+  /* @apply flex w-10 rounded-full */
+}
+
+.clipboard_icon {
+  @apply flex bg-index-black_btn p-2 rounded-full;
+}
+
+.twt_icon {
+  @apply flex bg-index-black_btn p-2 rounded-full;
+}
+
+.both_share_icons {
+  @apply flex flex-row justify-center space-x-6;
+}
+
+.nvm_btn {
+  @apply underline underline-offset-4 mt-3 justify-end flex;
+}
+
+.share_heading {
+  @apply font-semibold justify-center w-full flex;
+}
+
+.share_desc{
+  @apply  justify-center w-full flex;
+}

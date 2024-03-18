@@ -1,6 +1,11 @@
 //next.js, style,files
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import Sidebar from "@/utils/sidebar";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+} from "react";
 import styles from "@/styles/profile.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,7 +33,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 //other packages
 
-
 type Project = {
   id: string;
   Project_title: string;
@@ -37,6 +41,23 @@ type Project = {
   userId: string;
   web_link: string;
   project_img: string[];
+};
+
+type Tasks_Content = {
+  id: string;
+  Project_Title: string;
+  Project_Desc: string;
+  Date: string;
+  Day: string;
+  userId: string;
+};
+
+type User_Info = {
+  id: string;
+  githubUsername: string;
+  twitterUsername: string;
+  username: string;
+  userId: string;
 };
 
 const Profile = () => {
@@ -49,10 +70,16 @@ const Profile = () => {
   const [userImgURL, setUserImgURL] = useState<string>("");
   const [editProjObj, setEditProjObj] = useState<Project>();
 
+  //tasks content
+  const [tasksData, setTasksData] = useState<Tasks_Content[]>([]);
+
   const [refs, setRefs] = useState<(HTMLDivElement | null)[]>([]);
 
   const [uid, setUid] = useState<string>("");
   const [projectsData, setProjectsData] = useState<Project[]>([]);
+
+  const [showProjects, setShowProjects] = useState<boolean>(true);
+  const [showTasks, setShowTasks] = useState<boolean>(false);
 
   const db = getFirestore(FirebaseApp);
 
@@ -72,6 +99,23 @@ const Profile = () => {
       }
     });
   }, [userDocId]);
+
+  // for getting tasks data
+  useEffect(() => {
+    const getTasksData = async () => {
+      const q = query(collection(db, "tasks"));
+      const querySnapshot = await getDocs(q);
+      const projectsArray: Tasks_Content[] = [];
+      querySnapshot.forEach((doc) => {
+        const projectData = { id: doc.id, ...doc.data() } as Tasks_Content;
+        projectsArray.push(projectData);
+      });
+
+      const filteredTasks = projectsArray.filter((task) => task.userId === uid);
+      setTasksData(filteredTasks);
+    };
+    getTasksData();
+  }, [showTasks]);
 
   // for getting the 'users' collection data
   useEffect(() => {
@@ -106,7 +150,6 @@ const Profile = () => {
       querySnapshot.forEach((doc) => {
         const projectData = { id: doc.id, ...doc.data() } as Project;
         projectsArray.push(projectData);
-        // console.log(doc.id);
       });
       setProjectsData(projectsArray);
     };
@@ -132,164 +175,267 @@ const Profile = () => {
     setEditProjObj(project);
   };
 
+  const handleTaskClick = () => {
+    if (showProjects) {
+      setShowProjects(false);
+      setShowTasks(true);
+    } else {
+      setShowProjects(true);
+      setShowTasks(false);
+    }
+  };
+
   return (
     <>
-      <Sidebar />
-
       <div className={styles.layout_div}>
         <div className={styles.container}>
           <div className={styles.container_content}>
-            <div className={styles.edit_btn_div}>
+            <div className={styles.pf_top}>
+              <div className={styles.pf_cover}></div>
+
               <div
-                className={styles.edit_btn_icon}
+                className={styles.pf_edit_div}
                 onClick={() => setProfileModal(true)}
               >
-                <Image
-                  src="/edit.png"
-                  alt="edit"
-                  width={24}
-                  height={24}
-                  priority={true}
-                />
-                <button className={styles.edit_btn}>Edit Profile</button>
+                <div className={styles.pf_edit}>
+                  <Image
+                    src="/menu_edit.png"
+                    alt="edit"
+                    width={24}
+                    height={24}
+                    priority={true}
+                  />
+                </div>
               </div>
-            </div>
-            <div className={styles.pp_username}>
-              <div className={styles.show_pp}>
+
+              <div className={styles.profile_img_div}>
                 <img
-                  src={userImgURL || "/defaultProfile3.png"}
-                  className={styles.show_img}
+                  src={userImgURL || "/defaultProfile2.png"}
+                  className={styles.pf_img}
                 />
               </div>
 
-              <div>
-                <h2 className={styles.username}>{user}</h2>
-              </div>
-              <div className={styles.socials}>
-                <Link href={`https://twitter.com/${xUsername}`} target="_blank">
-                  <div className={styles.social1}>
-                    <Image
-                      src="/twitter.png"
-                      alt="x"
-                      width={30}
-                      height={30}
-                      priority={true}
-                    />
-                  </div>
-                </Link>
+              <div className={styles.name_socials}>
+                <div className={styles.pf_name}>{user}</div>
 
-                <Link
-                  href={`https://github.com/${gitUsername}`}
-                  target="_blank"
-                >
-                  <div className={styles.social2}>
-                    <Image
-                      src="/github.png"
-                      alt="github"
-                      width={30}
-                      height={30}
-                      priority={true}
-                    />
-                  </div>
-                </Link>
+                <div className={styles.pf_socials_top}>
+                  <Link
+                    href={`https://twitter.com/${xUsername}`}
+                    target="_blank"
+                  >
+                    <div>
+                      <Image
+                        src="/X_table.png"
+                        alt="x"
+                        width={18}
+                        height={18}
+                        priority={true}
+                      />
+                    </div>
+                  </Link>
+
+                  <Link
+                    href={`https://github.com/${gitUsername}`}
+                    target="_blank"
+                  >
+                    <div className="">
+                      <Image
+                        src="/git_table.png"
+                        alt="github"
+                        width={18}
+                        height={18}
+                        priority={true}
+                      />
+                    </div>
+                  </Link>
+                </div>
               </div>
             </div>
 
             <div className={styles.projects_container}>
-              <div className={styles.title_btn}>
-                <h2 className={styles.text}>My Projects</h2>
-                <button
-                  className={styles.add_btn}
-                  onClick={() => setOpnAddProjectModal(true)}
-                >
-                  Add Project
-                </button>
+              <div className={styles.two_btns_div}>
+                <div className={styles.two_btns}>
+                  <div className={styles.proj_tasks_btn}>
+                    <div
+                      className={
+                        showProjects ? styles.proj_btn_true : styles.proj_btn
+                      }
+                      onClick={() => handleTaskClick()}
+                    >
+                      Projects
+                    </div>
+
+                    <div
+                      className={
+                        showTasks ? styles.task_btn_true : styles.task_btn
+                      }
+                      onClick={() => handleTaskClick()}
+                    >
+                      Tasks
+                    </div>
+                  </div>
+                </div>
               </div>
               <hr className={styles.ruler} />
 
-              {projectsData.map((project, index) => {
-                return (
-                  <div className={styles.project_list} key={index}>
-                    <div className={styles.project_showcase}>
-                      <div
-                        className={styles.name_link}
-                      >
-                        <Link href={project.web_link} target="_blank">
-                          <h2 className={styles.name}>
-                            {project.Project_title}
-                          </h2>
-                        </Link>
+              {showProjects ? (
+                <>
+                  {projectsData.map((project, index) => {
+                    return (
+                      <div className={styles.project_list} key={index}>
+                        <div className={styles.project_showcase}>
+                          <div className={styles.name_link}>
+                            <Link href={project.web_link} target="_blank">
+                              <h2 className={styles.name}>
+                                {project.Project_title}
+                              </h2>
+                            </Link>
 
-                        <Link href={project.web_link} target="_blank">
-                          <Image
-                            src="/external_link.png"
-                            alt="externalLink"
-                            width={30}
-                            height={30}
-                            priority={true}
-                            className={styles.link_icon}
-                          />
-                        </Link>
-                      </div>
-
-                      <div className={styles.carousel_box}>
-                        {project.project_img.map((img, imgIndex) => (
-                          <img
-                            src={img}
-                            alt={`project_img_${imgIndex}`}
-                            className={styles.carousel_img}
-                            key={imgIndex}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <div className={styles.desc_btm}>
-                      <div className={styles.desc}>{project.description}</div>
-                    </div>
-                    <div className={styles.btm_part}>
-                      <div>
-                        <ul className={styles.btm_content}>
-                          <Link href={project.github_link} target="_blank">
-                            <li className={styles.git_icon}>
+                            <Link href={project.web_link} target="_blank">
                               <Image
-                                src="/git_proj.png"
-                                alt="github.png"
-                                height={21}
-                                width={21}
+                                src="/external_link.png"
+                                alt="externalLink"
+                                width={30}
+                                height={30}
                                 priority={true}
+                                className={styles.link_icon}
                               />
-                            </li>
-                          </Link>
-                          <li
-                            onClick={() => handleProjectDelete(project.id)}
-                            className={styles.del_proj_icon}
-                          >
-                            <Image
-                              src="/delete_proj.png"
-                              alt="delte"
-                              height={18}
-                              width={18}
-                              priority={true}
-                            />
-                          </li>
-                          <li
-                            onClick={() => handleEditProject(project)}
-                            className={styles.edit_proj_icon}
-                          >
-                            <Image
-                              src="/edit_proj.png"
-                              alt="edit_proj"
-                              width={18}
-                              height={18}
-                              priority={true}
-                            />
-                          </li>
-                        </ul>
+                            </Link>
+                          </div>
+
+                          <div className={styles.carousel_box}>
+                            {project.project_img.map((img, imgIndex) => (
+                              <img
+                                src={img}
+                                alt={`project_img_${imgIndex}`}
+                                className={styles.carousel_img}
+                                key={imgIndex}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div className={styles.desc_btm}>
+                          <div className={styles.desc}>
+                            {project.description}
+                          </div>
+                        </div>
+                        <div className={styles.btm_part}>
+                          <div>
+                            <ul className={styles.btm_content}>
+                              <Link href={project.github_link} target="_blank">
+                                <li className={styles.git_icon}>
+                                  <Image
+                                    src="/git_proj.png"
+                                    alt="github.png"
+                                    height={21}
+                                    width={21}
+                                    priority={true}
+                                  />
+                                </li>
+                              </Link>
+                              <li
+                                onClick={() => handleProjectDelete(project.id)}
+                                className={styles.del_proj_icon}
+                              >
+                                <Image
+                                  src="/delete_proj.png"
+                                  alt="delte"
+                                  height={18}
+                                  width={18}
+                                  priority={true}
+                                />
+                              </li>
+                              <li
+                                onClick={() => handleEditProject(project)}
+                                className={styles.edit_proj_icon}
+                              >
+                                <Image
+                                  src="/edit_proj.png"
+                                  alt="edit_proj"
+                                  width={18}
+                                  height={18}
+                                  priority={true}
+                                />
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </>
+              ) : null}
+
+              {showTasks ? (
+                <>
+                  {tasksData &&
+                    tasksData.map((tasks, index) => {
+                      return (
+                        <div className={styles.tasks_list} key={index}>
+                          <div className={styles.tasks_showcase}>
+                            <div className={styles.date_day}>
+                              <ul className={styles.date_day_ul}>
+                                <li
+                                  className={
+                                    tasks.Day === "Sunday"
+                                      ? styles.sunday
+                                      : styles.day
+                                  }
+                                >
+                                  {tasks.Day.slice(0, 3)}
+                                </li>
+                                <li
+                                  className={
+                                    tasks.Day === "Sunday"
+                                      ? styles.sun_date
+                                      : styles.date
+                                  }
+                                >
+                                  {tasks.Date.split("/")[1]}
+                                </li>
+                              </ul>
+                            </div>
+
+                            <div className={styles.text_btn}>
+                              <div className={styles.title_desc_div}>
+                                <div className={styles.task_title_div}>
+                                  <div className={styles.title_content}>
+                                    <div className={styles.title_desc}>
+                                      Task Title
+                                    </div>
+                                    <div>{tasks.Project_Title}</div>
+                                  </div>
+                                </div>
+
+                                <div className={styles.desc_div}>
+                                  <div className={styles.desc_content}>
+                                    <div className={styles.title_desc}>
+                                      Task Description
+                                    </div>
+                                    {tasks.Project_Desc.split(" ")
+                                      .slice(0, 20)
+                                      .join(" ")}
+                                    {tasks.Project_Desc.split(" ").length > 20
+                                      ? "..."
+                                      : ""}{" "}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className={styles.visit_btn_div}>
+                                <Link href={`/tasks/${userDocId}/${tasks.id}`}>
+                                  <button className={styles.visit_btn}>
+                                    visit
+                                  </button>
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </>
+              ) : null}
             </div>
           </div>
         </div>

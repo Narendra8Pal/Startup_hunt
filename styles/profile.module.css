@@ -138,11 +138,11 @@
 }
 
 .modal_div {
-  @apply opacity-60 bg-modal-modal_bg h-full w-full left-0 top-0 fixed z-0;
+  @apply opacity-60 bg-modal-modal_bg h-full w-full left-0 top-0 fixed z-10;
 }
 
 .add_modal_bg {
-  @apply fixed top-0 left-0 w-full h-full flex items-center justify-center;
+  @apply fixed top-0 left-0 w-full h-full flex items-center justify-center z-10;
 }
 
 .add_project_modal {
@@ -306,4 +306,120 @@
 
 .addPhotoLabel img {
   @apply relative left-[35%] top-[40%];
+}
+
+.pf_top {
+  @apply w-full h-60 relative;
+}
+
+.pf_cover {
+  @apply bg-gradient-to-r from-home-gray to-home-stroke rounded-t-xl h-52 z-[-1];
+}
+
+.profile_img_div {
+  @apply h-24 w-24 rounded-full border-4 border-slate-300 bg-white absolute bottom-0 left-[8%] z-[1];
+}
+
+.profile_img {
+  @apply absolute w-full h-full object-cover rounded-full;
+}
+
+.pf_name {
+  @apply absolute bottom-8 left-[22%] text-2xl font-extrabold;
+}
+
+.pf_edit_div {
+  @apply absolute top-0 right-0 bg-white p-3 rounded-full m-3 border border-home-light_gray cursor-pointer z-0;
+}
+
+.pf_socials_top {
+  @apply absolute flex flex-row space-x-2 left-[22%] mt-2;
+}
+
+.two_btns_div {
+  @apply flex bg-table-bg_table px-1 py-1 mt-8 w-[800px] flex-row rounded-md;
+}
+
+.two_btns {
+  @apply flex flex-row items-center m-auto w-full;
+}
+
+.proj_tasks_btn {
+  @apply flex justify-center w-full;
+}
+
+.common_two_btns {
+  @apply p-2 flex w-1/2 justify-center font-semibold text-sm border-r-2  cursor-pointer;
+}
+
+.proj_btn {
+  @apply hover:bg-index-black_btn hover:rounded-md hover:text-white border-white common_two_btns;
+}
+
+.proj_btn_true {
+  @apply bg-index-black_btn rounded-md text-white border-white common_two_btns;
+}
+
+.task_btn {
+  @apply common_two_btns border-l-2 border-white hover:text-white hover:bg-index-black_btn hover:rounded-md;
+}
+
+.task_btn_true {
+  @apply common_two_btns border-l-2 border-white text-white bg-index-black_btn rounded-md;
+}
+
+.tasks_list {
+  @apply border border-home-stroke bg-white rounded-md h-auto w-[765px] m-auto  min-h-[5rem];
+}
+
+.tasks_showcase {
+  @apply p-3 flex flex-row space-x-6 items-center;
+}
+
+.date_day {
+  @apply flex;
+}
+
+.date_day_ul {
+  @apply flex flex-col items-center pr-3 border-r-2 border-home-stroke justify-center;
+}
+
+.day {
+  @apply font-medium;
+}
+
+.sunday {
+  @apply font-medium text-red-500;
+}
+
+.sun_date {
+  @apply text-3xl font-semibold text-red-500;
+}
+
+.date {
+  @apply text-3xl font-semibold;
+}
+
+.title_desc_div {
+  @apply flex flex-row space-x-8;
+}
+
+.title_desc {
+  @apply text-sm font-semibold;
+}
+
+.task_title_div {
+  @apply min-w-[10rem];
+}
+
+.visit_btn_div {
+  @apply flex items-center;
+}
+
+.visit_btn {
+  @apply hover:bg-index-black_btn px-3  py-1 hover:text-white rounded-md text-sm font-bold border-2 border-index-black_btn text-black;
+}
+
+.text_btn {
+  @apply flex flex-row justify-between w-full items-center;
 }

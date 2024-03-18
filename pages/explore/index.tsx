@@ -32,6 +32,7 @@ import {
 import FirebaseApp from "../../utils/firebase";
 
 //other packages
+import { Tooltip } from "react-tooltip";
 
 type Project = {
   id: string;
@@ -80,6 +81,9 @@ const Explore = () => {
   const [cmntBox, setCmntBox] = useState<CmntSection[]>([]);
   const [showCmntSection, setShowCmntSection] = useState<boolean>(false);
   const [cmntUsrImg, setCmntUsrImg] = useState<string>("");
+
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     const modalCloseUpdate = () => {
@@ -269,77 +273,44 @@ const Explore = () => {
     }
   };
 
+  const openShareModal = (project: Project) => {
+    setSelectedProject(project);
+    setShowShareModal(true);
+  };
+
+  const closeShareModal = () => {
+    setSelectedProject(null);
+    setShowShareModal(false);
+  };
+
+  const shareProject = async () => {
+    if (selectedProject) {
+      const shareText = `Check out this project on Loop: ${selectedProject.Project_title}\n${window.location.href}`;
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        shareText
+      )}`;
+      window.open(twitterUrl, "_blank");
+      closeShareModal();
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (selectedProject) {
+      const shareText = `Check out this project on Loop: ${selectedProject.Project_title}\n${window.location.href}`;
+      try {
+        await navigator.clipboard.writeText(shareText);
+        alert("Project URL copied to clipboard!");
+        closeShareModal();
+      } catch (error) {
+        console.error("Error copying to clipboard:", error);
+        alert("Failed to copy URL to clipboard. Please try again.");
+      }
+    }
+  };
+
   return (
     <>
-      <div className={Styles.left_pane}>
-        <div className={Styles.left_pane_inside}>
-          <div className={Styles.pane_items}>
-            <ul className={Styles.ul_items}>
-              <div
-                className={Styles.icons_items}
-                onClick={() => router.push(`/explore/${userDocId}`)}
-              >
-                <Image
-                  src="/Compass.png"
-                  alt="explore"
-                  height={38}
-                  width={38}
-                  priority={true}
-                />
-                <li>Explore</li>
-              </div>
-              <div
-                className={Styles.icons_items}
-                onClick={() => router.push(`/table/${userDocId}`)}
-              >
-                <Image
-                  src="/Grid.png"
-                  alt="grid"
-                  height={38}
-                  width={38}
-                  priority={true}
-                />
-                <li>Table</li>
-              </div>
-              <div
-                className={Styles.icons_items}
-                onClick={() => router.push(`/tasks/${userDocId}`)}
-              >
-                <Image
-                  src="/View Module.png"
-                  alt="tasks&feedback"
-                  height={38}
-                  width={38}
-                  priority={true}
-                />
-                <li>Tasks & Feedback</li>
-              </div>
-              <div
-                className={Styles.icons_items}
-                onClick={() => router.push(`/profile/${userDocId}`)}
-              >
-                <Image
-                  src="/Profile.png"
-                  alt="Profile"
-                  height={38}
-                  width={38}
-                  priority={true}
-                />
-                <li>Profile</li>
-              </div>
-            </ul>
-          </div>
-
-          <div
-            className={Styles.btn_div}
-            onClick={() => setOpnAddProjectModal(true)}
-          >
-            <button>Add</button>
-          </div>
-        </div>
-      </div>
-
-      {/* <Sidebar /> */}
+      <Sidebar />
 
       {showDefault ? (
         <div className={styles.default_page}>
@@ -391,6 +362,7 @@ const Explore = () => {
                           src="/Share.png"
                           priority={true}
                           className={styles.share}
+                          onClick={() => openShareModal(project)}
                         />
                       </div>
 
@@ -495,16 +467,91 @@ const Explore = () => {
               ))}
             </div>
           </div>
+
+          {showShareModal && selectedProject && (
+            <>
+              <div className={styles.share_modal_div}></div>
+              <div className={styles.share_modal_bg} onClick={closeShareModal}>
+                <div
+                  className={styles.share_social_modal}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className={styles.share_content}>
+                    <div className={styles.share_logo}>
+                      <Image
+                        src="/logo.png"
+                        alt="logo"
+                        width={90}
+                        height={90}
+                        priority={true}
+                      />
+                    </div>
+
+                    <div>
+                      <div className={styles.share_heading_div}>
+                        <h3 className={styles.share_heading}>
+                          {selectedProject.Project_title}
+                        </h3>
+                      </div>
+                      <div className={styles.share_desc}>
+                        {selectedProject.description
+                          .split(" ")
+                          .slice(0, 30)
+                          .join(" ")}
+                        {selectedProject.description.split(" ").length > 30
+                          ? "..."
+                          : ""}
+                      </div>
+                    </div>
+
+                    <div className={styles.both_share_icons}>
+                      <div className={styles.share_twt}>
+                        <button
+                          onClick={copyToClipboard}
+                          className={styles.clipboard_icon}
+                          data-tooltip-id="copyTooltip"
+                          data-tooltip-content="copy to clipboard"
+                        >
+                          <Image
+                            src="/clipboard.png"
+                            alt="logo"
+                            width={20}
+                            height={20}
+                            priority={true}
+                          />
+                        </button>
+                      </div>
+
+                      <div className={styles.share_twt}>
+                        <button
+                          onClick={shareProject}
+                          className={styles.twt_icon}
+                          data-tooltip-id="copyTooltip"
+                          data-tooltip-content="share on twitter(X)"
+                        >
+                          <Image
+                            src="/twitter.png"
+                            alt="logo"
+                            width={20}
+                            height={20}
+                            priority={true}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    <Tooltip id="copyTooltip" place="bottom" />
+
+                    <div className={styles.nvm_btn}>
+                      <button onClick={closeShareModal}>nevermind</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
-
-      <Modal
-        setOpnAddProjectModal={setOpnAddProjectModal}
-        opnAddProjectModal={opnAddProjectModal}
-        opnEditProject={opnEditProject}
-        setOpnEditProject={setOpnEditProject}
-        pathname={pathname}
-      />
     </>
   );
 };

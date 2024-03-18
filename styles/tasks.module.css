@@ -130,6 +130,10 @@
   @apply px-3 py-1 bg-green-400 rounded-full text-white text-sm font-bold items-center flex;
 }
 
+.none_label {
+  @apply px-3 py-1 border-2 border-index-black_btn rounded-full text-index-black_btn text-sm font-bold items-center flex;
+}
+
 .show_label_div {
   @apply flex mb-2;
 }
@@ -171,7 +175,7 @@
 }
 
 .two_boxes {
-  @apply grid grid-cols-2 gap-8;
+  @apply grid grid-cols-2 gap-8 min-h-[11rem];
 }
 
 .col1 {

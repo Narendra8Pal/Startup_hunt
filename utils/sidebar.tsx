@@ -3,6 +3,9 @@ import styles from "@/styles/sidebar.module.css";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
+//files
+import Modal from "@/utils/modal";
+
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
@@ -10,6 +13,9 @@ import { setUser } from "@/store/userName";
 
 const Sidebar = () => {
   const router = useRouter();
+
+  const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
+  const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
 
   const userDocId = useSelector(
     (state: RootState) => state.usersDocId.usersDocId
@@ -34,8 +40,9 @@ const Sidebar = () => {
                 />
                 <li>Explore</li>
               </div>
-              <div className={styles.icons_items}
-              onClick={() => router.push(`/table/${userDocId}`)}
+              <div
+                className={styles.icons_items}
+                onClick={() => router.push(`/table/${userDocId}`)}
               >
                 <Image
                   src="/Grid.png"
@@ -46,7 +53,8 @@ const Sidebar = () => {
                 />
                 <li>Table</li>
               </div>
-              <div className={styles.icons_items}
+              <div
+                className={styles.icons_items}
                 onClick={() => router.push(`/tasks/${userDocId}`)}
               >
                 <Image
@@ -74,11 +82,21 @@ const Sidebar = () => {
             </ul>
           </div>
 
-          <div className={styles.btn_div}>
+          <div
+            className={styles.btn_div}
+            onClick={() => setOpnAddProjectModal(true)}
+          >
             <button>Add</button>
           </div>
         </div>
       </div>
+
+      <Modal
+        setOpnAddProjectModal={setOpnAddProjectModal}
+        opnAddProjectModal={opnAddProjectModal}
+        opnEditProject={opnEditProject}
+        setOpnEditProject={setOpnEditProject}
+      />
     </>
   );
 };
