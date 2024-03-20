@@ -57,12 +57,12 @@ const Auth = () => {
       // console.log(docRef, 'docRef bro')
       docId = docRef.id;
       router.push(`/profile/${docId}`);
+      emptyInput();
     } catch (error: any) {
       console.error("Error:", error);
       const errorMessage = error.message;
       toast.error(errorMessage);
     }
-    emptyInput();
   };
 
   const handleLogIn = async () => {
@@ -70,19 +70,18 @@ const Auth = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // console.log(user, "user logged in success!");
         const q = query(
           collection(db, "users"),
           where("userId", "==", user.uid)
         );
         handleDocs(q);
         toast.success("Logged in successfully!");
+        emptyInput();
       })
       .catch((error) => {
         const errorMessage = error.message;
         toast.error("Oops! Error logging in.", errorMessage);
       });
-    emptyInput();
   };
 
   const handleDocs = async (q: any) => {
@@ -99,6 +98,24 @@ const Auth = () => {
     setEmail("");
     setPassword("");
     setUsername("");
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (login) {
+      handleLogIn();
+    } else {
+      handleSignUp();
+    }
+  };
+
+  const handleChangeAuth = () => {
+    emptyInput();
+    if (!login) {
+      setLogin(true);
+    } else {
+      setLogin(false);
+    }
   };
 
   return (
@@ -123,7 +140,7 @@ const Auth = () => {
             </div>
 
             <div>
-              <form className={Styles.form}>
+              <form className={Styles.form} onSubmit={handleSubmit}>
                 {!login && (
                   <>
                     <p className={Styles.input_title}>Username</p>
@@ -163,25 +180,19 @@ const Auth = () => {
                     autoComplete="on"
                   />
                 </div>
-              </form>
 
-              <div className={Styles.btm_part}>
-                <button
-                  onClick={login ? handleLogIn : handleSignUp}
-                  className={Styles.btn}
-                >
-                  {login ? "LogIn" : "Sign Up"}
-                </button>
-                <div className="justify-center flex text-sm opacity-70">
-                  {!login ? "already have an account?" : "not a user?"}
+                <div className={Styles.btm_part}>
+                  <button className={Styles.btn} type="submit">
+                    {login ? "LogIn" : "Sign Up"}
+                  </button>
+                  <div className="justify-center flex text-sm opacity-70">
+                    {!login ? "already have an account?" : "not a user?"}
+                  </div>
+                  <div onClick={handleChangeAuth} className={Styles.dual_btn}>
+                    {!login ? "LogIn here" : "SignUp here"}
+                  </div>
                 </div>
-                <div
-                  onClick={() => (!login ? setLogin(true) : setLogin(false))}
-                  className={Styles.dual_btn}
-                >
-                  {!login ? "LogIn here" : "SignUp here"}
-                </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

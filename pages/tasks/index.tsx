@@ -758,7 +758,7 @@ const Tasks = (props: TasksProps) => {
             <div className={styles.bottom_content}>
               <div className={styles.grid_box}>
                 <div className={styles.box_col}>
-                  <div className={styles.two_boxes}>
+                  <div className={taskContentDocData.length === 0 ? styles.two_boxes : styles.two_boxes_min_h}>
                     <div
                       className={styles.col1}
                       onDragOver={handleDragOver}

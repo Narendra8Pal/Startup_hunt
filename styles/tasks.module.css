@@ -175,7 +175,11 @@
 }
 
 .two_boxes {
-  @apply grid grid-cols-2 gap-8 min-h-[11rem];
+  @apply grid grid-cols-2 gap-8;
+}
+
+.two_boxes_min_h{
+  @apply min-h-[11rem] two_boxes
 }
 
 .col1 {

@@ -185,6 +185,7 @@ const Modal = (props: ModalProps) => {
 
   const handleFileUpload = async () => {
     // props.setSelectedFile?.(null);
+    console.log("inside handlefileupload");
     if (props.selectedFile) {
       const storageRef = ref(
         storage,
@@ -206,10 +207,10 @@ const Modal = (props: ModalProps) => {
 
               switch (snapshot.state) {
                 case "paused":
-                  // console.log("Upload is paused");
+                  console.log("Upload is paused");
                   break;
                 case "running":
-                  // console.log("Upload is running");
+                  console.log("Upload is running");
                   break;
               }
             },
@@ -235,16 +236,24 @@ const Modal = (props: ModalProps) => {
           );
         });
 
-        // console.log("File uploaded successfully.");
+        // console.log(projectImg, "project img bro.");
       } catch (error) {
         console.error("Error uploading file:", error);
       }
+    } else {
+      console.log(props.selectedFile, "no selected file ");
+      console.log(uploadImg, "is uploadimg false yet?");
     }
   };
 
   useEffect(() => {
-    handleFileUpload();
-  }, [uploadImg, uploadPfImg]);
+    if (props.selectedFile) {
+      handleFileUpload();
+      console.log("handfileupload ran");
+    }
+    // handleFileUpload();
+    // console.log("handfileupload ran");
+  }, [props.selectedFile,uploadImg, uploadPfImg]);
 
   const cleanInputElements = () => {
     setProjectTitle("");
@@ -338,6 +347,9 @@ const Modal = (props: ModalProps) => {
     if (file) {
       props.setSelectedFile?.(file);
       setUploadImg(true);
+      console.log(file, "this is setsetselected file");
+    } else {
+      console.log(file, "file is null in handleAdd media");
     }
   };
 
@@ -347,6 +359,7 @@ const Modal = (props: ModalProps) => {
       props.setSelectedFile?.(file);
       setUploadImg(true);
       setChangePfImg(true);
+      console.log(file, "file in edit media");
     }
   };
 
@@ -445,9 +458,7 @@ const Modal = (props: ModalProps) => {
 
                   <div>
                     <div className={styles.media_title_btn}>
-                      <h2 className={styles.carousel_title}>
-                        Embed Img & Video
-                      </h2>
+                      <h2 className={styles.carousel_title}>Embed Image</h2>
                       {/* <button className={styles.media_btn}>Add Media</button> */}
                     </div>
 

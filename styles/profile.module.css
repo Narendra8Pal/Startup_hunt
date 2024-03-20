@@ -349,15 +349,15 @@
 }
 
 .common_two_btns {
-  @apply p-2 flex w-1/2 justify-center font-semibold text-sm border-r-2  cursor-pointer;
+  @apply p-2 flex w-1/2 justify-center font-semibold text-sm cursor-pointer;
 }
 
 .proj_btn {
-  @apply hover:bg-index-black_btn hover:rounded-md hover:text-white border-white common_two_btns;
+  @apply hover:bg-index-black_btn hover:rounded-md hover:text-white border-white common_two_btns border-r-2;
 }
 
 .proj_btn_true {
-  @apply bg-index-black_btn rounded-md text-white border-white common_two_btns;
+  @apply bg-index-black_btn rounded-md text-white border-white common_two_btns border-r-2;
 }
 
 .task_btn {

@@ -9,9 +9,9 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        sm: "480px",
+        sm: "280px",
         md: "768px",
-        lg: "976px",
+        lg: "1393px",
         xl: "1440px",
       },
       colors: {
@@ -31,15 +31,18 @@ const config: Config = {
           gray: "#fbfbfa",
           hover_gray: "#5e5e5e",
         },
-        table:{
+        table: {
           bg_table: "#f8f8f8",
         },
         modal: {
           modal_bg: "#999999",
         },
-        hover:{
+        hover: {
           dropdown: "#f9f9f9",
-        }
+        },
+        showcase_bg: {
+          show_bg: "#fafafa",
+        },
       },
     },
   },

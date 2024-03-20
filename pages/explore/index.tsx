@@ -66,8 +66,6 @@ const Explore = () => {
   const db = getFirestore(FirebaseApp);
 
   const [showDefault, setShowDefault] = useState<boolean>(true);
-  const [opnAddProjectModal, setOpnAddProjectModal] = useState<boolean>(false);
-  const [opnEditProject, setOpnEditProject] = useState<boolean>(false);
   const [projectsData, setProjectsData] = useState<Project[]>([]);
   const [opnCommentBoxArray, setOpnCommentBoxArray] = useState<{
     [key: string]: boolean;

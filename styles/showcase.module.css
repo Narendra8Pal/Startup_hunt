@@ -1,25 +1,37 @@
 .orange {
-  @apply relative;
+  @apply relative xl:w-auto xl:h-auto lg:w-auto lg:h-auto md:w-auto md:h-auto sm:w-auto sm:h-auto ;
+}
+
+.heading {
+  @apply text-4xl font-bold;
+}
+
+.text_span {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-index-logo_orange1 to-index-logo_orange2;
+}
+
+.thin_span {
+  @apply font-medium;
 }
 
 .desc {
-  @apply absolute font-bold text-4xl w-1/3 flex h-[84vh] ml-[5%] flex-col;
+  @apply xl:absolute lg:absolute md:absolute xl:w-[26.666%] lg:w-[26.666%] md:w-[36.666%] flex xl:h-[84vh] lg:h-[84vh] md:h-[84vh] sm:h-[58vh] xl:ml-[5%] lg:ml-[5%] md:ml-0 md:top-0 sm:ml-0 flex-col justify-center sm:p-8;
 }
 
-.desc p {
-  @apply mt-[20rem];
+.para {
+  @apply mt-4;
 }
 
 .btn_div {
-  @apply mt-[2rem] flex rounded-full text-white cursor-pointer;
+  @apply mt-[2rem] flex rounded-full text-white;
 }
 
 .btn {
-  @apply py-2 px-4 bg-index-black_btn rounded-full text-sm;
+  @apply py-2 px-4 bg-index-black_btn rounded-md text-sm font-bold cursor-pointer;
 }
 
 .vector {
-  @apply ml-auto;
+  @apply ml-auto xl:w-auto xl:h-auto lg:w-[50rem] lg:h-auto md:w-[45rem] md:h-auto sm:w-[50rem] sm:h-auto;
 }
 
 .ellipse1 {
@@ -32,4 +44,88 @@
 
 .polygon1 {
   @apply ml-auto absolute;
+}
+
+.features_bg {
+  @apply bg-home-stroke xl:mt-40 lg:mt-40 md:mt-40 sm:mt-0 xl:h-[30rem] lg:h-[30rem] md:h-auto justify-center flex sm:h-auto;
+}
+
+.feature_showcase {
+  @apply flex flex-row w-2/3 sm:flex sm:flex-col xl:flex xl:flex-row lg:flex lg:flex-row md:flex md:flex-col md:m-20 lg:m-[5rem] xl:m-[5rem] gap-8 sm:m-8 sm:w-full;
+}
+
+.img_text {
+  @apply flex flex-col gap-4;
+}
+
+.img_bg {
+  @apply flex justify-center;
+}
+
+.explore_showcase {
+  @apply xl:w-full p-8 rounded-md bg-white md:m-auto lg:m-0 xl:m-0 md:w-[70.333%] lg:w-[70.333%] sm:w-[100%];
+}
+
+.explore_img_div {
+  @apply bg-gradient-to-r from-slate-50 to-hover-dropdown rounded-full flex p-3 drop-shadow-sm;
+}
+
+.explore_img {
+  @apply flex;
+}
+
+.box_txt {
+  @apply flex flex-col gap-3 xl:text-base lg:text-base md:text-base sm:text-sm xl:text-center lg:text-center md:text-center sm:text-center;
+}
+
+.feature_name {
+  @apply xl:text-xl lg:text-xl xl:font-bold lg:font-bold md:text-xl md:font-bold sm:text-lg sm:font-semibold justify-center flex;
+}
+
+.shot_show {
+  @apply flex mt-20;
+}
+
+.shot_show_inside {
+  @apply w-full flex flex-col gap-8;
+}
+
+.shot_img_div {
+  @apply rounded-sm bg-index-logo_orange1 p-3 shadow-lg;
+}
+
+.shot_img {
+  @apply rounded-md;
+}
+
+.shot_text {
+  @apply xl:w-[400px] lg:w-[400px] md:w-[400px] sm:w-[421px] flex justify-center h-full flex-col;
+}
+
+.shot_img_text {
+  @apply flex flex-row p-6 justify-center lg:space-x-44 xl:space-x-44 md:space-x-44 sm:space-x-20 h-56 sm:text-xs lg:text-base xl:text-base md:text-base;
+}
+
+.shot_desc {
+  @apply flex h-full justify-center items-center;
+}
+
+.shot_head {
+  @apply xl:text-lg xl:font-bold md:font-bold md:text-lg lg:font-bold lg:text-lg sm:text-sm sm:font-semibold;
+}
+
+.img {
+  @apply w-[400px] h-[400px] bg-cover object-cover rounded-md;
+}
+
+.footer {
+  @apply mt-28 bg-black h-auto sm:text-sm;
+}
+
+.footer_inside {
+  @apply flex text-white justify-center p-6;
+}
+
+.link {
+  @apply text-orange-400 font-bold ml-1;
 }
