@@ -120,80 +120,94 @@ const Auth = () => {
 
   return (
     <>
-      <div className={Styles.auth_body}>
-        <div className={Styles.container}>
-          <div className={Styles.auth}>
-            <div className={Styles.logo}>
-              <Image
-                src="/logo.png"
-                alt="logo"
-                width={123}
-                height={123}
-                priority={true}
-                onClick={() => router.push("/")}
-              />
-
-              <p className={Styles.title}>
-                {login ? "Welcome Back!" : "Sign Up for loop"}
-              </p>
-              <p className={Styles.desc}>Please enter your details.</p>
-            </div>
-
-            <div>
-              <form className={Styles.form} onSubmit={handleSubmit}>
-                {!login && (
-                  <>
-                    <p className={Styles.input_title}>Username</p>
-                    <input
-                      type="text"
-                      placeholder="username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                    />
-                  </>
-                )}
-                <p className={Styles.input_title}>Email</p>
-                <input
-                  type="email"
-                  placeholder="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+      <div className="hidden xl:block">
+        <div className={Styles.auth_body}>
+          <div className={Styles.container}>
+            <div className={Styles.auth}>
+              <div className={Styles.logo}>
+                <Image
+                  src="/logo.png"
+                  alt="logo"
+                  width={123}
+                  height={123}
+                  priority={true}
+                  onClick={() => router.push("/")}
                 />
-                <p className={Styles.input_title}>Password</p>
-                <div className={Styles.pass_icon_div}>
-                  <div className={Styles.eye_icon}>
-                    <Image
-                      src={visibility ? "/hidden_eye.png" : "/eye.png"}
-                      alt="eye"
-                      width={16}
-                      height={16}
-                      priority={true}
-                      onClick={() => setVisibility(!visibility)}
-                      className="cursor-pointer"
+
+                <p className={Styles.title}>
+                  {login ? "Welcome Back!" : "Sign Up for loop"}
+                </p>
+                <p className={Styles.desc}>Please enter your details.</p>
+              </div>
+
+              <div>
+                <form className={Styles.form} onSubmit={handleSubmit}>
+                  {!login && (
+                    <>
+                      <p className={Styles.input_title}>Username</p>
+                      <input
+                        type="text"
+                        placeholder="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                    </>
+                  )}
+                  <p className={Styles.input_title}>Email</p>
+                  <input
+                    type="email"
+                    placeholder="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <p className={Styles.input_title}>Password</p>
+                  <div className={Styles.pass_icon_div}>
+                    <div className={Styles.eye_icon}>
+                      <Image
+                        src={visibility ? "/hidden_eye.png" : "/eye.png"}
+                        alt="eye"
+                        width={16}
+                        height={16}
+                        priority={true}
+                        onClick={() => setVisibility(!visibility)}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    <input
+                      type={visibility ? "text" : "password"}
+                      placeholder="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="on"
                     />
                   </div>
-                  <input
-                    type={visibility ? "text" : "password"}
-                    placeholder="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="on"
-                  />
-                </div>
 
-                <div className={Styles.btm_part}>
-                  <button className={Styles.btn} type="submit">
-                    {login ? "LogIn" : "Sign Up"}
-                  </button>
-                  <div className="justify-center flex text-sm opacity-70">
-                    {!login ? "already have an account?" : "not a user?"}
+                  <div className={Styles.btm_part}>
+                    <button className={Styles.btn} type="submit">
+                      {login ? "LogIn" : "Sign Up"}
+                    </button>
+                    <div className="justify-center flex text-sm opacity-70">
+                      {!login ? "already have an account?" : "not a user?"}
+                    </div>
+                    <div onClick={handleChangeAuth} className={Styles.dual_btn}>
+                      {!login ? "LogIn here" : "SignUp here"}
+                    </div>
                   </div>
-                  <div onClick={handleChangeAuth} className={Styles.dual_btn}>
-                    {!login ? "LogIn here" : "SignUp here"}
-                  </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={Styles.mobile_div}>
+        {/* Message for mobile screens  */}
+        <div className={Styles.text_div}>
+          <div className={Styles.mobile_head}>Hey mobile friend! 🫶</div>
+          <div className={Styles.mobile_desc}>
+            We are not available on your screen currently.We offer our service
+            for screens equal to larger than 1440px.Be patient while we get you
+            covered or try differect screen if you can&apos;t wait.
           </div>
         </div>
       </div>

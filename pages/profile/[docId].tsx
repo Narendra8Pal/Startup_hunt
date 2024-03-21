@@ -7,7 +7,8 @@ import { useState, useEffect } from "react";
 //redux
 import { setUser } from "@/store/userName";
 import { setUsersDocId } from "@/store/usersDocId";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/index";
 
 //firebase
 import { collection, doc, getDoc } from "firebase/firestore";

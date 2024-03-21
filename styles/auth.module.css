@@ -62,3 +62,19 @@
 .dual_btn {
   @apply text-index-logo_orange1 hover:underline hover:underline-offset-2 m-auto cursor-pointer;
 }
+
+.mobile_div {
+  @apply xl:hidden flex h-[100vh];
+}
+
+.text_div {
+  @apply text-center p-4 text-sm flex h-full justify-center items-center w-full flex-col space-y-6;
+}
+
+.mobile_head {
+  @apply text-4xl font-extrabold;
+}
+
+.mobile_desc {
+  @apply text-xl;
+}

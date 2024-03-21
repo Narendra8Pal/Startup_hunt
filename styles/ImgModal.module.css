@@ -1,0 +1,49 @@
+/* Modal.module.css */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modalContent {
+    position: relative;
+    background-color: white;
+    padding: 20px;
+  }
+  
+  .modalImage {
+    max-width: 80vw;
+    max-height: 80vh;
+  }
+  
+  .navButton {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+  
+  /* Carousel.module.css */
+  .carouselBox {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .carouselImg {
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+    cursor: pointer;
+  }
+  

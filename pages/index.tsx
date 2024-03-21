@@ -9,10 +9,17 @@ export default function Home() {
   return (
     <>
       <div className={Styles.orange}>
-
-      <div>
-        <img src="/group99.png" alt="group" className={Styles.vector} />
-</div>
+        <div>
+          <Image
+            src="/Group.svg"
+            alt="logo"
+            width={123}
+            height={123}
+            priority={true}
+            className={Styles.vector}
+            draggable={false}
+          />
+        </div>
 
         <div className={Styles.desc}>
           <h1 className={Styles.heading}>
@@ -33,8 +40,26 @@ export default function Home() {
             <button className={Styles.btn}>Sign Up</button>
           </div>
         </div>
+      </div>
 
-
+      <div className="text-center mt-6">
+        <p className="font-semibold">Scroll down for more</p>
+        <div className="animate-bounce mt-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-gray-600 mx-auto"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+        </div>
       </div>
 
       <div className={Styles.features_bg}>
@@ -82,9 +107,9 @@ export default function Home() {
               <div className={Styles.box_txt}>
                 <div className={Styles.feature_name}>Table</div>
                 <div>
-                Effortlessly view all tasks in a streamlined table format,
-                making it easy to find and reply to new tasks. Quickly check
-                their creation dates for better organization and management.
+                  Effortlessly view all tasks in a streamlined table format,
+                  making it easy to find and reply to new tasks. Quickly check
+                  their creation dates for better organization and management.
                 </div>
               </div>
             </div>
@@ -110,7 +135,7 @@ export default function Home() {
                   Browse tasks created by builders, enhance productivity with
                   bricks, prioritize tasks with emojis, and blend tasks with
                   beautiful color views. Reply to each task to show every
-                  opinion matters for their product's success.
+                  opinion matters for their product&apos;s success.
                 </div>
               </div>
             </div>

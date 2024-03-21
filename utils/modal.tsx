@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
 import { setUser } from "@/store/userName";
 import { setImgUrl } from "@/store/imgURL";
+import { setGetProj } from "@/store/getProj";
 
 //firebase
 import FirebaseApp from "../utils/firebase";
@@ -184,8 +185,6 @@ const Modal = (props: ModalProps) => {
   };
 
   const handleFileUpload = async () => {
-    // props.setSelectedFile?.(null);
-    console.log("inside handlefileupload");
     if (props.selectedFile) {
       const storageRef = ref(
         storage,
@@ -224,6 +223,7 @@ const Modal = (props: ModalProps) => {
                   setUploadPfImg(false);
                 }
                 if (uploadImg) {
+                  console.log(uploadImg, "upload img true");
                   setProjectImg((prevProjectImg) => [
                     ...prevProjectImg,
                     downloadURL,
@@ -235,25 +235,63 @@ const Modal = (props: ModalProps) => {
             }
           );
         });
-
-        // console.log(projectImg, "project img bro.");
       } catch (error) {
         console.error("Error uploading file:", error);
       }
-    } else {
-      console.log(props.selectedFile, "no selected file ");
-      console.log(uploadImg, "is uploadimg false yet?");
     }
+    setUploadImg(false);
   };
 
   useEffect(() => {
-    if (props.selectedFile) {
-      handleFileUpload();
-      console.log("handfileupload ran");
+    handleFileUpload();
+    console.log("handfileupload ran");
+  }, [props.selectedFile, uploadImg, uploadPfImg]);
+
+  const addMediaUpload = async (file: File) => {
+    if (file) {
+      const storageRef = ref(
+        storage,
+        `${process.env.NEXT_PUBLIC_STORAGE_BUCKET}/${file.name}`
+      );
+      const uploadTask: UploadTask = uploadBytesResumable(storageRef, file);
+
+      try {
+        await new Promise((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              // console.log("Upload is " + progress + "% done");
+
+              switch (snapshot.state) {
+                case "paused":
+                  console.log("Upload is paused in add media");
+                  break;
+                case "running":
+                  console.log("Upload is running in add media");
+                  break;
+              }
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                setProjectImg((prevProjectImg) => [
+                  ...prevProjectImg,
+                  downloadURL,
+                ]);
+              });
+              resolve(getDownloadURL);
+            }
+          );
+        });
+      } catch (error) {
+        console.error("Error uploading file in add media:", error);
+      }
     }
-    // handleFileUpload();
-    // console.log("handfileupload ran");
-  }, [props.selectedFile,uploadImg, uploadPfImg]);
+  };
 
   const cleanInputElements = () => {
     setProjectTitle("");
@@ -263,23 +301,28 @@ const Modal = (props: ModalProps) => {
   };
 
   const handleCreateProject = async () => {
-    const docRef = await addDoc(collection(db, "projects"), {
-      Project_title: projectTitle,
-      description: projectDesc,
-      github_link: gitLink,
-      userId: uid,
-      web_link: webLink,
-      project_img: projectImg,
-      project_vid: {},
-    });
-
     if (imgStoredURL.length > 0) {
-      handleDeleteImage(imgStoredURL);
-    }
+      try {
+        const leftImg = projectImg.filter((img) => !imgStoredURL.includes(img));
 
-    props.setOpnAddProjectModal(false);
-    setProjectImg([]);
-    cleanInputElements();
+        const docRef = await addDoc(collection(db, "projects"), {
+          Project_title: projectTitle,
+          description: projectDesc,
+          github_link: gitLink,
+          userId: uid,
+          web_link: webLink,
+          project_img: leftImg,
+          project_vid: {},
+        });
+
+        props.setOpnAddProjectModal(false);
+        cleanInputElements();
+        dispatch(setGetProj(true));
+        setProjectImg([]);
+      } catch (error) {
+        console.error("Error in deleting project added images:", error);
+      }
+    }
   };
 
   const inputChangeFalse = () => {
@@ -312,8 +355,22 @@ const Modal = (props: ModalProps) => {
     event
   ) => {
     if (props.opnAddProjectModal) {
+      if (!projectTitle.trim() || !projectDesc.trim()) {
+        alert("Please enter a title and description");
+        return;
+      }
       await handleCreateProject();
     } else {
+      const titleToCheck = changePT
+        ? projectTitle.trim()
+        : props.editProjObj?.Project_title.trim();
+      const descToCheck = changePD
+        ? projectDesc.trim()
+        : props.editProjObj?.description.trim();
+      if (!titleToCheck || !descToCheck) {
+        alert("Please enter a title and description");
+        return;
+      }
       await handleEditProject(props.editProjObj?.id || "");
     }
   };
@@ -345,9 +402,7 @@ const Modal = (props: ModalProps) => {
   const handleAddMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      props.setSelectedFile?.(file);
-      setUploadImg(true);
-      console.log(file, "this is setsetselected file");
+      addMediaUpload(file);
     } else {
       console.log(file, "file is null in handleAdd media");
     }
@@ -359,7 +414,6 @@ const Modal = (props: ModalProps) => {
       props.setSelectedFile?.(file);
       setUploadImg(true);
       setChangePfImg(true);
-      console.log(file, "file in edit media");
     }
   };
 
@@ -379,7 +433,6 @@ const Modal = (props: ModalProps) => {
   };
 
   const storeImgInfoDel = (url: string, index: number) => {
-    // setImgStoredURL(url);
     setImgStoredURL((prevURLs) => [...prevURLs, url]);
   };
 

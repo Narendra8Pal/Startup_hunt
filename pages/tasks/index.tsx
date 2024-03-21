@@ -229,6 +229,10 @@ const Tasks = (props: TasksProps) => {
   }, []);
 
   const handleCreate = async () => {
+    if (!projectTitle.trim() || !projectDesc.trim()) {
+      alert("Please enter a title and description");
+      return;
+    }
     handleModal();
     try {
       const collectionRef = collection(db, "tasks");
@@ -252,6 +256,10 @@ const Tasks = (props: TasksProps) => {
   };
 
   const handleAddBrick = async () => {
+    if (!projectTitle.trim() || !projectDesc.trim()) {
+      alert("Please enter a title and description");
+      return;
+    }
     handleModal();
     try {
       const tasksRef = collection(db, "tasks");
@@ -339,6 +347,10 @@ const Tasks = (props: TasksProps) => {
   }, [bgBoxColor, bgBox]);
 
   const updateBrick = async () => {
+    if (!editTitle.trim() || !editDesc.trim()) {
+      alert("Please enter a title and description");
+      return;
+    }
     handleModal();
     try {
       const subcollectionRef = collection(
@@ -758,7 +770,13 @@ const Tasks = (props: TasksProps) => {
             <div className={styles.bottom_content}>
               <div className={styles.grid_box}>
                 <div className={styles.box_col}>
-                  <div className={taskContentDocData.length === 0 ? styles.two_boxes : styles.two_boxes_min_h}>
+                  <div
+                    className={
+                      taskContentDocData.length === 0
+                        ? styles.two_boxes
+                        : styles.two_boxes_min_h
+                    }
+                  >
                     <div
                       className={styles.col1}
                       onDragOver={handleDragOver}

@@ -1,5 +1,5 @@
 .orange {
-  @apply relative xl:w-auto xl:h-auto lg:w-auto lg:h-auto md:w-auto md:h-auto sm:w-auto sm:h-auto ;
+  @apply relative xl:w-auto xl:h-auto lg:w-auto lg:h-auto md:w-auto md:h-auto sm:w-auto sm:h-auto;
 }
 
 .heading {

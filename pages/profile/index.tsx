@@ -10,11 +10,15 @@ import styles from "@/styles/profile.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import Modal from "@/utils/modal";
+import ImgModal from "@/utils/ImgModal";
+
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/index";
 import { setUser } from "@/store/userName";
 import { setImgUrl } from "@/store/imgURL";
+import { setGetProj } from "@/store/getProj";
+
 //firebase
 import FirebaseApp from "../../utils/firebase";
 import { getFirestore } from "firebase/firestore";
@@ -70,6 +74,9 @@ const Profile = () => {
   const [userImgURL, setUserImgURL] = useState<string>("");
   const [editProjObj, setEditProjObj] = useState<Project>();
 
+  //imgmodal
+  const [selectedImgIndex, setSelectedImgIndex] = useState<any>();
+
   //tasks content
   const [tasksData, setTasksData] = useState<Tasks_Content[]>([]);
 
@@ -89,6 +96,7 @@ const Profile = () => {
     (state: RootState) => state.usersDocId.usersDocId
   );
   const imgURL = useSelector((state: RootState) => state.imgURL.imgURL);
+  const getProj = useSelector((state: RootState) => state.getProj.getProj);
 
   useEffect(() => {
     const auth = getAuth();
@@ -152,12 +160,13 @@ const Profile = () => {
         projectsArray.push(projectData);
       });
       setProjectsData(projectsArray);
+      dispatch(setGetProj(false));
     };
 
     if (uid) {
       getProjectsData();
     }
-  }, [opnAddProjectModal, userDocId, uid, opnEditProject]);
+  }, [opnAddProjectModal, userDocId, uid, opnEditProject, getProj]);
 
   const handleProjectDelete = async (projectId: string) => {
     try {
@@ -183,6 +192,26 @@ const Profile = () => {
       setShowProjects(true);
       setShowTasks(false);
     }
+  };
+
+  const openImgModal = (index: any) => {
+    setSelectedImgIndex(index);
+  };
+
+  const closeModal = () => {
+    setSelectedImgIndex(null);
+  };
+
+  const goToPrevImage = (images: any) => {
+    setSelectedImgIndex((prevIndex: any) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNextImage = (images: any) => {
+    setSelectedImgIndex((prevIndex: any) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   return (
@@ -310,8 +339,22 @@ const Profile = () => {
                                 alt={`project_img_${imgIndex}`}
                                 className={styles.carousel_img}
                                 key={imgIndex}
+                                onClick={() => openImgModal(imgIndex)}
                               />
                             ))}
+                            {/* {selectedImgIndex !== null && (
+                              <ImgModal
+                                images={project.project_img}
+                                selectedIndex={selectedImgIndex}
+                                onClose={closeModal}
+                                onPrev={() =>
+                                  goToPrevImage(project.project_img)
+                                }
+                                onNext={() =>
+                                  goToNextImage(project.project_img)
+                                }
+                              />
+                            )} */}
                           </div>
                         </div>
                         <div className={styles.desc_btm}>
