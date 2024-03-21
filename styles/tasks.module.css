@@ -18,6 +18,10 @@
   @apply flex flex-row space-x-2 items-center cursor-pointer m-auto text-2xl font-bold;
 }
 
+.no_dropdown{
+  @apply flex flex-row space-x-2 items-center m-auto text-2xl font-bold;
+}
+
 .up_btn {
   @apply transform scale-y-[-1];
 }
@@ -79,7 +83,7 @@
 }
 
 .add_profile_modal {
-  @apply w-1/5 bg-white shadow-sm rounded-md flex flex-col h-auto gap-16 p-6;
+  @apply w-1/5 bg-white shadow-sm rounded-md flex flex-col h-auto gap-8 p-6;
 }
 
 .modal_content {

@@ -206,10 +206,10 @@ const Modal = (props: ModalProps) => {
 
               switch (snapshot.state) {
                 case "paused":
-                  console.log("Upload is paused");
+                  // console.log("Upload is paused");
                   break;
                 case "running":
-                  console.log("Upload is running");
+                  // console.log("Upload is running");
                   break;
               }
             },
@@ -223,7 +223,6 @@ const Modal = (props: ModalProps) => {
                   setUploadPfImg(false);
                 }
                 if (uploadImg) {
-                  console.log(uploadImg, "upload img true");
                   setProjectImg((prevProjectImg) => [
                     ...prevProjectImg,
                     downloadURL,
@@ -244,7 +243,6 @@ const Modal = (props: ModalProps) => {
 
   useEffect(() => {
     handleFileUpload();
-    console.log("handfileupload ran");
   }, [props.selectedFile, uploadImg, uploadPfImg]);
 
   const addMediaUpload = async (file: File) => {
@@ -266,10 +264,10 @@ const Modal = (props: ModalProps) => {
 
               switch (snapshot.state) {
                 case "paused":
-                  console.log("Upload is paused in add media");
+                  // console.log("Upload is paused in add media");
                   break;
                 case "running":
-                  console.log("Upload is running in add media");
+                  // console.log("Upload is running in add media");
                   break;
               }
             },
@@ -312,6 +310,25 @@ const Modal = (props: ModalProps) => {
           userId: uid,
           web_link: webLink,
           project_img: leftImg,
+          project_vid: {},
+        });
+
+        props.setOpnAddProjectModal(false);
+        cleanInputElements();
+        dispatch(setGetProj(true));
+        setProjectImg([]);
+      } catch (error) {
+        console.error("Error in deleting project added images:", error);
+      }
+    } else {
+      try {
+        const docRef = await addDoc(collection(db, "projects"), {
+          Project_title: projectTitle,
+          description: projectDesc,
+          github_link: gitLink,
+          userId: uid,
+          web_link: webLink,
+          project_img: projectImg,
           project_vid: {},
         });
 
@@ -403,8 +420,6 @@ const Modal = (props: ModalProps) => {
     const file = e.target.files?.[0];
     if (file) {
       addMediaUpload(file);
-    } else {
-      console.log(file, "file is null in handleAdd media");
     }
   };
 

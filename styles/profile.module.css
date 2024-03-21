@@ -79,7 +79,7 @@
 }
 
 .name_link {
-  @apply flex flex-row mx-6 mt-6 justify-between items-center;
+  @apply flex flex-row px-6 pt-6 pb-2 bg-page-light rounded-t-md justify-between items-center;
 }
 
 .name {
@@ -421,5 +421,9 @@
 }
 
 .text_btn {
-  @apply flex flex-row justify-between w-full items-center;
+  @apply flex flex-row justify-between w-full items-center gap-4;
+}
+
+.no_data_text {
+  @apply font-semibold text-lg m-auto;
 }

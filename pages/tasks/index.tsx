@@ -124,12 +124,16 @@ const Tasks = (props: TasksProps) => {
   const [exBgColor, setExBgColor] = useState<string>("");
 
   const [statusSelected, setStatusSelected] = useState<string>("");
+  const [showIconsToOwner, setShowIconsToOwner] = useState<boolean>(false);
 
   const user = useSelector((state: RootState) => state.userName.user);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const db = getFirestore(FirebaseApp);
   const userDocId = useSelector(
     (state: RootState) => state.usersDocId.usersDocId
+  );
+  const showDocIdIcon = useSelector(
+    (state: RootState) => state.showDocIdIcon.showDocIdIcon
   );
 
   const router = useRouter();
@@ -156,6 +160,26 @@ const Tasks = (props: TasksProps) => {
       getUserData();
     }
   }, [userDocId]);
+
+  useEffect(() => {
+    const getOwnerDocId = () => {
+      getDoc(doc(db, "users", `${userDocId}`));
+    };
+  }, []);
+
+  useEffect(() => {
+    const getOwner = async () => {
+      const docRef = doc(db, "tasks", `${props.Id}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const { userId } = docSnap.data();
+        if (uid === userId) {
+          setShowIconsToOwner(true);
+        }
+      }
+    };
+    getOwner();
+  }, [props.Id, uid]);
 
   useEffect(() => {
     const getTasksData = async () => {
@@ -693,8 +717,20 @@ const Tasks = (props: TasksProps) => {
             <div>
               <div className={styles.switch_btn}>
                 <div
-                  className={styles.dropdown}
-                  onClick={() => setDDOpen(!ddOpen)}
+                  className={
+                    showIconsToOwner
+                      ? styles.dropdown
+                      : styles.no_dropdown || showDocIdIcon
+                      ? styles.dropdown
+                      : styles.no_dropdown
+                  }
+                  onClick={
+                    showIconsToOwner
+                      ? () => setDDOpen(!ddOpen)
+                      : undefined || showDocIdIcon
+                      ? () => setDDOpen(!ddOpen)
+                      : undefined
+                  }
                   ref={dropdownRef}
                 >
                   <Image
@@ -706,30 +742,61 @@ const Tasks = (props: TasksProps) => {
                   />
                   <p>{taskDocIdData.Project_Title}</p>
 
-                  <Image
-                    src="/down_btn.png"
-                    alt={ddOpen ? "up_btn" : "down_btn"}
-                    height={20}
-                    width={20}
-                    className={ddOpen ? styles.up_btn : ""}
-                  />
+                  {showIconsToOwner ? (
+                    <Image
+                      src="/down_btn.png"
+                      alt={ddOpen ? "up_btn" : "down_btn"}
+                      height={20}
+                      width={20}
+                      className={ddOpen ? styles.up_btn : ""}
+                    />
+                  ) : null}
+
+                  {showDocIdIcon ? (
+                    <Image
+                      src="/down_btn.png"
+                      alt={ddOpen ? "up_btn" : "down_btn"}
+                      height={20}
+                      width={20}
+                      className={ddOpen ? styles.up_btn : ""}
+                    />
+                  ) : null}
                 </div>
 
                 <div className={styles.btn_div}>
-                  <div
-                    className={styles.add_icon}
-                    onClick={() => setOpenModal(true)}
-                    data-tooltip-id="tabsToolTip"
-                    data-tooltip-content="create Task"
-                  >
-                    <Image
-                      src="/tabs.png"
-                      alt="add"
-                      width={30}
-                      height={30}
-                      priority={true}
-                    />
-                  </div>
+                  {showIconsToOwner ? (
+                    <div
+                      className={styles.add_icon}
+                      onClick={() => setOpenModal(true)}
+                      data-tooltip-id="tabsToolTip"
+                      data-tooltip-content="create Task"
+                    >
+                      <Image
+                        src="/tabs.png"
+                        alt="add"
+                        width={30}
+                        height={30}
+                        priority={true}
+                      />
+                    </div>
+                  ) : null}
+
+                  {showDocIdIcon ? (
+                    <div
+                      className={styles.add_icon}
+                      onClick={() => setOpenModal(true)}
+                      data-tooltip-id="tabsToolTip"
+                      data-tooltip-content="create Task"
+                    >
+                      <Image
+                        src="/tabs.png"
+                        alt="add"
+                        width={30}
+                        height={30}
+                        priority={true}
+                      />
+                    </div>
+                  ) : null}
 
                   <div className={styles.pf_img}>
                     <img src={userImgURL} />
@@ -914,38 +981,41 @@ const Tasks = (props: TasksProps) => {
                                     />
                                   </div>
 
-                                  <div
-                                    className={styles.add_icon}
-                                    onClick={(e) => handleAddIconClick(e)}
-                                    onMouseEnter={() =>
-                                      handleEditMouse(
-                                        item.id,
-                                        item.title,
-                                        item.desc,
-                                        item.taskDocId,
-                                        item.status
-                                      )
-                                    }
-                                  >
-                                    <Image
-                                      src="/more.png"
-                                      alt="more"
-                                      width={26}
-                                      height={26}
-                                      priority={true}
-                                    />
-                                  </div>
+                                  {showIconsToOwner ? (
+                                    <div
+                                      className={styles.add_icon}
+                                      onClick={(e) => handleAddIconClick(e)}
+                                      onMouseEnter={() =>
+                                        handleEditMouse(
+                                          item.id,
+                                          item.title,
+                                          item.desc,
+                                          item.taskDocId,
+                                          item.status
+                                        )
+                                      }
+                                    >
+                                      <Image
+                                        src="/more.png"
+                                        alt="more"
+                                        width={26}
+                                        height={26}
+                                        priority={true}
+                                      />
+                                    </div>
+                                  ) : null}
                                 </div>
                               </div>
                             </div>
 
                             {/* {index < array.length - 1 && ( */}
-                            {hoveredIndex === index && (
+                            {/* will add placeholder later on */}
+                            {/* {hoveredIndex === index && (
                               <div
                                 key={`placeholder-${item.id}`}
                                 className={styles.box_placeholder}
                               ></div>
-                            )}
+                            )} */}
 
                             {customMenuOpen && (
                               <div
@@ -1159,37 +1229,39 @@ const Tasks = (props: TasksProps) => {
                                     />
                                   </div>
 
-                                  <div
-                                    className={styles.add_icon}
-                                    onClick={(e) => handleCol2Menu(e)}
-                                    onMouseEnter={() =>
-                                      handleEditMouse(
-                                        item.id,
-                                        item.title,
-                                        item.desc,
-                                        item.taskDocId,
-                                        item.status
-                                      )
-                                    }
-                                  >
-                                    <Image
-                                      src="/more.png"
-                                      alt="more"
-                                      width={26}
-                                      height={26}
-                                      priority={true}
-                                    />
-                                  </div>
+                                  {showIconsToOwner ? (
+                                    <div
+                                      className={styles.add_icon}
+                                      onClick={(e) => handleCol2Menu(e)}
+                                      onMouseEnter={() =>
+                                        handleEditMouse(
+                                          item.id,
+                                          item.title,
+                                          item.desc,
+                                          item.taskDocId,
+                                          item.status
+                                        )
+                                      }
+                                    >
+                                      <Image
+                                        src="/more.png"
+                                        alt="more"
+                                        width={26}
+                                        height={26}
+                                        priority={true}
+                                      />
+                                    </div>
+                                  ) : null}
                                 </div>
                               </div>
                             </div>
 
-                            {hoveredIndex === index && (
+                            {/* {hoveredIndex === index && (
                               <div
                                 key={`placeholder-${item.id}`}
                                 className={styles.box_placeholder}
                               ></div>
-                            )}
+                            )} */}
 
                             {col2MenuOpen ? (
                               <>
@@ -1355,37 +1427,39 @@ const Tasks = (props: TasksProps) => {
                                 />
                               </div>
 
-                              <div
-                                className={styles.add_icon}
-                                onClick={(e) => handleCol3Menu(e)}
-                                onMouseEnter={() =>
-                                  handleEditMouse(
-                                    item.id,
-                                    item.title,
-                                    item.desc,
-                                    item.taskDocId,
-                                    item.status
-                                  )
-                                }
-                              >
-                                <Image
-                                  src="/more.png"
-                                  alt="more"
-                                  width={26}
-                                  height={26}
-                                  priority={true}
-                                />
-                              </div>
+                              {showIconsToOwner ? (
+                                <div
+                                  className={styles.add_icon}
+                                  onClick={(e) => handleCol3Menu(e)}
+                                  onMouseEnter={() =>
+                                    handleEditMouse(
+                                      item.id,
+                                      item.title,
+                                      item.desc,
+                                      item.taskDocId,
+                                      item.status
+                                    )
+                                  }
+                                >
+                                  <Image
+                                    src="/more.png"
+                                    alt="more"
+                                    width={26}
+                                    height={26}
+                                    priority={true}
+                                  />
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
 
-                        {hoveredIndex === index && (
+                        {/* {hoveredIndex === index && (
                           <div
                             key={`placeholder-${item.id}`}
                             className={styles.box_placeholder}
                           ></div>
-                        )}
+                        )} */}
 
                         {col3MenuOpen ? (
                           <>
@@ -1467,7 +1541,7 @@ const Tasks = (props: TasksProps) => {
         </div>
       </div>
 
-      {props.Id && (
+      {props.Id && showIconsToOwner && (
         <div className={styles.fixed_add_btn}>
           <div className={styles.short_width_add}>
             <button

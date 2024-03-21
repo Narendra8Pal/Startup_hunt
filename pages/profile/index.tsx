@@ -168,6 +168,9 @@ const Profile = () => {
     }
   }, [opnAddProjectModal, userDocId, uid, opnEditProject, getProj]);
 
+  // create delete modal pending...(will think of it later on)
+  // const
+
   const handleProjectDelete = async (projectId: string) => {
     try {
       await deleteDoc(doc(db, "projects", projectId));
@@ -309,40 +312,41 @@ const Profile = () => {
 
               {showProjects ? (
                 <>
-                  {projectsData.map((project, index) => {
-                    return (
-                      <div className={styles.project_list} key={index}>
-                        <div className={styles.project_showcase}>
-                          <div className={styles.name_link}>
-                            <Link href={project.web_link} target="_blank">
-                              <h2 className={styles.name}>
-                                {project.Project_title}
-                              </h2>
-                            </Link>
+                  {projectsData && projectsData.length > 0 ? (
+                    projectsData.map((project, index) => {
+                      return (
+                        <div className={styles.project_list} key={index}>
+                          <div className={styles.project_showcase}>
+                            <div className={styles.name_link}>
+                              <Link href={project.web_link} target="_blank">
+                                <h2 className={styles.name}>
+                                  {project.Project_title}
+                                </h2>
+                              </Link>
 
-                            <Link href={project.web_link} target="_blank">
-                              <Image
-                                src="/external_link.png"
-                                alt="externalLink"
-                                width={30}
-                                height={30}
-                                priority={true}
-                                className={styles.link_icon}
-                              />
-                            </Link>
-                          </div>
+                              <Link href={project.web_link} target="_blank">
+                                <Image
+                                  src="/external_link.png"
+                                  alt="externalLink"
+                                  width={30}
+                                  height={30}
+                                  priority={true}
+                                  className={styles.link_icon}
+                                />
+                              </Link>
+                            </div>
 
-                          <div className={styles.carousel_box}>
-                            {project.project_img.map((img, imgIndex) => (
-                              <img
-                                src={img}
-                                alt={`project_img_${imgIndex}`}
-                                className={styles.carousel_img}
-                                key={imgIndex}
-                                onClick={() => openImgModal(imgIndex)}
-                              />
-                            ))}
-                            {/* {selectedImgIndex !== null && (
+                            <div className={styles.carousel_box}>
+                              {project.project_img.map((img, imgIndex) => (
+                                <img
+                                  src={img}
+                                  alt={`project_img_${imgIndex}`}
+                                  className={styles.carousel_img}
+                                  key={imgIndex}
+                                  onClick={() => openImgModal(imgIndex)}
+                                />
+                              ))}
+                              {/* {selectedImgIndex !== null && (
                               <ImgModal
                                 images={project.project_img}
                                 selectedIndex={selectedImgIndex}
@@ -355,63 +359,73 @@ const Profile = () => {
                                 }
                               />
                             )} */}
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.desc_btm}>
-                          <div className={styles.desc}>
-                            {project.description}
+                          <div className={styles.desc_btm}>
+                            <div className={styles.desc}>
+                              {project.description}
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.btm_part}>
-                          <div>
-                            <ul className={styles.btm_content}>
-                              <Link href={project.github_link} target="_blank">
-                                <li className={styles.git_icon}>
+                          <div className={styles.btm_part}>
+                            <div>
+                              <ul className={styles.btm_content}>
+                                <Link
+                                  href={project.github_link}
+                                  target="_blank"
+                                >
+                                  <li className={styles.git_icon}>
+                                    <Image
+                                      src="/git_proj.png"
+                                      alt="github.png"
+                                      height={21}
+                                      width={21}
+                                      priority={true}
+                                    />
+                                  </li>
+                                </Link>
+                                <li
+                                  onClick={() =>
+                                    handleProjectDelete(project.id)
+                                  }
+                                  className={styles.del_proj_icon}
+                                >
                                   <Image
-                                    src="/git_proj.png"
-                                    alt="github.png"
-                                    height={21}
-                                    width={21}
+                                    src="/delete_proj.png"
+                                    alt="delte"
+                                    height={18}
+                                    width={18}
                                     priority={true}
                                   />
                                 </li>
-                              </Link>
-                              <li
-                                onClick={() => handleProjectDelete(project.id)}
-                                className={styles.del_proj_icon}
-                              >
-                                <Image
-                                  src="/delete_proj.png"
-                                  alt="delte"
-                                  height={18}
-                                  width={18}
-                                  priority={true}
-                                />
-                              </li>
-                              <li
-                                onClick={() => handleEditProject(project)}
-                                className={styles.edit_proj_icon}
-                              >
-                                <Image
-                                  src="/edit_proj.png"
-                                  alt="edit_proj"
-                                  width={18}
-                                  height={18}
-                                  priority={true}
-                                />
-                              </li>
-                            </ul>
+                                <li
+                                  onClick={() => handleEditProject(project)}
+                                  className={styles.edit_proj_icon}
+                                >
+                                  <Image
+                                    src="/edit_proj.png"
+                                    alt="edit_proj"
+                                    width={18}
+                                    height={18}
+                                    priority={true}
+                                  />
+                                </li>
+                              </ul>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <div className={styles.no_data_text}>
+                      Please create a project to make it visible here.
+                    </div>
+                  )}
                 </>
               ) : null}
 
               {showTasks ? (
                 <>
-                  {tasksData &&
+                  {tasksData && tasksData.length > 0 ? (
                     tasksData.map((tasks, index) => {
                       return (
                         <div className={styles.tasks_list} key={index}>
@@ -476,7 +490,12 @@ const Profile = () => {
                           </div>
                         </div>
                       );
-                    })}
+                    })
+                  ) : (
+                    <div className={styles.no_data_text}>
+                      No tasks available, Create one using tasks & feedback tab.
+                    </div>
+                  )}
                 </>
               ) : null}
             </div>

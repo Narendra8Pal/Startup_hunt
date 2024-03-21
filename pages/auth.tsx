@@ -206,8 +206,8 @@ const Auth = () => {
           <div className={Styles.mobile_head}>Hey mobile friend! 🫶</div>
           <div className={Styles.mobile_desc}>
             We are not available on your screen currently.We offer our service
-            for screens equal to larger than 1440px.Be patient while we get you
-            covered or try differect screen if you can&apos;t wait.
+            for screens equal to or larger than 1440px.Be patient while we get
+            you covered or try differect screen if you can&apos;t wait.
           </div>
         </div>
       </div>

@@ -4,11 +4,12 @@ import Sidebar from "@/utils/sidebar";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Tasks from "../index";
-import styles from '@/styles/tasks.module.css'
+import styles from "@/styles/tasks.module.css";
 //redux
 import { setUser } from "@/store/userName";
 import { setUsersDocId } from "@/store/usersDocId";
 import { useDispatch } from "react-redux";
+import { setShowDocIdIcon } from "@/store/docIdIcon";
 
 //firebase
 import {
@@ -27,7 +28,7 @@ const TasksId = () => {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { docId, Id} = router.query;
+  const { docId, Id } = router.query;
 
   const db = getFirestore(FirebaseApp);
   const docRef = doc(db, "users", `${docId}`);
@@ -44,15 +45,13 @@ const TasksId = () => {
         console.error("Error getting document: ", error);
       });
     dispatch(setUsersDocId(docId));
+    dispatch(setShowDocIdIcon(false));
   }, [docId]);
-
 
   return (
     <>
       <Sidebar />
-      <Tasks 
-      Id = {Id}
-      />
+      <Tasks Id={Id} />
     </>
   );
 };
