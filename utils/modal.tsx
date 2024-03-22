@@ -35,10 +35,7 @@ import {
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 //other packages
 import { Tooltip } from "react-tooltip";
-
-// type ImageState = {
-//   selectedImage: File | null;
-// };
+import { toast } from "react-toastify";
 
 type Project = {
   id: string;
@@ -83,6 +80,8 @@ const Modal = (props: ModalProps) => {
   const [changeGL, setChangeGL] = useState<boolean>(false);
   const [changeWL, setChangeWL] = useState<boolean>(false);
   const [changePfImg, setChangePfImg] = useState<boolean>(false);
+  // boolean hook req while fetching imgs on uploading it in modal
+  const [imgUploading, setImgUploading] = useState<boolean>(false);
 
   const [projectTitle, setProjectTitle] = useState<string>(
     props.editProjObj?.Project_title || ""
@@ -106,7 +105,6 @@ const Modal = (props: ModalProps) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const uid = user.uid;
-        // console.log(uid, "user uuid");
         setUid(uid);
       }
     });
@@ -234,6 +232,7 @@ const Modal = (props: ModalProps) => {
             }
           );
         });
+        handleImgUploaded();
       } catch (error) {
         console.error("Error uploading file:", error);
       }
@@ -285,9 +284,18 @@ const Modal = (props: ModalProps) => {
             }
           );
         });
+        handleImgUploaded();
       } catch (error) {
         console.error("Error uploading file in add media:", error);
       }
+    }
+  };
+
+  const handleImgUploaded = () => {
+    if (projectImg) {
+      setTimeout(() => {
+        setImgUploading(false);
+      }, 1000);
     }
   };
 
@@ -368,6 +376,10 @@ const Modal = (props: ModalProps) => {
     inputChangeFalse();
   };
 
+  const handleUploadingBtn = () => {
+    toast.warning("hang tight! while image is being uploaded");
+  };
+
   const onClickHandler: MouseEventHandler<HTMLButtonElement> = async (
     event
   ) => {
@@ -420,6 +432,7 @@ const Modal = (props: ModalProps) => {
     const file = e.target.files?.[0];
     if (file) {
       addMediaUpload(file);
+      setImgUploading(true);
     }
   };
 
@@ -429,6 +442,7 @@ const Modal = (props: ModalProps) => {
       props.setSelectedFile?.(file);
       setUploadImg(true);
       setChangePfImg(true);
+      setImgUploading(true);
     }
   };
 
@@ -561,36 +575,44 @@ const Modal = (props: ModalProps) => {
                       {props.opnAddProjectModal ? (
                         <div className={styles.modal_carousel_box}>
                           <div className={styles.modal_imgs}>
-                            {(projectImg || [])
-                              ?.filter((url) => !imgStoredURL.includes(url))
-                              .map((url, index) => (
-                                <div key={index} className={styles.img_del}>
-                                  {hoveredIndex === index && (
-                                    <div
-                                      className={styles.deleteIcon}
+                            {(projectImg || []).length > 0 ? (
+                              (projectImg || [])
+                                ?.filter((url) => !imgStoredURL.includes(url))
+                                .map((url, index) => (
+                                  <div key={index} className={styles.img_del}>
+                                    {hoveredIndex === index && (
+                                      <div
+                                        className={styles.deleteIcon}
+                                        onClick={() =>
+                                          storeImgInfoDel(url, index)
+                                        }
+                                      >
+                                        <Image
+                                          src="/delete.png"
+                                          alt="add_icon"
+                                          width={15}
+                                          height={15}
+                                          priority={true}
+                                        />
+                                      </div>
+                                    )}
+                                    <img
+                                      src={url}
+                                      alt={`project_image_${index}`}
+                                      className={styles.box_img}
+                                      onMouseEnter={() =>
+                                        setHoveredIndex(index)
+                                      }
+                                      onMouseLeave={() => setHoveredIndex(null)}
                                       onClick={() =>
                                         storeImgInfoDel(url, index)
                                       }
-                                    >
-                                      <Image
-                                        src="/delete.png"
-                                        alt="add_icon"
-                                        width={15}
-                                        height={15}
-                                        priority={true}
-                                      />
-                                    </div>
-                                  )}
-                                  <img
-                                    src={url}
-                                    alt={`project_image_${index}`}
-                                    className={styles.box_img}
-                                    onMouseEnter={() => setHoveredIndex(index)}
-                                    onMouseLeave={() => setHoveredIndex(null)}
-                                    onClick={() => storeImgInfoDel(url, index)}
-                                  />
-                                </div>
-                              ))}
+                                    />
+                                  </div>
+                                ))
+                            ) : (
+                              <div></div>
+                            )}
                           </div>
                         </div>
                       ) : (
@@ -707,10 +729,16 @@ const Modal = (props: ModalProps) => {
 
                 <div className={styles.create_div}>
                   <button
-                    className={styles.create_btn}
-                    onClick={onClickHandler}
+                    className={
+                      imgUploading
+                        ? styles.create_btn_opacity
+                        : styles.create_btn
+                    }
+                    onClick={imgUploading ? handleUploadingBtn : onClickHandler}
                   >
-                    {props.opnAddProjectModal ? "Create" : "Edit"}
+                    {props.opnAddProjectModal
+                      ? `${imgUploading ? "uploading..." : "Create"}`
+                      : `${imgUploading ? "uploading..." : "Edit"}`}
                   </button>
                 </div>
               </div>
@@ -825,14 +853,13 @@ const Modal = (props: ModalProps) => {
                       Save Profile
                     </button>
                   </div>
+                  <Tooltip id="usernameTooltip" place="right" />
                 </div>
               </div>
             </div>
           </div>
         </>
       )}
-
-      <Tooltip id="usernameTooltip" place="right" />
     </>
   );
 };

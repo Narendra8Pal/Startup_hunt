@@ -1,33 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "@/styles/ImgModal.module.css";
 
 type ImgModalProps = {
-  images: string[];
-  selectedIndex: number;
+  selectedUrl: string;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
 };
 
 const ImgModal = (props: ImgModalProps) => {
-  const image = props.images[props.selectedIndex];
-
   return (
-    <div className={styles.modalOverlay} onClick={props.onClose}>
-      <div className={styles.modalContent}>
-        <button onClick={props.onPrev} className={styles.navButton}>
-          Previous
-        </button>
-        <img
-          src={image}
-          alt={`project_img_${props.selectedIndex}`}
-          className={styles.modalImage}
-        />
-        <button onClick={props.onNext} className={styles.navButton}>
-          Next
-        </button>
+    <>
+      <div className={styles.ImgModal_div}></div>
+      <div className={styles.modalOverlay} onClick={props.onClose}>
+        <div
+          className={styles.modalContent}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* <div onClick={props.onPrev}  className={styles.prev_navButton}>
+          <button className={styles.prevBtn}>Previous</button>
+        </div> */}
+          <img
+            src={props.selectedUrl}
+            alt={`project_img_${props.selectedUrl}`}
+            className={styles.modalImage}
+          />
+          {/* <div  onClick={props.onNext} className={styles.next_navButton}>
+          <button className={styles.nextBtn}>Next</button>
+        </div> */}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

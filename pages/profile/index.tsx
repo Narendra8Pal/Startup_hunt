@@ -75,7 +75,7 @@ const Profile = () => {
   const [editProjObj, setEditProjObj] = useState<Project>();
 
   //imgmodal
-  const [selectedImgIndex, setSelectedImgIndex] = useState<any>();
+  const [selectedImgUrl, setSelectedImgUrl] = useState<any>();
 
   //tasks content
   const [tasksData, setTasksData] = useState<Tasks_Content[]>([]);
@@ -197,24 +197,27 @@ const Profile = () => {
     }
   };
 
-  const openImgModal = (index: any) => {
-    setSelectedImgIndex(index);
+  const openImgModal = (img: string) => {
+    setSelectedImgUrl(img);
   };
-
+  
   const closeModal = () => {
-    setSelectedImgIndex(null);
+    setSelectedImgUrl(null);
   };
-
-  const goToPrevImage = (images: any) => {
-    setSelectedImgIndex((prevIndex: any) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+  
+  const goToPrevImage = (images: string[]) => {
+    console.log('prev btn ran')
+    setSelectedImgUrl((prevIndex: number) =>
+    prevIndex === 0 ? images[images.length - 1] : images[prevIndex - 1]
     );
   };
-
-  const goToNextImage = (images: any) => {
-    setSelectedImgIndex((prevIndex: any) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+  
+  const goToNextImage = (images: string[]) => {
+    console.log('next btn ran')
+    setSelectedImgUrl((prevIndex: number) =>
+      prevIndex === images.length - 1 ? images[0] : images[prevIndex + 1]
     );
+    console.log("next btn ran bro")
   };
 
   return (
@@ -343,13 +346,12 @@ const Profile = () => {
                                   alt={`project_img_${imgIndex}`}
                                   className={styles.carousel_img}
                                   key={imgIndex}
-                                  onClick={() => openImgModal(imgIndex)}
+                                  onClick={() => openImgModal(img)}
                                 />
                               ))}
-                              {/* {selectedImgIndex !== null && (
+                              {selectedImgUrl && (
                               <ImgModal
-                                images={project.project_img}
-                                selectedIndex={selectedImgIndex}
+                                selectedUrl={selectedImgUrl}
                                 onClose={closeModal}
                                 onPrev={() =>
                                   goToPrevImage(project.project_img)
@@ -358,7 +360,7 @@ const Profile = () => {
                                   goToNextImage(project.project_img)
                                 }
                               />
-                            )} */}
+                            )}
                             </div>
                           </div>
                           <div className={styles.desc_btm}>

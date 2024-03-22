@@ -177,7 +177,7 @@
   @apply font-semibold text-sm;
 }
 .desc_textarea {
-  @apply w-full max-h-[10rem] min-h-[5rem] common_input;
+  @apply w-full max-h-[10rem] min-h-[8rem] common_input;
 }
 
 .embla__slide1 {
@@ -254,6 +254,10 @@
 
 .create_btn {
   @apply bg-index-black_btn px-6 py-3 text-white rounded-full font-bold;
+}
+
+.create_btn_opacity {
+  @apply bg-index-black_btn opacity-90 px-6 py-3 text-white rounded-full font-bold;
 }
 
 .pf_modal_content {
